@@ -28,7 +28,7 @@ void setup()
 
 uint32_t pre_time = 0;
 bool led_state = false;
-HelloWorld hello_topic = {0, "HelloWorld"};
+HelloWorld hello_topic = {0, (char *) "HelloWorld"};
 
 void loop() 
 {
@@ -56,6 +56,8 @@ void loop()
 
 void on_hello_topic(XRCEInfo info, const void* vtopic, void* args)
 {
+  UNUSED(info);
+
   HelloWorld* topic = (HelloWorld*) vtopic;
 
   if(args != NULL)

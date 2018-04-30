@@ -12,7 +12,6 @@
 
 #include "hw.h"
 
-#define _USE_CMDIF_MICRORTPS
 #define RTPS_BUFFER_SIZE     4096
 #define RTPS_PUBLISHER_MAX   32
 #define RTPS_SUBSCRIBER_MAX  32
@@ -62,11 +61,6 @@ void microRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void*
 
 bool microRtpsInit(void)
 {
-
-#ifdef _USE_CMDIF_MICRORTPS
-  microRtpsCmdifInit();
-#endif
-
   return true;
 }
 
