@@ -43,7 +43,7 @@ RtpsSubscriber_t subscriber_table[RTPS_SUBSCRIBER_MAX];
 //-- Internal Functions
 //
 void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args);
-bool microRtpsCheckRespose(uint16_t object_id, RtpsProcess_t process, uint32_t timeout);
+bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout);
 
 
 
@@ -81,7 +81,7 @@ bool microRtpsSetup(void)
   client_info = create_client(rtps_client, on_status_received, &ResponseTable);
   send_to_agent(rtps_client);
 
-  ret = microRtpsCheckRespose(client_info.object_id, CREATE_CLIENT, 500);
+  ret = microRtpsCheckResponse(client_info.object_id, CREATE_CLIENT, 500);
 
   if(ret == true)
   {
@@ -137,7 +137,7 @@ RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_p
   p_pub->participant_info = create_participant(rtps_client);
   send_to_agent(rtps_client);
 
-  ret = microRtpsCheckRespose(p_pub->participant_info.object_id, CREATE_PARTICIPANT, 500);
+  ret = microRtpsCheckResponse(p_pub->participant_info.object_id, CREATE_PARTICIPANT, 500);
   
   if(ret == true)
   {
@@ -147,7 +147,7 @@ RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_p
     XRCEInfo topic_info = create_topic(rtps_client, p_pub->participant_info.object_id, profile_xml);
     send_to_agent(rtps_client);
 
-    ret = microRtpsCheckRespose(topic_info.object_id, CREATE_TOPIC, timeout);
+    ret = microRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, timeout);
 
     if(ret == true)
     {
@@ -155,7 +155,7 @@ RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_p
       p_pub->publisher_info = create_publisher(rtps_client, p_pub->publisher_info.object_id);
       send_to_agent(rtps_client);
 
-      ret = microRtpsCheckRespose(p_pub->publisher_info.object_id, CREATE_PUBLISHER, timeout);
+      ret = microRtpsCheckResponse(p_pub->publisher_info.object_id, CREATE_PUBLISHER, timeout);
 
       if(ret == true)
       {
@@ -165,7 +165,7 @@ RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_p
         p_pub->data_writer_info = create_data_writer(rtps_client, p_pub->participant_info.object_id, p_pub->publisher_info.object_id, profile_xml);
         send_to_agent(rtps_client);
 
-        ret = microRtpsCheckRespose(p_pub->data_writer_info.object_id, CREATE_WRITER, timeout);
+        ret = microRtpsCheckResponse(p_pub->data_writer_info.object_id, CREATE_WRITER, timeout);
 
         if(ret == true)
         {
@@ -212,7 +212,7 @@ RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_
   p_sub->participant_info = create_participant(rtps_client);
   send_to_agent(rtps_client);
 
-  ret = microRtpsCheckRespose(p_sub->participant_info.object_id, CREATE_PARTICIPANT, 500);
+  ret = microRtpsCheckResponse(p_sub->participant_info.object_id, CREATE_PARTICIPANT, 500);
   
   if(ret == true)
   {
@@ -223,7 +223,7 @@ RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_
     XRCEInfo topic_info = create_topic(rtps_client, p_sub->participant_info.object_id, profile_xml);
     send_to_agent(rtps_client);
 
-    ret = microRtpsCheckRespose(topic_info.object_id, CREATE_TOPIC, timeout);
+    ret = microRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, timeout);
 
     if(ret == true)
     {
@@ -231,7 +231,7 @@ RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_
       p_sub->subscriber_info = create_subscriber(rtps_client, p_sub->participant_info.object_id);
       send_to_agent(rtps_client);
 
-      ret = microRtpsCheckRespose(p_sub->subscriber_info.object_id, CREATE_SUBSCRIBER, timeout);
+      ret = microRtpsCheckResponse(p_sub->subscriber_info.object_id, CREATE_SUBSCRIBER, timeout);
 
       if(ret == true)
       {
@@ -241,7 +241,7 @@ RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_
         p_sub->data_reader_info = create_data_reader(rtps_client, p_sub->participant_info.object_id, p_sub->subscriber_info.object_id, profile_xml);
         send_to_agent(rtps_client);
 
-        ret = microRtpsCheckRespose(p_sub->data_reader_info.object_id, CREATE_READER, timeout);
+        ret = microRtpsCheckResponse(p_sub->data_reader_info.object_id, CREATE_READER, timeout);
 
         if(ret == true)
         {
@@ -277,7 +277,7 @@ void microRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void*
   send_to_agent(rtps_client);
 }
 
-bool microRtpsCheckRespose(uint16_t object_id, RtpsProcess_t process, uint32_t timeout)
+bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout)
 {
   bool ret = false;
   uint32_t pre_time;
