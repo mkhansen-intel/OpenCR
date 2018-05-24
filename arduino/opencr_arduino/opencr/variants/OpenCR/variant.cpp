@@ -22,7 +22,6 @@
 #include "Arduino.h"
 
 
-
 static uint8_t user_led_tbl[] = { BDPIN_LED_USER_1,
                                   BDPIN_LED_USER_2,
                                   BDPIN_LED_USER_3,
@@ -236,7 +235,6 @@ uint8_t getDipSwitch(void)
 uint8_t getPushButton(void)
 {
   int push_state;
-
 
   push_state  = digitalRead(BDPIN_PUSH_SW_1)<<0;
   push_state |= digitalRead(BDPIN_PUSH_SW_2)<<1;
