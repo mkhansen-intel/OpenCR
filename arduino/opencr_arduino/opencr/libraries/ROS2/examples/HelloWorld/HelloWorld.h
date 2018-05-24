@@ -27,10 +27,7 @@ extern "C"
 {
 #endif
 
-#include <string.h>
-#include <stdlib.h>
-#include <micrortps/client/client.h>
-#include <microcdr/microcdr.h>
+#include "micrortps.h"
 
 /*!
  * @brief This class represents the structure HelloWorld defined by the user in the IDL file.
@@ -41,6 +38,8 @@ typedef struct HelloWorld
     uint32_t m_index;
     char* m_message;
 } HelloWorld;
+
+const char* topic_profile = "<dds><topic><name>HelloWorldTopic</name><dataType>HelloWorld</dataType></topic></dds>";
 
 bool serialize_HelloWorld_topic(MicroBuffer* writer, const AbstractTopic* topic_structure)
 {
@@ -64,6 +63,28 @@ bool deserialize_HelloWorld_topic(MicroBuffer* reader, AbstractTopic* topic_stru
     topic_structure->topic = topic;
     return true;
 }
+
+
+/* User created */
+
+
+TopicInfo_t* HelloWorldGetInfo(void)
+{
+  static TopicInfo_t HelloWorld_TopicInfo;
+  static bool is_init;
+
+  if(is_init == false)
+  {
+    HelloWorld_TopicInfo.profile = (char*) topic_profile;
+    HelloWorld_TopicInfo.serialize_func = serialize_HelloWorld_topic;
+    HelloWorld_TopicInfo.deserialize_func = deserialize_HelloWorld_topic;   
+
+    is_init = true;
+  }
+
+  return &HelloWorld_TopicInfo;
+}
+
 
 #ifdef __cplusplus
 }

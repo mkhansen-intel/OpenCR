@@ -10,8 +10,9 @@
 void on_hello_topic(XRCEInfo info, const void* vtopic, void* args);
 
 
-RtpsPublisher_t *pub;
-RtpsSubscriber_t *sub;
+RtpsNode_t *node = NULL;
+RtpsPublisher_t *pub = NULL;
+RtpsSubscriber_t *sub = NULL;
 
 void setup() 
 {
@@ -20,9 +21,12 @@ void setup()
   
   while (!RTPS_SERIAL);
 
-  microRtpsSetup();
-  pub = microRtpsCreatePub(topic_xml, writer_xml, serialize_HelloWorld_topic, 500);
-  sub = microRtpsCreateSub(topic_xml, reader_xml, deserialize_HelloWorld_topic, 500);
+  DEBUG_SERIAL.println("Test Start");
+
+  uRtpsSetup();
+  node = uRtpsCreateNode();
+  pub = uRtpsCreatePub(node, HelloWorldGetInfo(), writer_xml, 500);
+  sub = uRtpsCreateSub(node, HelloWorldGetInfo(), reader_xml, 500);
 }
 
 
@@ -36,20 +40,22 @@ void loop()
   {
     pre_time = millis();
     hello_topic.m_index++;
-    microRtpsWrite(pub, &hello_topic);
-    microRtpsRead(sub, on_hello_topic, NULL);
+    uRtpsWrite(pub, &hello_topic);
+    uRtpsRead(sub, on_hello_topic, NULL);
+    digitalWrite(LED_BUILTIN, led_state);
+    led_state = !led_state;
   }
 
-  microRtpslistenToAgent();
+  uRtpslistenToAgent();
 
   // Check whether init or not init.
   if(pub == NULL)
   {
-    pub = microRtpsCreatePub(topic_xml, writer_xml, serialize_HelloWorld_topic, 500);
+    pub = uRtpsCreatePub(node, HelloWorldGetInfo(), writer_xml, 500);
   }
   if(sub == NULL)
   {
-    sub = microRtpsCreateSub(topic_xml, reader_xml, deserialize_HelloWorld_topic, 500);
+    sub = uRtpsCreateSub(node, HelloWorldGetInfo(), reader_xml, 500);
   }
 }
 
@@ -77,4 +83,3 @@ void on_hello_topic(XRCEInfo info, const void* vtopic, void* args)
   free(topic->m_message);
   free(topic);
 }
-

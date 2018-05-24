@@ -13,8 +13,7 @@
 #include "hw.h"
 
 #define RTPS_BUFFER_SIZE     4096
-#define RTPS_PUBLISHER_MAX   32
-#define RTPS_SUBSCRIBER_MAX  32
+#define RTPS_NODE_MAX        5
 
 //-- Internal Variables
 //
@@ -33,9 +32,7 @@ ClientState    *rtps_client;
 XRCEInfo        client_info;
 RtpsResponseTable_t ResponseTable;
 
-uint8_t create_pub_cnt, create_sub_cnt;
-RtpsPublisher_t  publisher_table[RTPS_PUBLISHER_MAX];
-RtpsSubscriber_t subscriber_table[RTPS_SUBSCRIBER_MAX];
+static RtpsNode_t RtpsNodes[RTPS_NODE_MAX] = {0, };
 
 //-- External Variables
 //
@@ -43,32 +40,24 @@ RtpsSubscriber_t subscriber_table[RTPS_SUBSCRIBER_MAX];
 //-- Internal Functions
 //
 void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args);
-bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout);
-
+bool uRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout);
+bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeout);
 
 
 //-- External Functions
 //
-bool microRtpsIsInit(void);
-bool microRtpsInit(void);
-bool microRtpsSetup(void);
-RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_profile, SerializeTopic func_serialize, uint32_t timeout);
-RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_profile, DeserializeTopic func_deserialize, uint32_t timeout);
-void microRtpsWrite(RtpsPublisher_t* p_pub, void* topic);
-void microRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void* callback_func_args);
 
 
-
-bool microRtpsInit(void)
+bool uRtpsInit(void)
 {
   return true;
 }
 
-bool microRtpsSetup(void)
+bool uRtpsSetup(void)
 {
   bool ret;
 
-  if(microRtpsIsInit() == true)
+  if(uRtpsIsInit() == true)
   {
     return true;
   }
@@ -81,7 +70,7 @@ bool microRtpsSetup(void)
   client_info = create_client(rtps_client, on_status_received, &ResponseTable);
   send_to_agent(rtps_client);
 
-  ret = microRtpsCheckResponse(client_info.object_id, CREATE_CLIENT, 500);
+  ret = uRtpsCheckResponse(client_info.object_id, CREATE_CLIENT, 500);
 
   if(ret == true)
   {
@@ -91,12 +80,12 @@ bool microRtpsSetup(void)
   return is_rtps_init_done;
 }
 
-bool microRtpsIsInit(void)
+bool uRtpsIsInit(void)
 {
   return is_rtps_init_done;
 }
 
-void microRtpsStop(void)
+void uRtpsStop(void)
 {
   if(rtps_client != NULL)
   {
@@ -104,74 +93,143 @@ void microRtpsStop(void)
   }
 }
 
-RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_profile, SerializeTopic func_serialize, uint32_t timeout)
-{
-  bool ret;
-  uint8_t idx;
-  RtpsPublisher_t *p_pub;
-  string profile_xml;
 
-  if(microRtpsIsInit() == false)
+RtpsNode_t* uRtpsCreateNode(void)
+{
+  uint32_t node_num;
+  RtpsNode_t* p_node = NULL;
+
+  if(uRtpsIsInit() == false)
   {
-    if(microRtpsSetup() == false)
+    if(uRtpsSetup() == false)
     {
       return NULL;
     }
   }
 
-  for(idx = 0; idx < RTPS_PUBLISHER_MAX; idx++)
+  // Check node which be usable.
+  for(node_num = 0; node_num < RTPS_NODE_MAX; node_num++)
   {
-    if(publisher_table[idx].is_init == false)
+    if(RtpsNodes[node_num].is_init == false)
     {
-      p_pub = &publisher_table[idx];
+      p_node = &RtpsNodes[node_num];
       break;
     }
   }
-  if(idx == RTPS_PUBLISHER_MAX)
+
+  // Is using all nodes?
+  if(node_num == RTPS_NODE_MAX)
+  {
+    return p_node;
+  }
+
+  // Create Participant
+  for(uint32_t i = 0; i < NODE_MAX_TOPICS; i++)
+  {
+    p_node->topic_profile[i] = NULL;
+  }
+
+  p_node->participant_info = create_participant(rtps_client);
+  send_to_agent(rtps_client);
+
+  p_node->is_init = uRtpsCheckResponse(p_node->participant_info.object_id, CREATE_PARTICIPANT, 500);
+
+
+  return p_node->is_init == true ? p_node : NULL;
+}
+
+bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeout)
+{
+  bool ret;
+  uint32_t idx;
+  string profile_xml;
+
+  for(idx = 0; idx < NODE_MAX_TOPICS; idx++)
+  {
+    //check already registered or not.
+    if(strcmp(p_node->topic_profile[idx], p_topic->profile) == 0)
+    {
+      return true;
+    }
+
+    if(p_node->topic_profile[idx] == NULL)
+    {
+      break;
+    }
+  }
+
+  if(idx == NODE_MAX_TOPICS)
+  {
+    //return false;
+  }
+
+  // Create Topic
+  profile_xml.data = p_topic->profile;
+  profile_xml.length = strlen(p_topic->profile);
+  XRCEInfo topic_info = create_topic(rtps_client, p_node->participant_info.object_id, profile_xml);
+  p_node->topic_profile[idx] = p_topic->profile;
+  send_to_agent(rtps_client);
+
+  ret = uRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, timeout);
+
+  return ret;
+}
+
+RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_writer_profile, uint32_t timeout)
+{
+  bool ret;
+  uint8_t idx;
+  RtpsPublisher_t* p_pub = NULL;
+  string profile_xml;
+
+  if(p_node->is_init == false)
   {
     return NULL;
   }
 
-
-  // Create Participant
-  p_pub->participant_info = create_participant(rtps_client);
-  send_to_agent(rtps_client);
-
-  ret = microRtpsCheckResponse(p_pub->participant_info.object_id, CREATE_PARTICIPANT, 500);
-  
-  if(ret == true)
+  for(idx = 0; idx < NODE_MAX_PUBLISHERS; idx++)
   {
-    // Create Topic
-    profile_xml.data = topic_profile;
-    profile_xml.length = strlen(topic_profile);
-    XRCEInfo topic_info = create_topic(rtps_client, p_pub->participant_info.object_id, profile_xml);
+    if(p_node->publishers[idx].is_init == false)
+    {
+      p_pub = &p_node->publishers[idx];
+      break;
+    }
+  }
+
+  if(p_pub == NULL)
+  {
+    return NULL;
+  }
+
+  // Create Topic
+  ret = uRtpsRegisterTopic(p_node, p_topic, timeout);
+
+  if (ret == true)
+  {
+    // Create Publisher
+    p_pub->publisher_info = create_publisher(rtps_client, p_node->participant_info.object_id);
     send_to_agent(rtps_client);
 
-    ret = microRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, timeout);
+    ret = uRtpsCheckResponse(p_pub->publisher_info.object_id, CREATE_PUBLISHER,
+        timeout);
 
-    if(ret == true)
+    if (ret == true)
     {
-      // Create Publisher
-      p_pub->publisher_info = create_publisher(rtps_client, p_pub->publisher_info.object_id);
+      // Create Writer
+      profile_xml.data = data_writer_profile;
+      profile_xml.length = strlen(data_writer_profile);
+      p_pub->data_writer_info = create_data_writer(rtps_client,
+          p_node->participant_info.object_id, p_pub->publisher_info.object_id,
+          profile_xml);
       send_to_agent(rtps_client);
 
-      ret = microRtpsCheckResponse(p_pub->publisher_info.object_id, CREATE_PUBLISHER, timeout);
+      ret = uRtpsCheckResponse(p_pub->data_writer_info.object_id, CREATE_WRITER,
+          timeout);
 
-      if(ret == true)
+      if (ret == true)
       {
-        // Create Writer
-        profile_xml.data = data_writer_profile;
-        profile_xml.length = strlen(data_writer_profile);
-        p_pub->data_writer_info = create_data_writer(rtps_client, p_pub->participant_info.object_id, p_pub->publisher_info.object_id, profile_xml);
-        send_to_agent(rtps_client);
-
-        ret = microRtpsCheckResponse(p_pub->data_writer_info.object_id, CREATE_WRITER, timeout);
-
-        if(ret == true)
-        {
-          p_pub->func_serialize = func_serialize;
-          p_pub->is_init = true;
-        }
+        p_pub->func_serialize = p_topic->serialize_func;
+        p_pub->is_init = true;
       }
     }
   }
@@ -179,75 +237,61 @@ RtpsPublisher_t* microRtpsCreatePub(RtpsXml topic_profile, RtpsXml data_writer_p
   return p_pub->is_init == true ? p_pub : NULL;
 }
 
-RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_profile, DeserializeTopic func_deserialize, uint32_t timeout)
+RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_reader_profile, uint32_t timeout)
 {
   bool ret;
   uint8_t idx;
-  RtpsSubscriber_t *p_sub;
+  RtpsSubscriber_t* p_sub = NULL;
   string profile_xml;
 
-  if(microRtpsIsInit() == false)
-  {
-    if(microRtpsSetup() == false)
-    {
-      return NULL;
-    }
-  }
-
-  for(idx = 0; idx < RTPS_SUBSCRIBER_MAX; idx++)
-  {
-    if(subscriber_table[idx].is_init == false)
-    {
-      p_sub = &subscriber_table[idx];
-      break;
-    }
-  }
-  if(idx == RTPS_SUBSCRIBER_MAX)
+  if(p_node->is_init == false)
   {
     return NULL;
   }
 
-  
-  // Create Participant
-  p_sub->participant_info = create_participant(rtps_client);
-  send_to_agent(rtps_client);
-
-  ret = microRtpsCheckResponse(p_sub->participant_info.object_id, CREATE_PARTICIPANT, 500);
-  
-  if(ret == true)
+  for(idx = 0; idx < NODE_MAX_SUBSCRIBERS; idx++)
   {
+    if(p_node->subscribers[idx].is_init == false)
+    {
+      p_sub = &p_node->subscribers[idx];
+      break;
+    }
+  }
 
-    // Create Topic
-    profile_xml.data = topic_profile;
-    profile_xml.length = strlen(topic_profile);
-    XRCEInfo topic_info = create_topic(rtps_client, p_sub->participant_info.object_id, profile_xml);
+  if(p_sub == NULL)
+  {
+    return NULL;
+  }
+
+  // Create Topic
+  ret = uRtpsRegisterTopic(p_node, p_topic, timeout);
+
+  if (ret == true)
+  {
+    // Create Subscriber
+    p_sub->subscriber_info = create_subscriber(rtps_client, p_node->participant_info.object_id);
     send_to_agent(rtps_client);
 
-    ret = microRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, timeout);
+    ret = uRtpsCheckResponse(p_sub->subscriber_info.object_id, CREATE_SUBSCRIBER,
+        timeout);
 
-    if(ret == true)
+    if (ret == true)
     {
-      // Create Subscriber
-      p_sub->subscriber_info = create_subscriber(rtps_client, p_sub->participant_info.object_id);
+      // Create Reader
+      profile_xml.data = data_reader_profile;
+      profile_xml.length = strlen(data_reader_profile);
+      p_sub->data_reader_info = create_data_reader(rtps_client,
+          p_node->participant_info.object_id, p_sub->subscriber_info.object_id,
+          profile_xml);
       send_to_agent(rtps_client);
 
-      ret = microRtpsCheckResponse(p_sub->subscriber_info.object_id, CREATE_SUBSCRIBER, timeout);
+      ret = uRtpsCheckResponse(p_sub->data_reader_info.object_id, CREATE_READER,
+          timeout);
 
-      if(ret == true)
+      if (ret == true)
       {
-        // Create Reader
-        profile_xml.data = data_reader_profile;
-        profile_xml.length = strlen(data_reader_profile);
-        p_sub->data_reader_info = create_data_reader(rtps_client, p_sub->participant_info.object_id, p_sub->subscriber_info.object_id, profile_xml);
-        send_to_agent(rtps_client);
-
-        ret = microRtpsCheckResponse(p_sub->data_reader_info.object_id, CREATE_READER, timeout);
-
-        if(ret == true)
-        {
-          p_sub->func_deserialize = func_deserialize;
-          p_sub->is_init = true;
-        }
+        p_sub->func_deserialize = p_topic->deserialize_func;
+        p_sub->is_init = true;
       }
     }
   }
@@ -255,9 +299,9 @@ RtpsSubscriber_t* microRtpsCreateSub(RtpsXml topic_profile, RtpsXml data_reader_
   return p_sub->is_init == true ? p_sub : NULL;
 }
 
-void microRtpsWrite(RtpsPublisher_t* p_pub, void* topic)
+void uRtpsWrite(RtpsPublisher_t* p_pub, void* topic)
 {
-  if(microRtpsIsInit() == false || p_pub == NULL)
+  if(uRtpsIsInit() == false || p_pub == NULL)
   {
     return;
   }
@@ -266,9 +310,9 @@ void microRtpsWrite(RtpsPublisher_t* p_pub, void* topic)
   send_to_agent(rtps_client);
 }
 
-void microRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void* callback_func_args)
+void uRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void* callback_func_args)
 {
-  if(microRtpsIsInit() == false || p_sub == NULL)
+  if(uRtpsIsInit() == false || p_sub == NULL)
   {
     return;
   }
@@ -277,7 +321,7 @@ void microRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void*
   send_to_agent(rtps_client);
 }
 
-bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout)
+bool uRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout)
 {
   bool ret = false;
   uint32_t pre_time;
@@ -291,17 +335,27 @@ bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t 
     {
       case CREATE_CLIENT :
       case CREATE_PARTICIPANT:
-      case CREATE_TOPIC:
       case CREATE_PUBLISHER:
       case CREATE_SUBSCRIBER:
       case CREATE_WRITER:
       case CREATE_READER:
-        if(ResponseTable.create.ids.object_id == object_id &&
-            (ResponseTable.create.status == STATUS_OK || ResponseTable.create.status == STATUS_ERR_ALREADY_EXISTS))
+        if(ResponseTable.create.ids.object_id == object_id && ResponseTable.create.status == STATUS_OK)
         {
-            ret = true;
+          ret = true;
         }
         break;
+
+      case CREATE_TOPIC:
+        if(ResponseTable.create.ids.object_id == object_id)
+        {
+          ret = true;
+        }
+        break;
+    }
+
+    if(ret == true)
+    {
+      break;
     }
   }
   return ret;
@@ -347,10 +401,7 @@ void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* 
 }
 
 
-
-
-
-void microRtpslistenToAgent(void)
+void uRtpslistenToAgent(void)
 {
   if(rtps_client != NULL)
   {
