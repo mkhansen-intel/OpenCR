@@ -126,7 +126,7 @@ RtpsNode_t* uRtpsCreateNode(void)
   // Create Participant
   for(uint32_t i = 0; i < NODE_MAX_TOPICS; i++)
   {
-    p_node->topic_profile[i] = NULL;
+    p_node->topic_profile[i] = "";
   }
 
   p_node->participant_info = create_participant(rtps_client);
@@ -152,7 +152,7 @@ bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeo
       return true;
     }
 
-    if(p_node->topic_profile[idx] == NULL)
+    if(p_node->topic_profile[idx] == "")
     {
       break;
     }
@@ -160,7 +160,7 @@ bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeo
 
   if(idx == NODE_MAX_TOPICS)
   {
-    //return false;
+    return false;
   }
 
   // Create Topic
