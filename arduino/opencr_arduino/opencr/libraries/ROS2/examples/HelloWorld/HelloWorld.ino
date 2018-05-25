@@ -51,11 +51,11 @@ void loop()
   // Check whether init or not init.
   if(pub == NULL)
   {
-    pub = uRtpsCreatePub(node, HelloWorldGetInfo(), writer_xml, 500);
+    pub = uRtpsCreatePub(node, HelloWorldGetInfo(), writer_xml);
   }
   if(sub == NULL)
   {
-    sub = uRtpsCreateSub(node, HelloWorldGetInfo(), reader_xml, 500);
+    sub = uRtpsCreateSub(node, HelloWorldGetInfo(), reader_xml);
   }
 }
 
