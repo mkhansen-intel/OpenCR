@@ -12,8 +12,9 @@
 
 #include "hw.h"
 
-#define RTPS_BUFFER_SIZE     4096
-#define RTPS_NODE_MAX        5
+#define RTPS_BUFFER_SIZE       4096
+#define RTPS_NODE_MAX          5
+#define RTPS_RESPONSE_WAIT_MS  500  
 
 //-- Internal Variables
 //
@@ -41,7 +42,7 @@ static RtpsNode_t RtpsNodes[RTPS_NODE_MAX] = {0, };
 //
 void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args);
 bool uRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout);
-bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeout);
+bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic);
 
 
 //-- External Functions
@@ -52,6 +53,7 @@ bool uRtpsInit(void)
 {
   return true;
 }
+
 
 bool uRtpsSetup(void)
 {
@@ -70,7 +72,7 @@ bool uRtpsSetup(void)
   client_info = create_client(rtps_client, on_status_received, &ResponseTable);
   send_to_agent(rtps_client);
 
-  ret = uRtpsCheckResponse(client_info.object_id, CREATE_CLIENT, 500);
+  ret = uRtpsCheckResponse(client_info.object_id, CREATE_CLIENT, RTPS_RESPONSE_WAIT_MS);
 
   if(ret == true)
   {
@@ -80,10 +82,12 @@ bool uRtpsSetup(void)
   return is_rtps_init_done;
 }
 
+
 bool uRtpsIsInit(void)
 {
   return is_rtps_init_done;
 }
+
 
 void uRtpsStop(void)
 {
@@ -138,7 +142,8 @@ RtpsNode_t* uRtpsCreateNode(void)
   return p_node->is_init == true ? p_node : NULL;
 }
 
-bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeout)
+
+bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic)
 {
   bool ret;
   uint32_t idx;
@@ -170,12 +175,13 @@ bool uRtpsRegisterTopic(RtpsNode_t* p_node, TopicInfo_t* p_topic, uint32_t timeo
   p_node->topic_profile[idx] = p_topic->profile;
   send_to_agent(rtps_client);
 
-  ret = uRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, timeout);
+  ret = uRtpsCheckResponse(topic_info.object_id, CREATE_TOPIC, RTPS_RESPONSE_WAIT_MS);
 
   return ret;
 }
 
-RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_writer_profile, uint32_t timeout)
+
+RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_writer_profile)
 {
   bool ret;
   uint8_t idx;
@@ -202,7 +208,7 @@ RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const 
   }
 
   // Create Topic
-  ret = uRtpsRegisterTopic(p_node, p_topic, timeout);
+  ret = uRtpsRegisterTopic(p_node, p_topic);
 
   if (ret == true)
   {
@@ -211,7 +217,7 @@ RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const 
     send_to_agent(rtps_client);
 
     ret = uRtpsCheckResponse(p_pub->publisher_info.object_id, CREATE_PUBLISHER,
-        timeout);
+        RTPS_RESPONSE_WAIT_MS);
 
     if (ret == true)
     {
@@ -224,7 +230,7 @@ RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const 
       send_to_agent(rtps_client);
 
       ret = uRtpsCheckResponse(p_pub->data_writer_info.object_id, CREATE_WRITER,
-          timeout);
+          RTPS_RESPONSE_WAIT_MS);
 
       if (ret == true)
       {
@@ -237,7 +243,8 @@ RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const 
   return p_pub->is_init == true ? p_pub : NULL;
 }
 
-RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_reader_profile, uint32_t timeout)
+
+RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_reader_profile)
 {
   bool ret;
   uint8_t idx;
@@ -264,7 +271,7 @@ RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const
   }
 
   // Create Topic
-  ret = uRtpsRegisterTopic(p_node, p_topic, timeout);
+  ret = uRtpsRegisterTopic(p_node, p_topic);
 
   if (ret == true)
   {
@@ -273,7 +280,7 @@ RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const
     send_to_agent(rtps_client);
 
     ret = uRtpsCheckResponse(p_sub->subscriber_info.object_id, CREATE_SUBSCRIBER,
-        timeout);
+        RTPS_RESPONSE_WAIT_MS);
 
     if (ret == true)
     {
@@ -286,7 +293,7 @@ RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const
       send_to_agent(rtps_client);
 
       ret = uRtpsCheckResponse(p_sub->data_reader_info.object_id, CREATE_READER,
-          timeout);
+          RTPS_RESPONSE_WAIT_MS);
 
       if (ret == true)
       {
@@ -299,6 +306,7 @@ RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const
   return p_sub->is_init == true ? p_sub : NULL;
 }
 
+
 void uRtpsWrite(RtpsPublisher_t* p_pub, void* topic)
 {
   if(uRtpsIsInit() == false || p_pub == NULL)
@@ -310,6 +318,7 @@ void uRtpsWrite(RtpsPublisher_t* p_pub, void* topic)
   send_to_agent(rtps_client);
 }
 
+
 void uRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void* callback_func_args)
 {
   if(uRtpsIsInit() == false || p_sub == NULL)
@@ -320,6 +329,7 @@ void uRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void* cal
   p_sub->read_callback_info = read_data(rtps_client, p_sub->data_reader_info.object_id, p_sub->func_deserialize, callback_func, callback_func_args);
   send_to_agent(rtps_client);
 }
+
 
 bool uRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout)
 {
@@ -360,6 +370,7 @@ bool uRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t time
   }
   return ret;
 }
+
 
 void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args)
 {

@@ -69,8 +69,8 @@ bool uRtpsInit(void);
 bool uRtpsSetup(void);
 void uRtpsStop(void);
 RtpsNode_t* uRtpsCreateNode(void);
-RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_writer_profile, uint32_t timeout);
-RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_reader_profile, uint32_t timeout);
+RtpsPublisher_t* uRtpsCreatePub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_writer_profile);
+RtpsSubscriber_t* uRtpsCreateSub(RtpsNode_t* p_node, TopicInfo_t* p_topic, const char* data_reader_profile);
 void uRtpsWrite(RtpsPublisher_t* p_pub, void* topic);
 void uRtpsRead(RtpsSubscriber_t* p_sub, OnTopicReceived callback_func, void* callback_func_args);
 
