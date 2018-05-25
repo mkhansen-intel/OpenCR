@@ -25,8 +25,8 @@ void setup()
 
   uRtpsSetup();
   node = uRtpsCreateNode();
-  pub = uRtpsCreatePub(node, HelloWorldGetInfo(), writer_xml, 500);
-  sub = uRtpsCreateSub(node, HelloWorldGetInfo(), reader_xml, 500);
+  pub = uRtpsCreatePub(node, HelloWorldGetInfo(), writer_xml);
+  sub = uRtpsCreateSub(node, HelloWorldGetInfo(), reader_xml);
 }
 
 
