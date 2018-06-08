@@ -1,43 +1,69 @@
+/*
+ *  micrortps.cpp
+ *
+ *  Created on: 2018. 5. 25.
+ *      Author: Kei
+ */
 
 #include <stdlib.h>
 #include <string.h>
 
-#if 0
-
 #include "micrortps.hpp"
-
 #include "hw.h"
 
 
-#define RTPS_BUFFER_SIZE     4096
+const uint32_t RTPS_BUFFER_SIZE      = 4096;
+const uint32_t RTPS_NODE_MAX         = 5;
+const uint32_t RTPS_RESPONSE_WAIT_MS = 500; 
 
 //-- Internal Variables
 //
+namespace micrortps {
+
 typedef struct
 {
-  RtpsResponse_t create;
-  RtpsResponse_t update;
-  RtpsResponse_t delete;
-  RtpsResponse_t lookup;
-  RtpsResponse_t read;
-  RtpsResponse_t write;
-} RtpsResponseTable_t;
+  XRCEInfo ids;
+  uint8_t  operation;
+  uint8_t  status;
+} Response_t;
+
+typedef struct
+{
+  Response_t create;
+  Response_t update;
+  Response_t deleted;
+  Response_t lookup;
+  Response_t read;
+  Response_t write;
+} ResponseTable_t;
+
+typedef enum
+{
+  CREATE_CLIENT = 0,
+  CREATE_PARTICIPANT,
+  CREATE_TOPIC,
+  CREATE_PUBLISHER,
+  CREATE_SUBSCRIBER,
+  CREATE_WRITER,
+  CREATE_READER,
+} Process_t;
+
+} // namespace micrortps
+
+bool is_rtps_init_done = false;
+ClientState    *rtps_client;
+XRCEInfo        client_info;
+micrortps::ResponseTable_t ResponseTable;
+
 
 //-- Internal Functions
 //
-void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args);
-bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout);
+static bool checkCreatedResponse(XRCEInfo info, micrortps::Process_t process, uint32_t timeout);
+static void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args);
 
 
-static bool is_rtps_init_done = false;
-static ClientState *rtps_client;
-static XRCEInfo     client_info;
-
-
-void rclcpp::init(void)
+bool micrortps::setup(void)
 {
-  bool ret;
-
   if(rtps_client == NULL)
   {
     rtps_client = new_serial_client_state(RTPS_BUFFER_SIZE, "opencr_usb");
@@ -46,39 +72,146 @@ void rclcpp::init(void)
   client_info = create_client(rtps_client, on_status_received, &ResponseTable);
   send_to_agent(rtps_client);
 
-  ret = microRtpsCheckResponse(client_info.object_id, CREATE_CLIENT, 500);
+  is_rtps_init_done = checkCreatedResponse(client_info, CREATE_CLIENT, RTPS_RESPONSE_WAIT_MS);
 
-  if(ret == true)
-  {
-    is_rtps_init_done = true;
-  }
-}
-
-bool rclcpp::ok(void)
-{
   return is_rtps_init_done;
 }
 
-void rclcpp::shutdown(void)
-{
 
+bool micrortps::createParticipant(Participant_t* participant)
+{
+  if(is_rtps_init_done == false)
+  {
+    if(micrortps::setup() == false)
+    {
+      return NULL;
+    }
+  }
+
+  participant->info = create_participant(rtps_client);
+  send_to_agent(rtps_client);
+
+  participant->is_init = checkCreatedResponse(participant->info, CREATE_PARTICIPANT, RTPS_RESPONSE_WAIT_MS);
+
+  return participant->is_init;
 }
 
-void rclcpp::spin()
-{
 
+bool micrortps::registerTopic(Participant_t* participant, char* topic_profile)
+{
+  bool ret = false;
+  string profile_xml;
+  XRCEInfo topic_info;
+
+  profile_xml.data = topic_profile;
+  profile_xml.length = strlen(topic_profile);
+  topic_info = create_topic(rtps_client, participant->info.object_id, profile_xml);
+  send_to_agent(rtps_client);
+
+  ret = checkCreatedResponse(topic_info, CREATE_TOPIC, RTPS_RESPONSE_WAIT_MS);
+
+  return ret;
 }
 
-void rclcpp::spin_some()
-{
 
+bool micrortps::createPublisher(Participant_t* participant, Publisher_t* publisher, char* writer_profile)
+{
+  bool ret;
+  string profile_xml;
+
+  publisher->is_init = false;
+  publisher->info = create_publisher(rtps_client, participant->info.object_id);
+  send_to_agent(rtps_client);
+
+  ret = checkCreatedResponse(publisher->info, micrortps::CREATE_PUBLISHER,
+        RTPS_RESPONSE_WAIT_MS);
+
+  if (ret == true)
+  {
+    // Create Writer
+    profile_xml.data = writer_profile;
+    profile_xml.length = strlen(writer_profile);
+    publisher->writer_info = create_data_writer(rtps_client,
+        publisher->info.object_id, publisher->info.object_id, profile_xml);
+
+    send_to_agent(rtps_client);
+    ret = checkCreatedResponse(publisher->writer_info, micrortps::CREATE_WRITER,
+        RTPS_RESPONSE_WAIT_MS);
+
+    publisher->is_init = ret;
+  }
+
+  return publisher->is_init;
+}
+
+
+bool micrortps::createSubscriber(Participant_t* participant, Subscriber_t* subscriber, char* reader_profile)
+{
+  bool ret;
+  string profile_xml;
+
+  subscriber->is_init = false;
+  subscriber->info = create_subscriber(rtps_client, participant->info.object_id);
+  send_to_agent(rtps_client);
+
+  ret = checkCreatedResponse(subscriber->info, micrortps::CREATE_SUBSCRIBER,
+        RTPS_RESPONSE_WAIT_MS);
+
+  if (ret == true)
+  {
+    // Create Reader
+    profile_xml.data = reader_profile;
+    profile_xml.length = strlen(reader_profile);
+    subscriber->reader_info = create_data_reader(rtps_client,
+        participant->info.object_id, subscriber->info.object_id, profile_xml);
+  
+    send_to_agent(rtps_client);
+    ret = checkCreatedResponse(subscriber->reader_info, micrortps::CREATE_READER,
+        RTPS_RESPONSE_WAIT_MS);
+
+    subscriber->is_init = ret;
+  }
+
+  return subscriber->is_init;
+}
+
+
+void micrortps::publish(Publisher_t* publisher, SerializeTopic func_serialize, void* topic)
+{
+  if(publisher == NULL)
+  {
+    return;
+  }
+
+  write_data(rtps_client, publisher->writer_info.object_id, func_serialize, topic);
+  send_to_agent(rtps_client);
+}
+
+
+void micrortps::subscribe(Subscriber_t* subscriber, DeserializeTopic func_deserialize, OnTopicReceived callback_func, void* callback_func_args)
+{
+  if(subscriber == NULL)
+  {
+    return;
+  }
+
+  subscriber->read_callback_info = 
+    read_data(rtps_client, subscriber->reader_info.object_id, func_deserialize, callback_func, callback_func_args);
+  send_to_agent(rtps_client);
+}
+
+
+void micrortps::listenFromAgent(void)
+{
+  if(rtps_client != NULL)
+  {
+    receive_from_agent(rtps_client);
+  }
 }
 
 
 
-
-
-static bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, uint32_t timeout)
+static bool checkCreatedResponse(XRCEInfo info, micrortps::Process_t process, uint32_t timeout)
 {
   bool ret = false;
   uint32_t pre_time;
@@ -90,29 +223,42 @@ static bool microRtpsCheckResponse(uint16_t object_id, RtpsProcess_t process, ui
 
     switch(process)
     {
-      case CREATE_CLIENT :
-      case CREATE_PARTICIPANT:
-      case CREATE_TOPIC:
-      case CREATE_PUBLISHER:
-      case CREATE_SUBSCRIBER:
-      case CREATE_WRITER:
-      case CREATE_READER:
-        if(ResponseTable.create.ids.object_id == object_id
-            && (ResponseTable.create.status == STATUS_OK
-            || ResponseTable.create.status == STATUS_ERR_ALREADY_EXISTS))
+      case micrortps::CREATE_CLIENT :
+      case micrortps::CREATE_PARTICIPANT:
+      case micrortps::CREATE_PUBLISHER:
+      case micrortps::CREATE_SUBSCRIBER:
+      case micrortps::CREATE_WRITER:
+      case micrortps::CREATE_READER:
+        if(ResponseTable.create.ids.object_id == info.object_id && ResponseTable.create.status == STATUS_OK)
         {
-            ret = true;
+          ret = true;
         }
         break;
+
+      case micrortps::CREATE_TOPIC:
+        if(ResponseTable.create.ids.object_id == info.object_id)
+        {
+          ret = true;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    if(ret == true)
+    {
+      break;
     }
   }
   return ret;
 }
 
+
 static void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status, void* args)
 {
-  RtpsResponseTable_t *tbl = (RtpsResponseTable_t *) args;
-  RtpsResponse_t *recv;
+  micrortps::ResponseTable_t *tbl = (micrortps::ResponseTable_t *) args;
+  micrortps::Response_t *recv;
 
   if(tbl == NULL)
   {
@@ -122,22 +268,22 @@ static void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status,
   switch(operation)
   {
     case STATUS_LAST_OP_CREATE:
-      recv = (RtpsResponse_t *) &tbl->create;
+      recv = (micrortps::Response_t *) &tbl->create;
       break;
     case STATUS_LAST_OP_UPDATE:
-      recv = (RtpsResponse_t *) &tbl->update;
+      recv = (micrortps::Response_t *) &tbl->update;
       break;
     case STATUS_LAST_OP_DELETE:
-      recv = (RtpsResponse_t *) &tbl->delete;
+      recv = (micrortps::Response_t *) &tbl->deleted;
       break;
     case STATUS_LAST_OP_LOOKUP:
-      recv = (RtpsResponse_t *) &tbl->lookup;
+      recv = (micrortps::Response_t *) &tbl->lookup;
       break;
     case STATUS_LAST_OP_READ:
-      recv = (RtpsResponse_t *) &tbl->read;
+      recv = (micrortps::Response_t *) &tbl->read;
       break;
     case STATUS_LAST_OP_WRITE:
-      recv = (RtpsResponse_t *) &tbl->write;
+      recv = (micrortps::Response_t *) &tbl->write;
       break;
     default :
       return;
@@ -148,4 +294,4 @@ static void on_status_received(XRCEInfo info, uint8_t operation, uint8_t status,
   recv->status = status;
 }
 
-#endif
+
