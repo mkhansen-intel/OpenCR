@@ -51,7 +51,7 @@ typedef enum
 } // namespace micrortps
 
 bool is_rtps_init_done = false;
-ClientState    *rtps_client;
+ClientState    *rtps_client = NULL;
 XRCEInfo        client_info;
 micrortps::ResponseTable_t ResponseTable;
 
@@ -91,7 +91,7 @@ bool micrortps::createParticipant(Participant_t* participant)
   participant->info = create_participant(rtps_client);
   send_to_agent(rtps_client);
 
-  participant->is_init = checkCreatedResponse(participant->info, CREATE_PARTICIPANT, RTPS_RESPONSE_WAIT_MS);
+  participant->is_init = checkCreatedResponse(participant->info, micrortps::CREATE_PARTICIPANT, RTPS_RESPONSE_WAIT_MS);
 
   return participant->is_init;
 }
@@ -108,7 +108,7 @@ bool micrortps::registerTopic(Participant_t* participant, char* topic_profile)
   topic_info = create_topic(rtps_client, participant->info.object_id, profile_xml);
   send_to_agent(rtps_client);
 
-  ret = checkCreatedResponse(topic_info, CREATE_TOPIC, RTPS_RESPONSE_WAIT_MS);
+  ret = checkCreatedResponse(topic_info, micrortps::CREATE_TOPIC, RTPS_RESPONSE_WAIT_MS);
 
   return ret;
 }
