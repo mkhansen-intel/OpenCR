@@ -19,15 +19,15 @@ class Node
   public:
     Node()
     {
-      node_register_state_ = micrortps::createParticipant(&this->participant_);
+      node_register_state_ = micrortps::createParticipant(&this->participant_, NULL);
     }
-
 
     template <
       typename MsgT>
-    Publisher<MsgT>* createPublisher()
+    Publisher<MsgT>* createPublisher(const char* name)
     {
       bool ret;
+      char pub_profile[100];
       ros2::Publisher<MsgT> *p_pub = NULL;
 
       if(this->node_register_state_ == false)
@@ -36,11 +36,12 @@ class Node
       }
 
       // Register Topic
-      ret = ros2::Node::registerTopic<MsgT>();
+      ret = this->registerTopic<MsgT>();
 
       if (ret == true)
       {
-        p_pub = new ros2::Publisher<MsgT>(&this->participant_);
+        sprintf(pub_profile, "<publisher name=\"%s\"", name);
+        p_pub = new ros2::Publisher<MsgT>(&this->participant_, pub_profile);
       }
 
       return p_pub->is_registered_ == true ? p_pub : NULL;
@@ -49,9 +50,10 @@ class Node
 
     template <
       typename MsgT>
-    Subscriber<MsgT>* createSubscriber(SubCallback callback_fn)
+    Subscriber<MsgT>* createSubscriber(const char* name)
     {
       bool ret;
+      char sub_profile[100];
       ros2::Subscriber<MsgT> *p_sub = NULL;
       
       if(this->node_register_state_ == false)
@@ -64,7 +66,8 @@ class Node
 
       if (ret == true)
       {
-        p_sub = new ros2::Subscriber<MsgT>(&this->participant_, callback_fn);
+        sprintf(sub_profile, "<subscriber name=\"%s\"", name);
+        p_sub = new ros2::Subscriber<MsgT>(&this->participant_, sub_profile);
       }
 
       return p_sub->is_registered_ == true ? p_sub : NULL;
@@ -81,14 +84,13 @@ class Node
     {
       bool ret;
       MsgT topic;
-      ros2::Topic* p_topic = (ros2::Topic*) &topic;
 
       if(this->node_register_state_ == false)
       {
         return false;
       }
 
-      ret = micrortps::registerTopic(&this->participant_, p_topic->profile_);
+      ret = micrortps::registerTopic(&this->participant_, topic.profile_);
 
       return ret;
     }
@@ -100,19 +102,12 @@ static bool g_is_rmw_init = false;
 
 void init()
 {
-	if(g_is_rmw_init == true)
-	{
-		return;
-	}
-
-  g_is_rmw_init = micrortps::setup();
+  g_is_rmw_init = false;
 }
 
-void spin(Node & node)
+void spin()
 {
-  ((void)(node));
-
-  micrortps::listenFromAgent();
+  micrortps::runCommunication();
 }
 
 

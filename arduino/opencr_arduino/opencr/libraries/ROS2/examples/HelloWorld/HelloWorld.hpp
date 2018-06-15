@@ -29,41 +29,16 @@
 
 namespace idl {
 
-typedef struct HelloWorld
-{
-  uint32_t m_index;
-  char* m_message;
-} HelloWorld;
-
-bool serialize_HelloWorld_topic(MicroBuffer* writer, const AbstractTopic* topic_structure)
-{
-  HelloWorld* topic = (HelloWorld*) topic_structure->topic;
-  serialize_uint32_t(writer, topic->m_index);
-  serialize_uint32_t(writer, strlen(topic->m_message) + 1);
-  serialize_array_char(writer, topic->m_message, strlen(topic->m_message) + 1);
-
-  return true;
-};
-
-bool deserialize_HelloWorld_topic(MicroBuffer* reader, AbstractTopic* topic_structure)
-{
-	HelloWorld* topic = (HelloWorld*) malloc(sizeof(HelloWorld));
-	deserialize_uint32_t(reader, &topic->m_index);
-	uint32_t size = 0;
-	deserialize_uint32_t(reader, &size);
-	topic->m_message = (char*) malloc(size);
-	deserialize_array_char(reader, topic->m_message, size);
-
-	topic_structure->topic = topic;
-	return true;
-};
+#include "HelloWorld.h"
 
 } // namespace idl
 
 
+
+
 namespace std_msg {
 
-class HelloWorld : public ros2::Topic 
+class HelloWorld : public ros2::Topic<idl::HelloWorld>
 {
 public:
   idl::HelloWorld message_;
@@ -72,6 +47,7 @@ public:
   { 
 		serialize = idl::serialize_HelloWorld_topic;
 		deserialize = idl::deserialize_HelloWorld_topic;
+    write = idl::write_HelloWorld;
 
   	profile_ = (char*)"<dds>\
                         <topic>\
@@ -102,22 +78,6 @@ public:
                                 </subscriber>\
                               </profiles>";
 	};
-
-  void callback(XRCEInfo info, const void* vtopic, void* args)
-  {
-    UNUSED(info);
-    UNUSED(args);
-
-    if(userCallback != NULL)
-    {
-      userCallback(vtopic);
-    }
-
-    idl::HelloWorld* topic = (idl::HelloWorld*) vtopic;
-
-    free(topic->m_message);
-    free(topic);
-  }
 };
 
 

@@ -13,30 +13,33 @@
 
 namespace ros2 {
 
-typedef void (*SubCallback)(const void* vtopic);
-
 /* Base Message Type */
+template <typename MsgT>
 class Topic
 {
 
 public:
   Topic() : 
-    profile_((char*)""),
     serialize(NULL),
     deserialize(NULL),
-    userCallback(NULL),
+    write(NULL),
+    profile_((char*)""),
     writer_profile_((char*)""),
     reader_profile_((char*)"")
   {};
 
+  typedef bool (*Serialize)(MicroBuffer* writer, const MsgT* topic);
+  typedef bool (*Deserialize)(MicroBuffer* reader, MsgT* topic);
+  typedef bool (*Write)(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic);
+
+  Serialize serialize; 
+  Deserialize deserialize;
+  Write write;
+
+  uint8_t id;
   char *profile_;
-  SerializeTopic serialize;
-  DeserializeTopic deserialize;
-  SubCallback userCallback;
   char *writer_profile_;
   char *reader_profile_;
-
-  virtual void callback(XRCEInfo info, const void* vtopic, void* args) = 0;
 };
 
 

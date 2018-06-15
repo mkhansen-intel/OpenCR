@@ -22,21 +22,20 @@ class Subscriber
 {
 
   public:
-    Subscriber(micrortps::Participant_t* node, SubCallback cb)
+    Subscriber(micrortps::Participant_t* node, char* subscriber_profile)
     {
       node_ = node;  
-      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_.reader_profile_);
-      topic_.userCallback = cb;
+      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_.id, subscriber_profile, topic_.reader_profile_);
     }
 
-    void subscribe()
+    void subscribe(uint8_t stream_id)
     {
-      micrortps::subscribe(&subscriber_, topic_.deserialize, topic_.callback, NULL);
+      micrortps::subscribe(&subscriber_, stream_id);
     }
 
     void recreate()
     {
-      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_->reader_profile_);
+      //is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_->reader_profile_);
     };  
 
     bool is_registered_;

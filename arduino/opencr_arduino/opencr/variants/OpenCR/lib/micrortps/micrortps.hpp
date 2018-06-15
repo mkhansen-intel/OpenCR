@@ -21,31 +21,30 @@ namespace micrortps {
 
 typedef struct Subscriber{
   bool is_init;
-  XRCEInfo info;
-  XRCEInfo reader_info;
-  XRCEInfo read_callback_info;
+  ObjectId id;
+  ObjectId reader_id;
 } Subscriber_t;
 
 typedef struct Publisher{
   bool is_init;
-  XRCEInfo info;
-  XRCEInfo writer_info;
+  ObjectId id;
+  ObjectId writer_id;
 } Publisher_t;
 
 typedef struct Participant{
   bool is_init;
-  XRCEInfo info;
+  ObjectId id;
+  Session *session;
 } Participant_t;
 
 
-bool setup(void);
-bool createParticipant(Participant_t* participant);
+bool setup(OnTopic callback);
+bool createParticipant(Participant_t* participant, OnTopic callback);
 bool registerTopic(Participant_t* participant, char* topic_profile);
-bool createPublisher(Participant_t* participant, Publisher_t* publisher, char* writer_profile);
-bool createSubscriber(Participant_t* participant, Subscriber_t* subscriber, char* reader_profile);
-void publish(Publisher_t* publisher, SerializeTopic func_serialize, void* topic);
-void subscribe(Subscriber_t* subscriber, DeserializeTopic func_deserialize, OnTopicReceived callback_func, void* callback_func_args);
-void listenFromAgent(void);
+bool createPublisher(Participant_t* participant, Publisher_t* publisher, char* publisher_profile, char* writer_profile);
+bool createSubscriber(Participant_t* participant, Subscriber_t* subscriber, uint8_t topic_id, char* subscriber_profile, char* reader_profile);
+void subscribe(Subscriber_t* subscriber, uint8_t StreamId);
+void runCommunication(void);
 
 
 

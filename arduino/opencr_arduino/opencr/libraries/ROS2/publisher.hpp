@@ -19,22 +19,22 @@ class Publisher
 {
  
 public:
-  Publisher(micrortps::Participant_t* node)
+  Publisher(micrortps::Participant_t* node, char* publisher_profile)
   {
     node_ = node;
     MsgT topic;
-    is_registered_ = micrortps::createPublisher(node_, &publisher_, topic.writer_profile_);
+    is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, topic.writer_profile_);
   }
 
-  void publish(MsgT * topic)
+  void publish(MsgT * topic, StreamId stream_id)
   {
-    micrortps::publish(&publisher_, topic->serialize, (void*) &topic->message_);
+    topic->write(node_->session, publisher_.writer_id, stream_id, &topic->message_);
   }
 
   void recreate()
   {
-    MsgT topic;
-    is_registered_ = micrortps::createPublisher(node_, &publisher_, topic->writer_profile_);
+//    MsgT topic;
+//    is_registered_ = micrortps::createPublisher(node_, &publisher_, topic->writer_profile_);
   }
 
   bool is_registered_;

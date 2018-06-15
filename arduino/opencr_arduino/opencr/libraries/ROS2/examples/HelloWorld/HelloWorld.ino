@@ -13,7 +13,7 @@ public:
   HelloWorldPublisher()
   : Node(), count_(0)
   {
-    publisher_ = this->createPublisher<std_msg::HelloWorld>();
+    publisher_ = this->createPublisher<std_msg::HelloWorld>("HelloWorld");
   }
 
   void run(void)
@@ -25,9 +25,9 @@ private:
   void timer_callback()
   {
     std_msg::HelloWorld hello_topic;
-    hello_topic.message_.m_message = (char*) "HelloWorld";
-    hello_topic.message_.m_index = count_++;
-    publisher_->publish(&hello_topic);
+    hello_topic.message_.message = (char*) "HelloWorld";
+    hello_topic.message_.index = count_++;
+    publisher_->publish(&hello_topic, STREAMID_BUILTIN_RELIABLE);
   }
 
   ros2::Publisher<std_msg::HelloWorld>* publisher_;
@@ -65,6 +65,8 @@ void loop()
     digitalWrite(LED_BUILTIN, led_state);
     led_state = !led_state;
   }
+
+  ros2::spin();
 }
 
 
