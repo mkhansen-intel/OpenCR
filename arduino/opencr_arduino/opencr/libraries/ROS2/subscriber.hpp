@@ -25,6 +25,7 @@ class Subscriber
     Subscriber(micrortps::Participant_t* node, char* subscriber_profile)
     {
       node_ = node;  
+      subscriber_.is_init = false;
       is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_.id, subscriber_profile, topic_.reader_profile_);
     }
 

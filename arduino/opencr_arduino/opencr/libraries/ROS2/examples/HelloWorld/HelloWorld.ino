@@ -45,12 +45,12 @@ void setup()
 
   DEBUG_SERIAL.println("Test Start");
 
-  ros2::init();
+  ros2::init(NULL);
 }
 
 void loop() 
 {
-  static uint32_t pre_time = 0;
+  static uint32_t pre_time = millis();
   static bool led_state = false;
   static HelloWorldPublisher HelloWorldNode;
 

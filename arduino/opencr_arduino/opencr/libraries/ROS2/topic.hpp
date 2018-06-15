@@ -17,6 +17,9 @@ namespace ros2 {
 template <typename MsgT>
 class Topic
 {
+  typedef bool (*Serialize)(MicroBuffer* writer, const MsgT* topic);
+  typedef bool (*Deserialize)(MicroBuffer* reader, MsgT* topic);
+  typedef bool (*Write)(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic);
 
 public:
   Topic() : 
@@ -27,10 +30,6 @@ public:
     writer_profile_((char*)""),
     reader_profile_((char*)"")
   {};
-
-  typedef bool (*Serialize)(MicroBuffer* writer, const MsgT* topic);
-  typedef bool (*Deserialize)(MicroBuffer* reader, MsgT* topic);
-  typedef bool (*Write)(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic);
 
   Serialize serialize; 
   Deserialize deserialize;

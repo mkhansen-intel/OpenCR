@@ -39,7 +39,7 @@ typedef struct Participant{
 
 
 bool setup(OnTopic callback);
-bool createParticipant(Participant_t* participant, OnTopic callback);
+bool createParticipant(Participant_t* participant);
 bool registerTopic(Participant_t* participant, char* topic_profile);
 bool createPublisher(Participant_t* participant, Publisher_t* publisher, char* publisher_profile, char* writer_profile);
 bool createSubscriber(Participant_t* participant, Subscriber_t* subscriber, uint8_t topic_id, char* subscriber_profile, char* reader_profile);

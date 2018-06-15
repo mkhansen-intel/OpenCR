@@ -12,14 +12,20 @@
 #include "subscriber.hpp"
 
 
+
+
 namespace ros2 {
 
 class Node
 {
   public:
+    uint8_t err_code;
+
     Node()
     {
-      node_register_state_ = micrortps::createParticipant(&this->participant_, NULL);
+      err_code = 0;
+      participant_.is_init = false;
+      node_register_state_ = micrortps::createParticipant(&this->participant_);
     }
 
     template <
@@ -32,19 +38,31 @@ class Node
 
       if(this->node_register_state_ == false)
       {
+        err_code = 1;
         return NULL;
       }
 
       // Register Topic
       ret = this->registerTopic<MsgT>();
 
-      if (ret == true)
+      if (ret == false)
       {
-        sprintf(pub_profile, "<publisher name=\"%s\"", name);
-        p_pub = new ros2::Publisher<MsgT>(&this->participant_, pub_profile);
+        err_code = 2;
+        return NULL;
       }
 
-      return p_pub->is_registered_ == true ? p_pub : NULL;
+      sprintf(pub_profile, "<publisher name=\"%s\"", name);
+      p_pub = new ros2::Publisher<MsgT>(&this->participant_, pub_profile);
+
+      if(p_pub->is_registered_ == false)
+      {
+        err_code = 3;
+        return NULL;
+      }
+
+      err_code = 0;
+
+      return p_pub;
     }
 
 
@@ -58,19 +76,31 @@ class Node
       
       if(this->node_register_state_ == false)
       {
+        err_code = 10 + 1;
         return NULL;
       }
 
       // Register Topic
       ret = this->registerTopic<MsgT>();
 
-      if (ret == true)
+      if (ret == false)
       {
-        sprintf(sub_profile, "<subscriber name=\"%s\"", name);
-        p_sub = new ros2::Subscriber<MsgT>(&this->participant_, sub_profile);
+        err_code = 10 + 2;
+        return NULL;
       }
 
-      return p_sub->is_registered_ == true ? p_sub : NULL;
+      sprintf(sub_profile, "<subscriber name=\"%s\"", name);
+      p_sub = new ros2::Subscriber<MsgT>(&this->participant_, sub_profile);
+
+      if(p_sub->is_registered_ == false)
+      {
+        err_code = 10 + 3;
+        return NULL;
+      }
+
+      err_code = 0;
+
+      return p_sub;
     }
 
 
@@ -100,9 +130,11 @@ class Node
 
 static bool g_is_rmw_init = false;
 
-void init()
+bool init(OnTopic callback)
 {
-  g_is_rmw_init = false;
+  g_is_rmw_init = micrortps::setup(callback);
+
+  return g_is_rmw_init;
 }
 
 void spin()

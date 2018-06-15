@@ -23,11 +23,17 @@ public:
   {
     node_ = node;
     MsgT topic;
+    publisher_.is_init = false;
     is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, topic.writer_profile_);
   }
 
   void publish(MsgT * topic, StreamId stream_id)
   {
+    if(publisher_.is_init ==  false)
+    {
+      return;
+    }
+
     topic->write(node_->session, publisher_.writer_id, stream_id, &topic->message_);
   }
 

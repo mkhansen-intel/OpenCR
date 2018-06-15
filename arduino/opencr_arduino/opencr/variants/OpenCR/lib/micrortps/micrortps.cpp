@@ -39,14 +39,12 @@ bool micrortps::setup(OnTopic callback)
 }
 
 
-bool micrortps::createParticipant(micrortps::Participant_t* participant, OnTopic callback)
+
+bool micrortps::createParticipant(micrortps::Participant_t* participant)
 {
   if(g_is_rtps_init_done == false)
   {
-    if(micrortps::setup(callback) == false)
-    {
-      return NULL;
-    }
+    return false;
   }
 
   participant->id.data[0] = 0x00;
@@ -61,8 +59,13 @@ bool micrortps::createParticipant(micrortps::Participant_t* participant, OnTopic
 
 bool micrortps::registerTopic(micrortps::Participant_t* participant, char* topic_profile)
 {
+  if(participant->is_init == false)
+  {
+    return false;
+  }
+
   bool ret = false;
-  ObjectId topic_id = {{0x00, OBJK_TOPIC}};
+  ObjectId topic_id = {0x00, OBJK_TOPIC};
 
   ret = create_topic_sync_by_xml(&g_rtps_session, topic_id, topic_profile, participant->id, false, false);
 
@@ -72,9 +75,13 @@ bool micrortps::registerTopic(micrortps::Participant_t* participant, char* topic
 
 bool micrortps::createPublisher(micrortps::Participant_t* participant, micrortps::Publisher_t* publisher, char* publisher_profile, char* writer_profile)
 {
-  bool ret;
+  if(participant->is_init == false)
+  {
+    return false;
+  }
 
-  publisher->is_init = false;
+  bool ret = false;
+
   publisher->id.data[0] = 0x00;
   publisher->id.data[1] = OBJK_PUBLISHER;
 
@@ -95,9 +102,13 @@ bool micrortps::createPublisher(micrortps::Participant_t* participant, micrortps
 
 bool micrortps::createSubscriber(micrortps::Participant_t* participant, micrortps::Subscriber_t* subscriber, uint8_t topic_id, char* subscriber_profile, char* reader_profile)
 {
-  bool ret;
+  if(participant->is_init == false)
+  {
+    return false;
+  }
 
-  subscriber->is_init = false;
+  bool ret = false;
+
   subscriber->id.data[0] = topic_id;
   subscriber->id.data[1] = OBJK_SUBSCRIBER;
 
@@ -118,7 +129,7 @@ bool micrortps::createSubscriber(micrortps::Participant_t* participant, micrortp
 
 void micrortps::subscribe(micrortps::Subscriber_t* subscriber, uint8_t StreamId)
 {
-  if(subscriber == NULL)
+  if(subscriber->is_init == false)
   {
     return;
   }
