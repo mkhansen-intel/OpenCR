@@ -48,14 +48,12 @@ void setup()
   ros2::init();
 }
 
-
-uint32_t pre_time = 0;
-bool led_state = false;
-
-HelloWorldPublisher HelloWorldNode;
-
 void loop() 
 {
+  static uint32_t pre_time = 0;
+  static bool led_state = false;
+  static HelloWorldPublisher HelloWorldNode;
+
   if(millis() - pre_time > 500)
   {
     pre_time = millis();
