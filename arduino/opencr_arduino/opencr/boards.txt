@@ -32,13 +32,16 @@ OpenCR.build.inc2=bsp/opencr/include
 OpenCR.build.inc3=hw
 OpenCR.build.inc4=hw/driver
 OpenCR.build.inc5=hw/usb_cdc
-OpenCR.build.inc6=lib/STM32F7xx_HAL_Driver/Inc/
+OpenCR.build.inc6=lib/STM32F7xx_HAL_Driver/Inc
 OpenCR.build.inc7=lib/micrortps
-OpenCR.build.inc8=lib/micrortps/client/include/
+OpenCR.build.inc8=lib/micrortps/client/include
 OpenCR.build.inc9=lib/micrortps/client/include/micrortps/client
-OpenCR.build.inc10=lib/micrortps/cdr/include/
-OpenCR.build.inc11=lib/micrortps/transport/include/
-OpenCR.build.inc12=lib/micrortps/transport/include/transport
+OpenCR.build.inc10=lib/micrortps/client/src/c
+OpenCR.build.inc11=lib/micrortps/cdr/include
+OpenCR.build.inc12=lib/micrortps/transport/include
+OpenCR.build.inc13=lib/micrortps/transport/include/micrortps/transport
+OpenCR.build.inc14=lib/micrortps/transport/src/c
+
 
 #OpenCR.upload.tool=opencr_ld
 #OpenCR.menu.upload_method.upload.tool=opencr_ld

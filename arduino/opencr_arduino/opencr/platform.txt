@@ -59,7 +59,7 @@ compiler.elf2hex.extra_flags=
 
 
 # sheepdoll a better more generic library include paths
-compiler.libs.c.flags= "-I{build.variant.path}/{build.inc1}" "-I{build.variant.path}/{build.inc2}" "-I{build.variant.path}/{build.inc3}" "-I{build.variant.path}/{build.inc4}" "-I{build.variant.path}/{build.inc5}" "-I{build.variant.path}/{build.inc6}" "-I{build.variant.path}/{build.inc7}" "-I{build.variant.path}/{build.inc8}" "-I{build.variant.path}/{build.inc9}" "-I{build.variant.path}/{build.inc10}" "-I{build.variant.path}/{build.inc11}" "-I{build.variant.path}/{build.inc12}"
+compiler.libs.c.flags= "-I{build.variant.path}/{build.inc1}" "-I{build.variant.path}/{build.inc2}" "-I{build.variant.path}/{build.inc3}" "-I{build.variant.path}/{build.inc4}" "-I{build.variant.path}/{build.inc5}" "-I{build.variant.path}/{build.inc6}" "-I{build.variant.path}/{build.inc7}" "-I{build.variant.path}/{build.inc8}" "-I{build.variant.path}/{build.inc9}" "-I{build.variant.path}/{build.inc10}" "-I{build.variant.path}/{build.inc11}" "-I{build.variant.path}/{build.inc12}" "-I{build.variant.path}/{build.inc13}" "-I{build.variant.path}/{build.inc14}"
 
 
 # build patterns
