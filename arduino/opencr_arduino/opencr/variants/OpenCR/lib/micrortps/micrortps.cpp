@@ -66,9 +66,16 @@ bool micrortps::registerTopic(micrortps::Participant_t* participant, char* topic
   }
 
   bool ret = false;
+  uint8_t status;
   ObjectId topic_id = {0x00, OBJK_TOPIC};
 
-  ret = create_topic_sync_by_xml(participant->session, topic_id, topic_profile, participant->id, true, false);
+  create_topic_sync_by_xml(participant->session, topic_id, topic_profile, participant->id, true, false);
+  status = micrortps::getLastStatus();
+
+  if(status == STATUS_OK || status == STATUS_ERR_ALREADY_EXISTS)
+  {
+    ret = true;
+  }
 
   return ret;
 }

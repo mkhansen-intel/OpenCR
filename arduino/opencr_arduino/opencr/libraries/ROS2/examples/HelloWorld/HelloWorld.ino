@@ -7,6 +7,29 @@
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
 
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+{
+  ((void)(args));
+
+  switch(id.data[0])
+  {
+    case HELLO_WORLD_TOPIC:
+    {
+      std_msg::HelloWorld topic;
+      deserialize_HelloWorld_topic(serialized_topic, &topic.message_);
+      DEBUG_SERIAL.print("Read topic: ");
+      DEBUG_SERIAL.print(topic.message_.message);
+      DEBUG_SERIAL.print(", count: ");
+      DEBUG_SERIAL.println(topic.message_.index);
+      break;
+    }
+
+    default:
+      break;
+  }
+}
+
+
 class HelloWorldPublisher : public ros2::Node
 {
 public:
@@ -14,6 +37,7 @@ public:
   : Node(), count_(0)
   {
     publisher_ = this->createPublisher<std_msg::HelloWorld>("HelloWorld");
+    subscriber_ = this->createSubscriber<std_msg::HelloWorld>("HelloWorld");
   }
 
   void run(void)
@@ -28,9 +52,11 @@ private:
     hello_topic.message_.message = (char*) "HelloWorld";
     hello_topic.message_.index = count_++;
     publisher_->publish(&hello_topic, STREAMID_BUILTIN_RELIABLE);
+    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
   ros2::Publisher<std_msg::HelloWorld>* publisher_;
+  ros2::Subscriber<std_msg::HelloWorld>* subscriber_;
   uint32_t count_;
 };
 
@@ -43,9 +69,7 @@ void setup()
   
   while (!RTPS_SERIAL);
 
-  DEBUG_SERIAL.println("Test Start");
-
-  ros2::init(NULL);
+  ros2::init(on_topic);
 }
 
 void loop() 
@@ -66,6 +90,3 @@ void loop()
 
   ros2::spin();
 }
-
-
-

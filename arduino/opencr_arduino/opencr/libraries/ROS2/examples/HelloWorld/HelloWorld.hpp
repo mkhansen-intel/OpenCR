@@ -24,8 +24,11 @@
 
 
 #include "micrortps.hpp"
+#include <topic_config.h>
 #include <topic.hpp>
 
+
+#ifdef HELLO_WORLD_TOPIC
 
 namespace idl {
 
@@ -48,6 +51,7 @@ public:
 		serialize = idl::serialize_HelloWorld_topic;
 		deserialize = idl::deserialize_HelloWorld_topic;
     write = idl::write_HelloWorld;
+    id = HELLO_WORLD_TOPIC;
 
   	profile_ = (char*)"<dds><topic><name>HelloWorldTopic</name><dataType>HelloWorld</dataType></topic></dds>";
 		writer_profile_ = (char*)"<profiles><publisher profile_name=\"default_xrce_publisher_profile\"><topic><kind>NO_KEY</kind><name>HelloWorldTopic</name><dataType>HelloWorld</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></publisher></profiles>";
@@ -55,7 +59,8 @@ public:
 	};
 };
 
-
 } // namespace std_msg
+
+#endif
 
 #endif // _HelloWorld_HPP_
