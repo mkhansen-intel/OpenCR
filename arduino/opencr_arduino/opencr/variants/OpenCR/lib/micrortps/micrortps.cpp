@@ -28,17 +28,12 @@ ClientKey    g_client_key = {{0xAA, 0xBB, 0xCC, 0xDD}};
 
 bool micrortps::setup(OnTopic callback)
 {
-  if(!new_serial_session(&g_rtps_session, g_session_id, g_client_key, "opencr_usb", callback, NULL))
+  if(new_serial_session(&g_rtps_session, g_session_id, g_client_key, "opencr_usb", callback, NULL) == false)
   {
     return false;
   }
 
-  init_session_sync(&g_rtps_session);
-
-  if(micrortps::getLastStatus() == STATUS_OK)
-  {
-    g_is_rtps_init_done = true;
-  }
+  g_is_rtps_init_done = init_session_sync(&g_rtps_session);
 
   return g_is_rtps_init_done;
 }

@@ -49,34 +49,9 @@ public:
 		deserialize = idl::deserialize_HelloWorld_topic;
     write = idl::write_HelloWorld;
 
-  	profile_ = (char*)"<dds>\
-                        <topic>\
-                          <name>HelloWorldTopic</name>\
-                          <dataType>HelloWorld</dataType>\
-                        </topic>\
-                      </dds>";
-
-		writer_profile_ = (char*)"<profiles>\
-                                <publisher profile_name=\"default_xrce_publisher_profile\">\
-                                  <topic><kind>NO_KEY</kind>\
-                                    <name>HelloWorldTopic</name>\
-                                    <dataType>HelloWorld</dataType>\
-                                    <historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos>\
-                                    <durability><kind>TRANSIENT_LOCAL</kind></durability>\
-                                  </topic>\
-                                </publisher>\
-                              </profiles>";
-
-		reader_profile_ = (char*)"<profiles>\
-                                <subscriber profile_name=\"default_xrce_subscriber_profile\">\
-                                  <topic><kind>NO_KEY</kind>\
-                                    <name>HelloWorldTopic</name>\
-                                    <dataType>HelloWorld</dataType>\
-                                    <historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos>\
-                                    <durability><kind>TRANSIENT_LOCAL</kind></durability>\
-                                  </topic>\
-                                </subscriber>\
-                              </profiles>";
+  	profile_ = (char*)"<dds><topic><name>HelloWorldTopic</name><dataType>HelloWorld</dataType></topic></dds>";
+		writer_profile_ = (char*)"<profiles><publisher profile_name=\"default_xrce_publisher_profile\"><topic><kind>NO_KEY</kind><name>HelloWorldTopic</name><dataType>HelloWorld</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></publisher></profiles>";
+		reader_profile_ = (char*)"<profiles><subscriber profile_name=\"default_xrce_subscriber_profile\"><topic><kind>NO_KEY</kind><name>HelloWorldTopic</name><dataType>HelloWorld</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></subscriber></profiles>";
 	};
 };
 
