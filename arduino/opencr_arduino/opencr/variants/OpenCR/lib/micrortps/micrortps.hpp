@@ -45,6 +45,7 @@ bool createPublisher(Participant_t* participant, Publisher_t* publisher, char* p
 bool createSubscriber(Participant_t* participant, Subscriber_t* subscriber, uint8_t topic_id, char* subscriber_profile, char* reader_profile);
 void subscribe(Subscriber_t* subscriber, uint8_t StreamId);
 void runCommunication(void);
+uint8_t getLastStatus(void);
 
 
 
