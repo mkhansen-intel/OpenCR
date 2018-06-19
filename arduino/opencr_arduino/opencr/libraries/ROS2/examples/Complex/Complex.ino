@@ -51,7 +51,8 @@ private:
     test_msgs::Complex complex_topic;
     data_ = !data_;
     complex_topic.value.data = data_;
-    sprintf(complex_topic.message.data, "String %d", (int)millis());
+    sprintf(message_, "String %d", (int)millis());
+    complex_topic.message.data = message_;
     publisher_->publish(&complex_topic, STREAMID_BUILTIN_RELIABLE);
     subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
@@ -59,6 +60,7 @@ private:
   ros2::Publisher<test_msgs::Complex>* publisher_;
   ros2::Subscriber<test_msgs::Complex>* subscriber_;
   bool data_;
+  char message_[20];
 };
 
 

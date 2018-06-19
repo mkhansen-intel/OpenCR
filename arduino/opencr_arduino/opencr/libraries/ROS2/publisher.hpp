@@ -21,9 +21,9 @@ class Publisher
 {
  
 public:
-  Publisher(micrortps::Participant_t* node, char* publisher_profile)
+  Publisher(micrortps::Participant_t* node, char* publisher_profile):
+    node_(node)
   {
-    node_ = node;
     MsgT topic;
     publisher_.is_init = false;
 

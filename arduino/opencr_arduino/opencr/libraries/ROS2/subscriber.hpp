@@ -24,10 +24,10 @@ class Subscriber
 {
 
   public:
-    Subscriber(micrortps::Participant_t* node, char* subscriber_profile)
+    Subscriber(micrortps::Participant_t* node, char* subscriber_profile) : 
+      node_(node)
     {
       MsgT topic;
-      node_ = node;  
       subscriber_.is_init = false;
 
       char reader_profile[512] = {0, };
