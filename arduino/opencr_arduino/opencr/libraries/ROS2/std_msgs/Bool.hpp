@@ -20,7 +20,6 @@
 #include <topic_config.h>
 #include <topic.hpp>
 
-#ifdef STD_MSGS_BOOL_TOPIC
 
 namespace std_msgs {
 
@@ -96,6 +95,5 @@ private :
 
 } // namespace std_msgs
 
-#endif // STD_MSGS_BOOL_TOPIC
 
 #endif // _STD_MSGS_BOOL_HPP_
