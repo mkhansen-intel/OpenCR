@@ -21,15 +21,11 @@ class Publisher
 {
  
 public:
-  Publisher(micrortps::Participant_t* node, char* publisher_profile):
-    node_(node)
+  Publisher(micrortps::Participant_t* node, const char* name)
   {
-    MsgT topic;
-    publisher_.is_init = false;
-
-    char writer_profile[512] = {0, };
-    sprintf(writer_profile, DEFAULT_WRITER_XML, topic.name_, topic.name_);
-    is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, writer_profile);
+    node_ = node;
+    name_ = name;
+    this->recreate();
   }
 
   void publish(MsgT * topic, StreamId stream_id)
@@ -44,13 +40,21 @@ public:
 
   void recreate()
   {
-//    MsgT topic;
-//    is_registered_ = micrortps::createPublisher(node_, &publisher_, topic->writer_profile_);
+    MsgT topic;
+    publisher_.is_init = false;
+
+    char publisher_profile[100] = {0, };
+    sprintf(publisher_profile, "<publisher name=\"%s\"", name_);
+
+    char writer_profile[512] = {0, };
+    sprintf(writer_profile, DEFAULT_WRITER_XML, topic.name_, topic.name_);
+    is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, writer_profile);
   }
 
   bool is_registered_;
 
 private:
+  const char* name_;
   micrortps::Participant_t* node_;
   micrortps::Publisher_t publisher_;
   

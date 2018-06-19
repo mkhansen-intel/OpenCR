@@ -32,7 +32,6 @@ class Node
     Publisher<MsgT>* createPublisher(const char* name)
     {
       bool ret;
-      char pub_profile[100];
       ros2::Publisher<MsgT> *p_pub = NULL;
 
       if(this->node_register_state_ == false)
@@ -50,8 +49,7 @@ class Node
         return NULL;
       }
 
-      sprintf(pub_profile, "<publisher name=\"%s\"", name);
-      p_pub = new ros2::Publisher<MsgT>(&this->participant_, pub_profile);
+      p_pub = new ros2::Publisher<MsgT>(&this->participant_, name);
 
       if(p_pub->is_registered_ == false)
       {
@@ -70,7 +68,6 @@ class Node
     Subscriber<MsgT>* createSubscriber(const char* name)
     {
       bool ret;
-      char sub_profile[100];
       ros2::Subscriber<MsgT> *p_sub = NULL;
       
       if(this->node_register_state_ == false)
@@ -88,8 +85,7 @@ class Node
         return NULL;
       }
 
-      sprintf(sub_profile, "<subscriber name=\"%s\"", name);
-      p_sub = new ros2::Subscriber<MsgT>(&this->participant_, sub_profile);
+      p_sub = new ros2::Subscriber<MsgT>(&this->participant_, name);
 
       if(p_sub->is_registered_ == false)
       {

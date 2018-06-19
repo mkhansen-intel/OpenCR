@@ -24,30 +24,40 @@ class Subscriber
 {
 
   public:
-    Subscriber(micrortps::Participant_t* node, char* subscriber_profile) : 
-      node_(node)
+    Subscriber(micrortps::Participant_t* node, const char* name)
     {
-      MsgT topic;
-      subscriber_.is_init = false;
-
-      char reader_profile[512] = {0, };
-      sprintf(reader_profile, DEFAULT_READER_XML, topic.name_, topic.name_);
-      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic.id_, subscriber_profile, reader_profile);
+      node_ = node;
+      name_ = name;
+      this->recreate();
     }
 
     void subscribe(uint8_t stream_id)
     {
+      if(subscriber_.is_init ==  false)
+      {
+        return;
+      }
+
       micrortps::subscribe(&subscriber_, stream_id);
     }
 
     void recreate()
     {
-      //is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_->reader_profile_);
+      MsgT topic;
+      subscriber_.is_init = false;
+
+      char subscriber_profile[100] = {0, };
+      sprintf(subscriber_profile, "<subscriber name=\"%s\"", name_);
+
+      char reader_profile[512] = {0, };
+      sprintf(reader_profile, DEFAULT_READER_XML, topic.name_, topic.name_);
+      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic.id_, subscriber_profile, reader_profile);
     };  
 
     bool is_registered_;
 
   private:
+    const char* name_;
     micrortps::Participant_t* node_;
     micrortps::Subscriber_t subscriber_;
 };
