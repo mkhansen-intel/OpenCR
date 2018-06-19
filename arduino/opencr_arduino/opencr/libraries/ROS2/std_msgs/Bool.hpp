@@ -31,10 +31,9 @@ public:
   _data_type data;
 
   Bool():
+    Topic("Bool", STD_MSGS_BOOL_TOPIC),
     data(false)
   { 
-    name_ = (char*) "Bool";
-    id_ = STD_MSGS_BOOL_TOPIC;
   }
 
   virtual bool serialize(MicroBuffer* writer, const Bool* topic)

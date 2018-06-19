@@ -37,10 +37,9 @@ public:
   _data_type data;
 
   String():
+    Topic("String", STD_MSGS_STRING_TOPIC),
     data(NULL)
   { 
-	  name_ = (char*) "String";
-    id_ = STD_MSGS_STRING_TOPIC;
   };
 
 

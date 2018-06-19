@@ -19,13 +19,21 @@ namespace ros2 {
 template <typename MsgT>
 class Topic
 {
+
 public:
+
+  Topic(const char* name, uint8_t id):
+    name_(name),
+    id_(id)
+  {   
+  }
+
   virtual bool serialize(MicroBuffer* writer, const MsgT* topic) = 0;
   virtual bool deserialize(MicroBuffer* reader, MsgT* topic) = 0;
   virtual bool write(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic) = 0;
 
+  const char* name_;
   uint8_t id_;
-  char* name_;
 };
 
 

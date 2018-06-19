@@ -42,11 +42,10 @@ public:
   _bool_type value;
 
   Complex():
+    Topic("Complex", TEST_MSGS_COMPLEX_TOPIC),
     message(),
     value()
   { 
-	  name_ = (char*) "Complex";
-    id_ = TEST_MSGS_COMPLEX_TOPIC;
   };
 
   virtual bool serialize(MicroBuffer* writer, const Complex* topic)
