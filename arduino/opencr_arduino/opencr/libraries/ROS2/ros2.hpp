@@ -13,7 +13,6 @@
 
 
 
-
 namespace ros2 {
 
 class Node
@@ -120,7 +119,9 @@ class Node
         return false;
       }
 
-      ret = micrortps::registerTopic(&this->participant_, topic.profile_);
+      char topic_profile[256] = {0, };
+      sprintf(topic_profile, DEFAULT_TOPIC_XML, topic.name_, topic.name_);
+      ret = micrortps::registerTopic(&this->participant_, topic_profile);
 
       return ret;
     }

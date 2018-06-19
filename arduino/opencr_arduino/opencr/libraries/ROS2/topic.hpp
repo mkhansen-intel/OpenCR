@@ -11,34 +11,21 @@
 #include <stdlib.h>
 #include "micrortps.hpp"
 
+#define DEFAULT_TOPIC_XML ("<dds><topic><name>%sTopic</name><dataType>%s</dataType></topic></dds>")
+
 namespace ros2 {
 
 /* Base Message Type */
 template <typename MsgT>
 class Topic
 {
-  typedef bool (*Serialize)(MicroBuffer* writer, const MsgT* topic);
-  typedef bool (*Deserialize)(MicroBuffer* reader, MsgT* topic);
-  typedef bool (*Write)(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic);
-
 public:
-  Topic() : 
-    serialize(NULL),
-    deserialize(NULL),
-    write(NULL),
-    profile_((char*)""),
-    writer_profile_((char*)""),
-    reader_profile_((char*)"")
-  {};
+  virtual bool serialize(MicroBuffer* writer, const MsgT* topic) = 0;
+  virtual bool deserialize(MicroBuffer* reader, MsgT* topic) = 0;
+  virtual bool write(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic) = 0;
 
-  Serialize serialize; 
-  Deserialize deserialize;
-  Write write;
-
-  uint8_t id;
-  char *profile_;
-  char *writer_profile_;
-  char *reader_profile_;
+  uint8_t id_;
+  char* name_;
 };
 
 

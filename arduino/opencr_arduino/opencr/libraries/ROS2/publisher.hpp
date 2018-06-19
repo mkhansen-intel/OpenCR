@@ -11,6 +11,8 @@
 #include "micrortps.hpp"
 #include "topic.hpp"
 
+#define DEFAULT_WRITER_XML ("<profiles><publisher profile_name=\"default_xrce_publisher_profile\"><topic><kind>NO_KEY</kind><name>%sTopic</name><dataType>%s</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></publisher></profiles>")
+
 
 namespace ros2 {
 
@@ -24,7 +26,10 @@ public:
     node_ = node;
     MsgT topic;
     publisher_.is_init = false;
-    is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, topic.writer_profile_);
+
+    char writer_profile[512] = {0, };
+    sprintf(writer_profile, DEFAULT_WRITER_XML, topic.name_, topic.name_);
+    is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, writer_profile);
   }
 
   void publish(MsgT * topic, StreamId stream_id)
@@ -34,7 +39,7 @@ public:
       return;
     }
 
-    topic->write(node_->session, publisher_.writer_id, stream_id, &topic->message_);
+    topic->write(node_->session, publisher_.writer_id, stream_id, topic);
   }
 
   void recreate()

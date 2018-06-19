@@ -11,6 +11,8 @@
 #include "micrortps.hpp"
 #include "topic.hpp"
 
+#define DEFAULT_READER_XML ("<profiles><subscriber profile_name=\"default_xrce_subscriber_profile\"><topic><kind>NO_KEY</kind><name>%sTopic</name><dataType>%s</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></subscriber></profiles>")
+
 
 namespace ros2
 {
@@ -24,9 +26,13 @@ class Subscriber
   public:
     Subscriber(micrortps::Participant_t* node, char* subscriber_profile)
     {
+      MsgT topic;
       node_ = node;  
       subscriber_.is_init = false;
-      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic_.id, subscriber_profile, topic_.reader_profile_);
+
+      char reader_profile[512] = {0, };
+      sprintf(reader_profile, DEFAULT_READER_XML, topic.name_, topic.name_);
+      is_registered_ = micrortps::createSubscriber(node_, &subscriber_, topic.id_, subscriber_profile, reader_profile);
     }
 
     void subscribe(uint8_t stream_id)
@@ -42,7 +48,6 @@ class Subscriber
     bool is_registered_;
 
   private:
-    MsgT topic_;
     micrortps::Participant_t* node_;
     micrortps::Subscriber_t subscriber_;
 };
