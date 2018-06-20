@@ -34,7 +34,7 @@ class CombinationPubSub : public ros2::Node
 {
 public:
   CombinationPubSub()
-  : Node(), data_(false), index_(0)
+  : Node(), index_(0), data_(false)
   {
     publisher_ = this->createPublisher<test_msgs::Combination>("Combination");
     subscriber_ = this->createSubscriber<test_msgs::Combination>("Combination");
@@ -61,8 +61,8 @@ private:
 
   ros2::Publisher<test_msgs::Combination>* publisher_;
   ros2::Subscriber<test_msgs::Combination>* subscriber_;
+  int index_;
   bool data_;
-  uint32_t index_;
   char message_[20];
 };
 

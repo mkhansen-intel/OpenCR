@@ -79,11 +79,6 @@ public:
       return result;
   }
 
-
-
-private:
-
-
 };
 
 } // namespace test_msgs

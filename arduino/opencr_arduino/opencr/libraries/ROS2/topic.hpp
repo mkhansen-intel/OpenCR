@@ -30,7 +30,41 @@ public:
 
   virtual bool serialize(MicroBuffer* writer, const MsgT* topic) = 0;
   virtual bool deserialize(MicroBuffer* reader, MsgT* topic) = 0;
-  virtual bool write(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic) = 0;
+
+  virtual bool write(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic)
+  {
+    if (session == NULL)
+    {
+      return false;
+    }
+
+    bool result = false;
+    uint32_t topic_size = size_of_topic(topic);
+    MicroBuffer* topic_buffer = NULL;
+
+    if (128 < stream_id)
+    {
+      topic_buffer = prepare_best_effort_stream_for_topic(&session->output_best_effort_stream, datawriter_id, topic_size);
+    }
+    else
+    {
+      topic_buffer = prepare_reliable_stream_for_topic(&session->output_reliable_stream, datawriter_id, topic_size);
+    }
+
+    if (topic_buffer != NULL)
+    {
+      result = serialize(topic_buffer, topic);
+    }
+
+    return result;
+  }
+
+  virtual uint32_t size_of_topic(const MsgT* topic)
+  {
+    (void)(topic);
+
+    return 0;
+  }
 
   const char* name_;
   uint8_t id_;
