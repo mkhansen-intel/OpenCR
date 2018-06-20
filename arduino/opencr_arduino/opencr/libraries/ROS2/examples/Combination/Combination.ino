@@ -17,8 +17,6 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     case TEST_MSGS_COMBINATION_TOPIC:
     {
       topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.print(serialized_topic->last_data_size);
-      DEBUG_SERIAL.print((int)topic.message.data);
       DEBUG_SERIAL.print(" Read topic: ");
       DEBUG_SERIAL.print(topic.message.data);
       DEBUG_SERIAL.print(", ");
@@ -57,7 +55,7 @@ private:
     combination_topic.message.data = message_;
 
     publisher_->publish(&combination_topic, STREAMID_BUILTIN_RELIABLE);
-    
+
     subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
