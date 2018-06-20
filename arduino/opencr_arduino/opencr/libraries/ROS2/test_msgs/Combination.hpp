@@ -68,16 +68,16 @@ public:
       return result == BUFFER_OK;
   }
 
-
-  virtual bool write(Session* session, ObjectId datawriter_id, StreamId stream_id, Combination* topic)
+  virtual uint32_t size_of_topic(const Combination* topic)
   {
-      bool result = false;
+    uint32_t size = 0;
 
-      result = message.write(session, datawriter_id, stream_id, &topic->message);
-      result &= value.write(session, datawriter_id, stream_id, &topic->value);
-
-      return result;
+    size += message.size_of_topic(&topic->message);
+    size += value.size_of_topic(&topic->value);
+    
+    return size;
   }
+
 
 };
 
