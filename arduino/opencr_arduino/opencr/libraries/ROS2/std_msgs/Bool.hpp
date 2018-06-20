@@ -27,8 +27,7 @@ namespace std_msgs {
 class Bool : public ros2::Topic<Bool>
 {
 public:
-  typedef bool _data_type;
-  _data_type data;
+  bool data;
 
   Bool():
     Topic("Bool", STD_MSGS_BOOL_TOPIC),

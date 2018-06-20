@@ -33,8 +33,7 @@ namespace std_msgs {
 class String : public ros2::Topic<String>
 {
 public:
-  typedef char* _data_type;
-  _data_type data;
+  char* data;
 
   String():
     Topic("String", STD_MSGS_STRING_TOPIC),
