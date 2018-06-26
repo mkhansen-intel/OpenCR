@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include "micrortps.hpp"
 
-#define DEFAULT_TOPIC_XML ("<dds><topic><name>%sTopic</name><dataType>%s</dataType></topic></dds>")
+#define DEFAULT_TOPIC_XML ("<dds><topic><name>%s</name><dataType>%s</dataType></topic></dds>")
 
 namespace ros2 {
 
@@ -22,8 +22,8 @@ class Topic
 
 public:
 
-  Topic(const char* name, uint8_t id):
-    name_(name),
+  Topic(const char* type, uint8_t id):
+    type_(type),
     id_(id)
   {   
   }
@@ -66,7 +66,7 @@ public:
     return 0;
   }
 
-  const char* name_;
+  const char* type_;
   uint8_t id_;
 };
 

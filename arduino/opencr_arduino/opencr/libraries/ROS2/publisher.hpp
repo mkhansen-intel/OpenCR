@@ -11,7 +11,7 @@
 #include "micrortps.hpp"
 #include "topic.hpp"
 
-#define DEFAULT_WRITER_XML ("<profiles><publisher profile_name=\"default_xrce_publisher_profile\"><topic><kind>NO_KEY</kind><name>%sTopic</name><dataType>%s</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></publisher></profiles>")
+#define DEFAULT_WRITER_XML ("<profiles><publisher profile_name=\"default_xrce_publisher_profile\"><topic><kind>NO_KEY</kind><name>%s</name><dataType>%s</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></publisher></profiles>")
 
 
 namespace ros2 {
@@ -47,7 +47,7 @@ public:
     sprintf(publisher_profile, "<publisher name=\"%s\"", name_);
 
     char writer_profile[512] = {0, };
-    sprintf(writer_profile, DEFAULT_WRITER_XML, topic.name_, topic.name_);
+    sprintf(writer_profile, DEFAULT_WRITER_XML, name_, topic.type_);
     is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, writer_profile);
   }
 

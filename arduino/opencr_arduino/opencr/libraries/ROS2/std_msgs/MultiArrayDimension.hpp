@@ -38,7 +38,7 @@ public:
   uint32_t stride;
 
   MultiArrayDimension():
-    Topic("MultiArrayDimension", STD_MSGS_MULTI_ARRAY_DIMENSION_TOPIC),
+    Topic("std_msgs::msg::dds_::MultiArrayDimension_", STD_MSGS_MULTI_ARRAY_DIMENSION_TOPIC),
     label(NULL), size(0), stride(0)
   { 
   }

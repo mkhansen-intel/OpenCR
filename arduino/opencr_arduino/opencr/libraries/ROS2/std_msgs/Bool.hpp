@@ -30,7 +30,7 @@ public:
   bool data;
 
   Bool():
-    Topic("Bool", STD_MSGS_BOOL_TOPIC),
+    Topic("std_msgs::msg::dds_::Bool_", STD_MSGS_BOOL_TOPIC),
     data(false)
   { 
   }

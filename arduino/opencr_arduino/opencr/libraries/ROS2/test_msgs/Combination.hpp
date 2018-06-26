@@ -40,7 +40,7 @@ public:
   std_msgs::Bool   value;
 
   Combination():
-    Topic("Combination", TEST_MSGS_COMBINATION_TOPIC),
+    Topic("test_msgs::msg::dds_::Combination_", TEST_MSGS_COMBINATION_TOPIC),
     message(),
     value()
   { 

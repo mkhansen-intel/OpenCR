@@ -36,10 +36,10 @@ public:
   char* data;
 
   String():
-    Topic("String", STD_MSGS_STRING_TOPIC),
+    Topic("std_msgs::msg::dds_::String_", STD_MSGS_STRING_TOPIC),
     data(NULL)
   { 
-  };
+  }
 
 
   virtual bool serialize(MicroBuffer* writer, const String* topic)
@@ -62,7 +62,6 @@ public:
       size += 4 + get_alignment(size, 4) + (uint32_t)(strlen(topic->data) + 1);
       return size;
   }
-
 
 
 };

@@ -41,7 +41,7 @@ class Node
       }
 
       // Register Topic
-      ret = this->registerTopic<MsgT>();
+      ret = this->registerTopic<MsgT>(name);
 
       if (ret == false)
       {
@@ -77,7 +77,7 @@ class Node
       }
 
       // Register Topic
-      ret = this->registerTopic<MsgT>();
+      ret = this->registerTopic<MsgT>(name);
 
       if (ret == false)
       {
@@ -105,7 +105,7 @@ class Node
 
     template <
       typename MsgT>
-    bool registerTopic()
+    bool registerTopic(const char* name)
     {
       bool ret;
       MsgT topic;
@@ -116,7 +116,7 @@ class Node
       }
 
       char topic_profile[256] = {0, };
-      sprintf(topic_profile, DEFAULT_TOPIC_XML, topic.name_, topic.name_);
+      sprintf(topic_profile, DEFAULT_TOPIC_XML, name, topic.type_);
       ret = micrortps::registerTopic(&this->participant_, topic_profile);
 
       return ret;
