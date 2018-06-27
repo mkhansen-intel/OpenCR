@@ -61,6 +61,8 @@ public:
 
   virtual bool deserialize(MicroBuffer* reader, Odometry* topic)
   {
+    uint32_t size_child_frame_id = 0;
+
     header.deserialize(reader, &topic->header);
     deserialize_sequence_char(reader, &topic->child_frame_id, &size_child_frame_id);
     pose.deserialize(reader, &topic->pose);
