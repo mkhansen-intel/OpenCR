@@ -18,6 +18,10 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     {
       topic.deserialize(serialized_topic, &topic);
       DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Header(frameID,sec,nanosec): "); 
+      DEBUG_SERIAL.print(topic.header.frame_id); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.print(topic.header.stamp.sec); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.println(topic.header.stamp.nanosec);
       DEBUG_SERIAL.print(" Angle(min,max,inc): ");
       DEBUG_SERIAL.print(topic.angle_min); DEBUG_SERIAL.print(","); 
       DEBUG_SERIAL.print(topic.angle_max); DEBUG_SERIAL.print(","); 

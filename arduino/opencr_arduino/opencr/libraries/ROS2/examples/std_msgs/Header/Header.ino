@@ -17,10 +17,11 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     {
       std_msgs::Header topic;
       topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.print("time : ");
-      DEBUG_SERIAL.print(topic.stamp.sec + (topic.stamp.nanosec/1000000000));
-      DEBUG_SERIAL.print(", frame_id : ");
-      DEBUG_SERIAL.println(topic.frame_id);
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Header(frame_id,sec,nanosec): ");
+      DEBUG_SERIAL.print(topic.frame_id); DEBUG_SERIAL.print(", ");
+      DEBUG_SERIAL.print(topic.stamp.sec); DEBUG_SERIAL.print(", ");
+      DEBUG_SERIAL.println(topic.stamp.nanosec); 
       break;
     }
 

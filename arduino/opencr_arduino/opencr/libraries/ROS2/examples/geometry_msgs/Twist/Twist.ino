@@ -17,14 +17,15 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     case GEOMETRY_MSGS_TWIST_TOPIC:
     {
       topic.deserialize(serialized_topic, &topic);
+      DEBUG_SERIAL.println();
       DEBUG_SERIAL.print(" Linear(x,y,z): ");
       DEBUG_SERIAL.print(topic.linear.x); DEBUG_SERIAL.print(","); 
       DEBUG_SERIAL.print(topic.linear.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.linear.z); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(", Angular(x,y,z)");
+      DEBUG_SERIAL.println(topic.linear.z);
+      DEBUG_SERIAL.print(" Angular(x,y,z): ");
       DEBUG_SERIAL.print(topic.angular.x); DEBUG_SERIAL.print(","); 
       DEBUG_SERIAL.print(topic.angular.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.angular.z); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.println(topic.angular.z);
       break;
     }
 

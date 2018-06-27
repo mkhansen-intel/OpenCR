@@ -48,25 +48,20 @@ public:
 
   virtual bool serialize(MicroBuffer* writer, const Header* topic)
   {
-    uint8_t result;
-
     stamp.serialize(writer, &topic->stamp);
-    result = writer->error;
     serialize_sequence_char(writer, topic->frame_id, (uint32_t)(strlen(topic->frame_id) + 1));
-    result |= writer->error;
-    return result == BUFFER_OK;
+
+    return writer->error == BUFFER_OK;
   }
 
   virtual bool deserialize(MicroBuffer* reader, Header* topic)
   {
-    uint8_t result;
     uint32_t size_frame_id = 0;
 
     stamp.deserialize(reader, &topic->stamp);
-    result = reader->error;
     deserialize_sequence_char(reader, &topic->frame_id, &size_frame_id);
-    result |= reader->error;
-    return result == BUFFER_OK;
+
+    return reader->error == BUFFER_OK;
   }
 
   virtual uint32_t size_of_topic(const Header* topic)

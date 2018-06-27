@@ -57,46 +57,28 @@ public:
 
   virtual bool serialize(MicroBuffer* writer, const Imu* topic)
   {
-    uint8_t result;
-
     header.serialize(writer, &topic->header);
-    result = writer->error;
     orientation.serialize(writer, &topic->orientation);
-    result |= writer->error;
     serialize_array_double(writer, topic->orientation_covariance, 9);
-    result |= writer->error;
     angular_velocity.serialize(writer, &topic->angular_velocity);
-    result |= writer->error;
     serialize_array_double(writer, topic->angular_velocity_covariance, 9);
-    result |= writer->error;
     linear_acceleration.serialize(writer, &topic->linear_acceleration);
-    result |= writer->error;
     serialize_array_double(writer, topic->linear_acceleration_covariance, 9);
-    result |= writer->error;
 
-    return result == BUFFER_OK;
+    return writer->error == BUFFER_OK;
   }
 
   virtual bool deserialize(MicroBuffer* reader, Imu* topic)
   {
-    uint8_t result;
-
     header.deserialize(reader, &topic->header);
-    result = reader->error;
     orientation.deserialize(reader, &topic->orientation);
-    result |= reader->error;
     deserialize_array_double(reader, topic->orientation_covariance, 9);
-    result |= reader->error;
     angular_velocity.deserialize(reader, &topic->angular_velocity);
-    result |= reader->error;
     deserialize_array_double(reader, topic->angular_velocity_covariance, 9);
-    result |= reader->error;
     linear_acceleration.deserialize(reader, &topic->linear_acceleration);
-    result |= reader->error;
     deserialize_array_double(reader, topic->linear_acceleration_covariance, 9);
-    result |= reader->error;
 
-    return result == BUFFER_OK;
+    return reader->error == BUFFER_OK;
   }
 
   virtual uint32_t size_of_topic(const Imu* topic)

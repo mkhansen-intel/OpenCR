@@ -17,7 +17,8 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     {
       std_msgs::String topic;
       topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.print("Read topic: ");
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" String: ");
       DEBUG_SERIAL.println(topic.data);
       break;
     }

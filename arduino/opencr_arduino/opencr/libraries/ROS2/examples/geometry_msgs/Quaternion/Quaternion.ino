@@ -17,6 +17,7 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     case GEOMETRY_MSGS_QUATERNION_TOPIC:
     {
       topic.deserialize(serialized_topic, &topic);
+      DEBUG_SERIAL.println();
       DEBUG_SERIAL.print(" Quaternion(x,y,z,w): ");
       DEBUG_SERIAL.print(topic.x); DEBUG_SERIAL.print(","); 
       DEBUG_SERIAL.print(topic.y); DEBUG_SERIAL.print(","); 

@@ -17,11 +17,10 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
     {
       std_msgs::MultiArrayDimension topic;
       topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.print("Read topic: ");
-      DEBUG_SERIAL.print(topic.label);
-      DEBUG_SERIAL.print(", ");
-      DEBUG_SERIAL.print(topic.size);
-      DEBUG_SERIAL.print(", ");
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" MultiArrayDimension(label,size,stride): ");
+      DEBUG_SERIAL.print(topic.label); DEBUG_SERIAL.print(", ");
+      DEBUG_SERIAL.print(topic.size); DEBUG_SERIAL.print(", ");
       DEBUG_SERIAL.println(topic.stride);
       break;
     }

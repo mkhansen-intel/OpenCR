@@ -48,24 +48,18 @@ public:
 
   virtual bool serialize(MicroBuffer* writer, const Twist* topic)
   {
-    uint8_t result;
-
     linear.serialize(writer, &topic->linear);
-    result = writer->error;
     angular.serialize(writer, &topic->angular);
-    result |= writer->error;
-    return result == BUFFER_OK;
+
+    return writer->error == BUFFER_OK;
   }
 
   virtual bool deserialize(MicroBuffer* reader, Twist* topic)
   {
-    uint8_t result;
-
     linear.deserialize(reader, &topic->linear);
-    result = reader->error;
     angular.deserialize(reader, &topic->angular);
-    result |= reader->error;
-    return result == BUFFER_OK;
+
+    return reader->error == BUFFER_OK;
   }
 
   virtual uint32_t size_of_topic(const Twist* topic)
