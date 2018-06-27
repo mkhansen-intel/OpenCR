@@ -31,7 +31,7 @@
 #include "std_msgs/Header.hpp"
 #include "geometry_msgs/Transform.hpp"
 
-namespace nav_msgs {
+namespace geometry_msgs {
 
 
 class TransformStamped : public ros2::Topic<TransformStamped>
@@ -42,7 +42,7 @@ public:
     geometry_msgs::Transform transform;
 
   TransformStamped():
-    Topic("nav_msgs::msg::dds_::TransformStamped_", GEOMETRY_MSGS_TRANSFORM_STAMPED_TOPIC),
+    Topic("geometry_msgs::msg::dds_::TransformStamped_", GEOMETRY_MSGS_TRANSFORM_STAMPED_TOPIC),
     header(), child_frame_id(NULL), transform()
   { 
   }
@@ -80,7 +80,7 @@ public:
 
 };
 
-} // namespace nav_msgs
+} // namespace geometry_msgs
 
 
 #endif // _GEOMETRY_MSGS_TRANSFORM_STAMPED_HPP_
