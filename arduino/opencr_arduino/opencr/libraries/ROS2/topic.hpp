@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include "micrortps.hpp"
 
-#define DEFAULT_TOPIC_XML ("<dds><topic><name>%s</name><dataType>%s</dataType></topic></dds>")
+#define DEFAULT_TOPIC_XML ("<dds><topic><name>rt/%s</name><dataType>%s</dataType></topic></dds>")
 
 namespace ros2 {
 

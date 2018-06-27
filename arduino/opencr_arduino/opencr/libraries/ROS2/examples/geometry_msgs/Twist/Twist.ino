@@ -40,8 +40,8 @@ public:
   TwistPubSub()
   : Node()
   {
-    publisher_ = this->createPublisher<geometry_msgs::Twist>("rt/TwistPub");
-    subscriber_ = this->createSubscriber<geometry_msgs::Twist>("rt/TwistSub");
+    publisher_ = this->createPublisher<geometry_msgs::Twist>("TwistPub");
+    subscriber_ = this->createSubscriber<geometry_msgs::Twist>("TwistSub");
   }
 
   void run(void)

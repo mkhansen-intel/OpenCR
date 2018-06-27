@@ -38,8 +38,8 @@ public:
   MultiArrayDimensionPubSub()
   : Node()
   {
-    publisher_ = this->createPublisher<std_msgs::MultiArrayDimension>("rt/MultiArrayDimensionPub");
-    subscriber_ = this->createSubscriber<std_msgs::MultiArrayDimension>("rt/MultiArrayDimensionSub");
+    publisher_ = this->createPublisher<std_msgs::MultiArrayDimension>("MultiArrayDimensionPub");
+    subscriber_ = this->createSubscriber<std_msgs::MultiArrayDimension>("MultiArrayDimensionSub");
   }
 
   void run(void)
