@@ -13,7 +13,7 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
 
   switch(id.data[0])
   {
-    case STD_MSGS_STRING_TOPIC:
+    case STD_MSGS_HEADER_TOPIC:
     {
       std_msgs::Header topic;
       topic.deserialize(serialized_topic, &topic);
@@ -36,8 +36,8 @@ public:
   HeaderPubSub()
   : Node()
   {
-    publisher_ = this->createPublisher<std_msgs::Header>("HeaderPub");
-    subscriber_ = this->createSubscriber<std_msgs::Header>("HeaderSub");
+    publisher_ = this->createPublisher<std_msgs::Header>("Header");
+    subscriber_ = this->createSubscriber<std_msgs::Header>("Header");
   }
 
   void run(void)

@@ -34,8 +34,8 @@ public:
   StringPubSub()
   : Node()
   {
-    publisher_ = this->createPublisher<std_msgs::String>("StringPub");
-    subscriber_ = this->createSubscriber<std_msgs::String>("StringSub");
+    publisher_ = this->createPublisher<std_msgs::String>("String");
+    subscriber_ = this->createSubscriber<std_msgs::String>("String");
   }
 
   void run(void)
