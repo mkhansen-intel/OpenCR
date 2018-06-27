@@ -44,9 +44,9 @@ public:
     float scan_time;
     float range_min;
     float range_max;
-    float* ranges_data;
+    float* ranges;
     uint32_t ranges_size;
-    float* intensities_data;
+    float* intensities;
     uint32_t intensities_size;
 
   LaserScan():
@@ -54,8 +54,8 @@ public:
     header(),
     angle_min(0), angle_max(0), angle_increment(0), time_increment(0),
     scan_time(0), range_min(0), range_max(0),
-    ranges_data(NULL), ranges_size(0),
-    intensities_data(NULL), intensities_size(0)
+    ranges(NULL), ranges_size(0),
+    intensities(NULL), intensities_size(0)
   { 
   }
 
@@ -69,8 +69,8 @@ public:
     serialize_float(writer, topic->scan_time);
     serialize_float(writer, topic->range_min);
     serialize_float(writer, topic->range_max);
-    serialize_sequence_float(writer, topic->ranges_data, topic->ranges_size); 
-    serialize_sequence_float(writer, topic->intensities_data, topic->intensities_size); 
+    serialize_sequence_float(writer, topic->ranges, topic->ranges_size); 
+    serialize_sequence_float(writer, topic->intensities, topic->intensities_size); 
 
     return writer->error == BUFFER_OK;
   }
@@ -85,8 +85,8 @@ public:
     deserialize_float(reader, &topic->scan_time);
     deserialize_float(reader, &topic->range_min);
     deserialize_float(reader, &topic->range_max);
-    deserialize_sequence_float(reader, &topic->ranges_data, &topic->ranges_size); 
-    deserialize_sequence_float(reader, &topic->intensities_data, &topic->intensities_size); 
+    deserialize_sequence_float(reader, &topic->ranges, &topic->ranges_size); 
+    deserialize_sequence_float(reader, &topic->intensities, &topic->intensities_size); 
 
     return reader->error == BUFFER_OK;
   }

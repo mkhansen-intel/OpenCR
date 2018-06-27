@@ -35,14 +35,14 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
       DEBUG_SERIAL.print(" Range(data:size): ");
       for(uint32_t i = 0; i < topic.ranges_size; i++)
       {
-        DEBUG_SERIAL.print(topic.ranges_data[i]); DEBUG_SERIAL.print(" ");
+        DEBUG_SERIAL.print(topic.ranges[i]); DEBUG_SERIAL.print(" ");
       }
       DEBUG_SERIAL.print(": ");
       DEBUG_SERIAL.println(topic.ranges_size);
       DEBUG_SERIAL.print(" Intensity(data:size): ");
       for(uint32_t i = 0; i < topic.intensities_size; i++)
       {
-        DEBUG_SERIAL.print(topic.intensities_data[i]); DEBUG_SERIAL.print(" ");
+        DEBUG_SERIAL.print(topic.intensities[i]); DEBUG_SERIAL.print(" ");
       }
       DEBUG_SERIAL.print(": ");
       DEBUG_SERIAL.println(topic.intensities_size);
@@ -89,14 +89,14 @@ private:
     laser_scan_topic.range_min = 6;
     laser_scan_topic.range_max = 7;
 
-    laser_scan_topic.ranges_data = ranges_data_;
+    laser_scan_topic.ranges = ranges_data_;
     laser_scan_topic.ranges_size = sizeof(ranges_data_)/sizeof(float);
     for(uint32_t i = 0; i < laser_scan_topic.ranges_size; i++)
     {
       laser_scan_topic.ranges_data[i] = (float)(micros()%128);
     }
 
-    laser_scan_topic.intensities_data = intensities_data;
+    laser_scan_topic.intensities = intensities_data;
     laser_scan_topic.intensities_size = sizeof(intensities_data)/sizeof(float);
     for(uint32_t i = 0; i < laser_scan_topic.intensities_size; i++)
     {
