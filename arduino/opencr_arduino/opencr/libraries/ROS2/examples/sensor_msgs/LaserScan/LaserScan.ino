@@ -93,14 +93,14 @@ private:
     laser_scan_topic.ranges_size = sizeof(ranges_data_)/sizeof(float);
     for(uint32_t i = 0; i < laser_scan_topic.ranges_size; i++)
     {
-      laser_scan_topic.ranges_data[i] = (float)(micros()%128);
+      laser_scan_topic.ranges[i] = (float)(micros()%128);
     }
 
     laser_scan_topic.intensities = intensities_data;
     laser_scan_topic.intensities_size = sizeof(intensities_data)/sizeof(float);
     for(uint32_t i = 0; i < laser_scan_topic.intensities_size; i++)
     {
-      laser_scan_topic.intensities_data[i] = (float)(micros()%128);
+      laser_scan_topic.intensities[i] = (float)(micros()%128);
     }
 
     publisher_->publish(&laser_scan_topic, STREAMID_BUILTIN_RELIABLE);
