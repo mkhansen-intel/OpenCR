@@ -19,7 +19,8 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
       topic.deserialize(serialized_topic, &topic);
       DEBUG_SERIAL.println();
       DEBUG_SERIAL.print(" Int64: ");
-      DEBUG_SERIAL.println((int)(topic.data >> 32));
+      DEBUG_SERIAL.print((int32_t)(topic.data >> 32));
+      DEBUG_SERIAL.println((int32_t)(topic.data));
       break;
     }
 
@@ -48,7 +49,7 @@ private:
   void timer_callback()
   {
     std_msgs::Int64 int64_topic;
-    int64_topic.data = 0x0102030405060708;//(int64_t)millis();
+    int64_topic.data = 1234567891011121314;//(int64_t)millis();
 
     publisher_->publish(&int64_topic, STREAMID_BUILTIN_RELIABLE);
     subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
