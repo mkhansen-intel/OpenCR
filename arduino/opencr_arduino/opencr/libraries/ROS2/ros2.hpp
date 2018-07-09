@@ -125,19 +125,8 @@ class Node
 
 
 
-static bool g_is_rmw_init = false;
-
-bool init(OnTopic callback)
-{
-  g_is_rmw_init = micrortps::setup(callback);
-
-  return g_is_rmw_init;
-}
-
-void spin()
-{
-  micrortps::runCommunication();
-}
+bool init(OnTopic callback);
+void spin(void);
 
 
 } /* namespace ros2 */

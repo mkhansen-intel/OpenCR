@@ -8,6 +8,7 @@
 #ifndef ROS2_PUBLISHER_HPP_
 #define ROS2_PUBLISHER_HPP_
 
+#include <stdio.h>
 #include "micrortps.hpp"
 #include "topic.hpp"
 
@@ -22,6 +23,7 @@ class Publisher
  
 public:
   Publisher(micrortps::Participant_t* node, const char* name)
+    : is_registered_(false)
   {
     node_ = node;
     name_ = name;
@@ -35,7 +37,7 @@ public:
       return;
     }
 
-    topic->write(node_->session, publisher_.writer_id, stream_id, topic);
+    topic->writeTopic(node_->session, publisher_.writer_id, stream_id, topic);
   }
 
   void recreate()

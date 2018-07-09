@@ -8,6 +8,7 @@
 #ifndef ROS2_SUBSCRIBER_HPP_
 #define ROS2_SUBSCRIBER_HPP_
 
+#include <stdio.h>
 #include "micrortps.hpp"
 #include "topic.hpp"
 
@@ -25,6 +26,7 @@ class Subscriber
 
   public:
     Subscriber(micrortps::Participant_t* node, const char* name)
+      : is_registered_(false)
     {
       node_ = node;
       name_ = name;

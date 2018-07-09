@@ -31,7 +31,7 @@ public:
   virtual bool serialize(MicroBuffer* writer, const MsgT* topic) = 0;
   virtual bool deserialize(MicroBuffer* reader, MsgT* topic) = 0;
 
-  virtual bool write(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic)
+  virtual bool writeTopic(Session* session, ObjectId datawriter_id, StreamId stream_id, MsgT* topic)
   {
     if (session == NULL)
     {
