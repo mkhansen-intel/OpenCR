@@ -37,6 +37,8 @@ class Subscriber:public NodeHandle
       this->recreate();
     }
 
+    virtual ~Subscriber(){};
+
     void subscribe(StreamId stream_id)
     {
       if(subscriber_.is_init ==  false)

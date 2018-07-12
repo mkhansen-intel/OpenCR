@@ -34,6 +34,8 @@ public:
     this->recreate();
   }
 
+  virtual ~Publisher(){};
+
   void publish(MsgT * topic, StreamId stream_id)
   {
     if(publisher_.is_init ==  false)
@@ -77,10 +79,7 @@ public:
 private:
   const char* name_;
   micrortps::Participant_t* node_;
-  micrortps::Publisher_t publisher_;
-
-  MsgT *topic_;
-  
+  micrortps::Publisher_t publisher_;  
 };
 
 

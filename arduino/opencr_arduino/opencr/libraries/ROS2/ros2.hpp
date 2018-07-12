@@ -8,7 +8,6 @@
 #ifndef ROS2_HPP_
 #define ROS2_HPP_
 
-#include <functional>
 #include "publisher.hpp"
 #include "subscriber.hpp"
 
@@ -28,6 +27,8 @@ class Node
       participant_.is_init = false;
       node_register_state_ = micrortps::createParticipant(&this->participant_);
     }
+
+    virtual ~Node(){};
 
     template <
       typename MsgT>
