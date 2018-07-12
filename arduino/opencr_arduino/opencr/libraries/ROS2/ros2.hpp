@@ -8,6 +8,7 @@
 #ifndef ROS2_HPP_
 #define ROS2_HPP_
 
+#include <functional>
 #include "publisher.hpp"
 #include "subscriber.hpp"
 
@@ -21,6 +22,7 @@ class Node
     uint8_t err_code;
 
     Node()
+      : pub_cnt_(0), sub_cnt_(0)
     {
       err_code = 0;
       participant_.is_init = false;
@@ -40,6 +42,11 @@ class Node
         return NULL;
       }
 
+      if(pub_cnt_ >= 20)
+      {
+        return NULL;
+      }
+
       // Register Topic
       ret = this->registerTopic<MsgT>(name);
 
@@ -50,6 +57,7 @@ class Node
       }
 
       p_pub = new ros2::Publisher<MsgT>(&this->participant_, name);
+      pub_list_[pub_cnt_++] = (NodeHandle*) p_pub;
 
       if(p_pub->is_registered_ == false)
       {
@@ -76,6 +84,11 @@ class Node
         return NULL;
       }
 
+      if(sub_cnt_ >= 20)
+      {
+        return NULL;
+      }
+
       // Register Topic
       ret = this->registerTopic<MsgT>(name);
 
@@ -86,6 +99,7 @@ class Node
       }
 
       p_sub = new ros2::Subscriber<MsgT>(&this->participant_, name);
+      sub_list_[sub_cnt_++] = (NodeHandle*) p_sub;
 
       if(p_sub->is_registered_ == false)
       {
@@ -98,10 +112,16 @@ class Node
       return p_sub;
     }
 
+    virtual void callback(void) = 0;
+
+    NodeHandle* pub_list_[20];
+    NodeHandle* sub_list_[20];
 
   private:
     bool node_register_state_;
     micrortps::Participant_t participant_;
+    uint8_t pub_cnt_;
+    uint8_t sub_cnt_;
 
     template <
       typename MsgT>
@@ -126,7 +146,7 @@ class Node
 
 
 bool init(OnTopic callback);
-void spin(void);
+void spin(Node *node);
 
 
 } /* namespace ros2 */

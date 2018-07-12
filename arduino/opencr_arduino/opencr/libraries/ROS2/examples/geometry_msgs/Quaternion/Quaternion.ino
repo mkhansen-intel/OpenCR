@@ -6,30 +6,11 @@
 #define DEBUG_SERIAL Serial2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
-static geometry_msgs::Quaternion topic;
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
-{
-  ((void)(args));
 
-  switch(id.data[0])
-  {
-    case GEOMETRY_MSGS_QUATERNION_TOPIC:
-    {
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Quaternion(x,y,z,w): ");
-      DEBUG_SERIAL.print(topic.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.z); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.w);
-      break;
-    }
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
+static bool is_get_Quaternion_topic = false;
 
-    default:
-      break;
-  }
-}
 
 
 class QuaternionPubSub : public ros2::Node
@@ -39,16 +20,28 @@ public:
   : Node()
   {
     publisher_ = this->createPublisher<geometry_msgs::Quaternion>("Quaternion");
+    publisher_->setPublishInterval(2); // 2 hz
     subscriber_ = this->createSubscriber<geometry_msgs::Quaternion>("Quaternion");
+    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
-  void run(void)
-  {
-    this->timer_callback();
-  }
 
 private:  
-  void timer_callback()
+  void callback()
+  {
+    if(publisher_->isTimeToPublish())
+    {
+      callbackQuaternionPub();
+    }
+
+    if(is_get_Quaternion_topic)
+    {
+      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+      is_get_Quaternion_topic = false;
+    }
+  }
+
+  void callbackQuaternionPub(void)
   {
     geometry_msgs::Quaternion quaternion_topic;
     quaternion_topic.x = micros()%128;
@@ -57,8 +50,6 @@ private:
     quaternion_topic.w = micros()%180;
 
     publisher_->publish(&quaternion_topic, STREAMID_BUILTIN_RELIABLE);
-
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
   ros2::Publisher<geometry_msgs::Quaternion>* publisher_;
@@ -87,11 +78,38 @@ void loop()
   {
     pre_time = millis();
 
-    QuaternionNode.run();
-
     digitalWrite(LED_BUILTIN, led_state);
     led_state = !led_state;
   }
 
-  ros2::spin();
+  ros2::spin(&QuaternionNode);
+}
+
+
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+{
+  ((void)(args));
+
+  switch(id.data[0])
+  {
+    case GEOMETRY_MSGS_QUATERNION_TOPIC:
+    {
+      geometry_msgs::Quaternion topic;
+
+      topic.deserialize(serialized_topic, &topic);
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Quaternion(x,y,z,w): ");
+      DEBUG_SERIAL.print(topic.x); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.print(topic.y); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.print(topic.z); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.println(topic.w);
+
+      is_get_Quaternion_topic = true;
+
+      break;
+    }
+
+    default:
+      break;
+  }
 }

@@ -6,7 +6,117 @@
 #define DEBUG_SERIAL Serial2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
-static sensor_msgs::LaserScan topic;
+
+
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
+static bool is_get_LaserScan_topic = false;
+
+
+
+
+
+class LaserScanPubSub : public ros2::Node
+{
+public:
+  LaserScanPubSub()
+  : Node()
+  {
+    memset(ranges_data_, 0, sizeof(ranges_data_));
+    memset(intensities_data_, 0, sizeof(intensities_data_));
+
+    publisher_ = this->createPublisher<sensor_msgs::LaserScan>("LaserScan");
+    publisher_->setPublishInterval(2); // 2 hz
+    subscriber_ = this->createSubscriber<sensor_msgs::LaserScan>("LaserScan");
+    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+  }
+
+private:  
+
+  void callback()
+  {
+    if(publisher_->isTimeToPublish())
+    {
+      callbackLaserScanPub();
+    }
+
+    if(is_get_LaserScan_topic)
+    {
+      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+      is_get_LaserScan_topic = false;
+    }
+  }
+
+  void callbackLaserScanPub()
+  {
+    nano_time_ = get_nano_time();
+
+    sensor_msgs::LaserScan laser_scan_topic;
+    laser_scan_topic.header.frame_id = (char*) "OpenCR LaserScan";
+    laser_scan_topic.header.stamp.sec = nano_time_/1000000000;
+    laser_scan_topic.header.stamp.nanosec = nano_time_%1000000000;
+    
+    laser_scan_topic.angle_min = 1;
+    laser_scan_topic.angle_max = 2;
+    laser_scan_topic.angle_increment = 3;
+    laser_scan_topic.time_increment = 4;
+    laser_scan_topic.scan_time = 5;
+    laser_scan_topic.range_min = 6;
+    laser_scan_topic.range_max = 7;
+
+    laser_scan_topic.ranges = ranges_data_;
+    laser_scan_topic.ranges_size = sizeof(ranges_data_)/sizeof(float);
+    for(uint32_t i = 0; i < laser_scan_topic.ranges_size; i++)
+    {
+      laser_scan_topic.ranges[i] = (float)(micros()%128);
+    }
+
+    laser_scan_topic.intensities = intensities_data_;
+    laser_scan_topic.intensities_size = sizeof(intensities_data_)/sizeof(float);
+    for(uint32_t i = 0; i < laser_scan_topic.intensities_size; i++)
+    {
+      laser_scan_topic.intensities[i] = (float)(micros()%128);
+    }
+
+    publisher_->publish(&laser_scan_topic, STREAMID_BUILTIN_RELIABLE);
+  }
+
+  ros2::Publisher<sensor_msgs::LaserScan>* publisher_;
+  ros2::Subscriber<sensor_msgs::LaserScan>* subscriber_;
+
+  float ranges_data_[8];
+  float intensities_data_[8];
+  uint64_t nano_time_;
+};
+
+
+
+void setup() 
+{
+  DEBUG_SERIAL.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+  
+  while (!RTPS_SERIAL);
+
+  ros2::init(on_topic);
+}
+
+void loop() 
+{
+  static uint32_t pre_time = millis();
+  static bool led_state = false;
+  static LaserScanPubSub LaserScanNode;
+
+  if(millis() - pre_time > 500)
+  {
+    pre_time = millis();
+
+    digitalWrite(LED_BUILTIN, led_state);
+    led_state = !led_state;
+  }
+
+  ros2::spin(&LaserScanNode);
+}
+
 
 void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
 {
@@ -16,6 +126,8 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
   {
     case SENSOR_MSGS_LASER_SCAN_TOPIC:
     {
+      sensor_msgs::LaserScan topic;
+
       topic.deserialize(serialized_topic, &topic);
       DEBUG_SERIAL.println();
       DEBUG_SERIAL.print(" Header(frameID,sec,nanosec): "); 
@@ -46,102 +158,13 @@ void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
       }
       DEBUG_SERIAL.print(": ");
       DEBUG_SERIAL.println(topic.intensities_size);
+
+      is_get_LaserScan_topic = true;
+
       break;
     }
 
     default:
       break;
   }
-}
-
-
-class LaserScanPubSub : public ros2::Node
-{
-public:
-  LaserScanPubSub()
-  : Node()
-  {
-    memset(ranges_data_, 0, sizeof(ranges_data_));
-    memset(intensities_data, 0, sizeof(intensities_data));
-
-    publisher_ = this->createPublisher<sensor_msgs::LaserScan>("LaserScan");
-    subscriber_ = this->createSubscriber<sensor_msgs::LaserScan>("LaserScan");
-  }
-
-  void run(void)
-  {
-    this->timer_callback();
-  }
-
-private:  
-  void timer_callback()
-  {
-    sensor_msgs::LaserScan laser_scan_topic;
-    laser_scan_topic.header.frame_id = (char*) "OpenCR LaserScan";
-    laser_scan_topic.header.stamp.sec = millis()/1000;
-    laser_scan_topic.header.stamp.nanosec = (micros()%1000000)*1000;
-    
-    laser_scan_topic.angle_min = 1;
-    laser_scan_topic.angle_max = 2;
-    laser_scan_topic.angle_increment = 3;
-    laser_scan_topic.time_increment = 4;
-    laser_scan_topic.scan_time = 5;
-    laser_scan_topic.range_min = 6;
-    laser_scan_topic.range_max = 7;
-
-    laser_scan_topic.ranges = ranges_data_;
-    laser_scan_topic.ranges_size = sizeof(ranges_data_)/sizeof(float);
-    for(uint32_t i = 0; i < laser_scan_topic.ranges_size; i++)
-    {
-      laser_scan_topic.ranges[i] = (float)(micros()%128);
-    }
-
-    laser_scan_topic.intensities = intensities_data;
-    laser_scan_topic.intensities_size = sizeof(intensities_data)/sizeof(float);
-    for(uint32_t i = 0; i < laser_scan_topic.intensities_size; i++)
-    {
-      laser_scan_topic.intensities[i] = (float)(micros()%128);
-    }
-
-    publisher_->publish(&laser_scan_topic, STREAMID_BUILTIN_RELIABLE);
-
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-  }
-
-  ros2::Publisher<sensor_msgs::LaserScan>* publisher_;
-  ros2::Subscriber<sensor_msgs::LaserScan>* subscriber_;
-
-  float ranges_data_[8];
-  float intensities_data[8];
-};
-
-
-
-void setup() 
-{
-  DEBUG_SERIAL.begin(115200);
-  pinMode(LED_BUILTIN, OUTPUT);
-  
-  while (!RTPS_SERIAL);
-
-  ros2::init(on_topic);
-}
-
-void loop() 
-{
-  static uint32_t pre_time = millis();
-  static bool led_state = false;
-  static LaserScanPubSub LaserScanNode;
-
-  if(millis() - pre_time > 500)
-  {
-    pre_time = millis();
-
-    LaserScanNode.run();
-
-    digitalWrite(LED_BUILTIN, led_state);
-    led_state = !led_state;
-  }
-
-  ros2::spin();
 }

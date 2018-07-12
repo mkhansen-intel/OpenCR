@@ -6,29 +6,10 @@
 #define DEBUG_SERIAL Serial2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
-static geometry_msgs::Vector3 topic;
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
-{
-  ((void)(args));
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
+static bool is_get_Vector3_topic = false;
 
-  switch(id.data[0])
-  {
-    case GEOMETRY_MSGS_VECTOR3_TOPIC:
-    {
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Vector3(x,y,z): ");
-      DEBUG_SERIAL.print(topic.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.z);
-      break;
-    }
-
-    default:
-      break;
-  }
-}
 
 
 class Vector3PubSub : public ros2::Node
@@ -38,16 +19,28 @@ public:
   : Node()
   {
     publisher_ = this->createPublisher<geometry_msgs::Vector3>("Vector3");
+    publisher_->setPublishInterval(2); // 2 hz
     subscriber_ = this->createSubscriber<geometry_msgs::Vector3>("Vector3");
-  }
-
-  void run(void)
-  {
-    this->timer_callback();
+    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
 private:  
-  void timer_callback()
+
+  void callback()
+  {
+    if(publisher_->isTimeToPublish())
+    {
+      callbackVector3Pub();
+    }
+
+    if(is_get_Vector3_topic)
+    {
+      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+      is_get_Vector3_topic = false;
+    }
+  }
+
+  void callbackVector3Pub()
   {
     geometry_msgs::Vector3 vector3_topic;
     vector3_topic.x = millis()%128;
@@ -55,8 +48,6 @@ private:
     vector3_topic.z = millis()%128;
 
     publisher_->publish(&vector3_topic, STREAMID_BUILTIN_RELIABLE);
-
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
   ros2::Publisher<geometry_msgs::Vector3>* publisher_;
@@ -85,11 +76,38 @@ void loop()
   {
     pre_time = millis();
 
-    Vector3Node.run();
-
     digitalWrite(LED_BUILTIN, led_state);
     led_state = !led_state;
   }
 
-  ros2::spin();
+  ros2::spin(&Vector3Node);
+}
+
+
+
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+{
+  ((void)(args));
+
+  switch(id.data[0])
+  {
+    case GEOMETRY_MSGS_VECTOR3_TOPIC:
+    {
+      geometry_msgs::Vector3 topic;
+
+      topic.deserialize(serialized_topic, &topic);
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Vector3(x,y,z): ");
+      DEBUG_SERIAL.print(topic.x); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.print(topic.y); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.println(topic.z);
+
+      is_get_Vector3_topic = true;
+      
+      break;
+    }
+
+    default:
+      break;
+  }
 }

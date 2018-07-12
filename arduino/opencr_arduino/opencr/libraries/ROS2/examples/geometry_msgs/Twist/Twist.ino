@@ -6,33 +6,10 @@
 #define DEBUG_SERIAL Serial2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
-static geometry_msgs::Twist topic;
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
-{
-  ((void)(args));
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
+static bool is_get_Twist_topic = false;
 
-  switch(id.data[0])
-  {
-    case GEOMETRY_MSGS_TWIST_TOPIC:
-    {
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Linear(x,y,z): ");
-      DEBUG_SERIAL.print(topic.linear.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.linear.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.linear.z);
-      DEBUG_SERIAL.print(" Angular(x,y,z): ");
-      DEBUG_SERIAL.print(topic.angular.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.angular.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.angular.z);
-      break;
-    }
-
-    default:
-      break;
-  }
-}
 
 
 class TwistPubSub : public ros2::Node
@@ -42,16 +19,27 @@ public:
   : Node()
   {
     publisher_ = this->createPublisher<geometry_msgs::Twist>("Twist");
+    publisher_->setPublishInterval(2); // 2 hz
     subscriber_ = this->createSubscriber<geometry_msgs::Twist>("Twist");
-  }
-
-  void run(void)
-  {
-    this->timer_callback();
+    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
 private:  
-  void timer_callback()
+  void callback()
+  {
+    if(publisher_->isTimeToPublish())
+    {
+      callbackTwistPub();
+    }
+
+    if(is_get_Twist_topic)
+    {
+      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+      is_get_Twist_topic = false;
+    }
+  }
+
+  void callbackTwistPub(void)
   {
     geometry_msgs::Twist twist_topic;
     twist_topic.linear.x = micros()%128;
@@ -62,8 +50,6 @@ private:
     twist_topic.angular.z = micros()%180;
 
     publisher_->publish(&twist_topic, STREAMID_BUILTIN_RELIABLE);
-
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
   ros2::Publisher<geometry_msgs::Twist>* publisher_;
@@ -92,11 +78,43 @@ void loop()
   {
     pre_time = millis();
 
-    TwistNode.run();
-
     digitalWrite(LED_BUILTIN, led_state);
     led_state = !led_state;
   }
 
-  ros2::spin();
+  ros2::spin(&TwistNode);
+}
+
+
+
+
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+{
+  ((void)(args));
+
+  switch(id.data[0])
+  {
+    case GEOMETRY_MSGS_TWIST_TOPIC:
+    {
+      geometry_msgs::Twist topic;
+
+      topic.deserialize(serialized_topic, &topic);
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Linear(x,y,z): ");
+      DEBUG_SERIAL.print(topic.linear.x); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.print(topic.linear.y); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.println(topic.linear.z);
+      DEBUG_SERIAL.print(" Angular(x,y,z): ");
+      DEBUG_SERIAL.print(topic.angular.x); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.print(topic.angular.y); DEBUG_SERIAL.print(","); 
+      DEBUG_SERIAL.println(topic.angular.z);
+
+      is_get_Twist_topic = true;
+
+      break;
+    }
+
+    default:
+      break;
+  }
 }

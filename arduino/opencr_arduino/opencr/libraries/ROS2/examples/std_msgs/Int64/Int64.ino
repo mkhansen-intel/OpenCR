@@ -6,28 +6,11 @@
 #define DEBUG_SERIAL Serial2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
+static bool is_get_Int64_topic = false;
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
-{
-  ((void)(args));
 
-  switch(id.data[0])
-  {
-    case STD_MSGS_INT64_TOPIC:
-    {
-      std_msgs::Int64 topic;
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Int64: ");
-      DEBUG_SERIAL.print((int32_t)(topic.data >> 32));
-      DEBUG_SERIAL.println((int32_t)(topic.data));
-      break;
-    }
 
-    default:
-      break;
-  }
-}
 
 
 class Int64PubSub : public ros2::Node
@@ -37,22 +20,32 @@ public:
   : Node()
   {
     publisher_ = this->createPublisher<std_msgs::Int64>("Int64");
+    publisher_->setPublishInterval(2); // 2 hz
     subscriber_ = this->createSubscriber<std_msgs::Int64>("Int64");
-  }
-
-  void run(void)
-  {
-    this->timer_callback();
+    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
 private:  
-  void timer_callback()
+  void callback()
+  {
+    if(publisher_->isTimeToPublish())
+    {
+      callbackInt64Pub();
+    }
+
+    if(is_get_Int64_topic)
+    {
+      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+      is_get_Int64_topic = false;
+    }
+  }
+
+  void callbackInt64Pub(void)
   {
     std_msgs::Int64 int64_topic;
     int64_topic.data = 1234567891011121314;//(int64_t)millis();
 
     publisher_->publish(&int64_topic, STREAMID_BUILTIN_RELIABLE);
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
   }
 
   ros2::Publisher<std_msgs::Int64>* publisher_;
@@ -81,11 +74,36 @@ void loop()
   {
     pre_time = millis();
 
-    Int64Node.run();
-
     digitalWrite(LED_BUILTIN, led_state);
     led_state = !led_state;
   }
 
-  ros2::spin();
+  ros2::spin(&Int64Node);
+}
+
+
+void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+{
+  ((void)(args));
+
+  switch(id.data[0])
+  {
+    case STD_MSGS_INT64_TOPIC:
+    {
+      std_msgs::Int64 topic;
+
+      topic.deserialize(serialized_topic, &topic);
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Int64: ");
+      DEBUG_SERIAL.print((int32_t)(topic.data >> 32));
+      DEBUG_SERIAL.println((int32_t)(topic.data));
+
+      is_get_Int64_topic = true;
+
+      break;
+    }
+
+    default:
+      break;
+  }
 }
