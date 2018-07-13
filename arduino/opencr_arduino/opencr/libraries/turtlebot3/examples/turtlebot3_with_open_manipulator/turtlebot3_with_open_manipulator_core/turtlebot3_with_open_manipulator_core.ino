@@ -80,6 +80,7 @@ void loop()
   uint32_t t = millis();
   updateTime();
   updateVariable();
+  updateTFPrefix(nh.connected());
 
   if ((t-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_FREQUENCY))
   {
@@ -134,6 +135,10 @@ void loop()
 
   // Update the IMU unit
   sensors.updateIMU();
+
+  // TODO
+  // Update sonar data
+  // sensors.updateSonar(t);
 
   // Start Gyro Calibration after ROS connection
   updateGyroCali();
@@ -247,7 +252,7 @@ void publishImuMsg(void)
   imu_msg = sensors.getIMU();
 
   imu_msg.header.stamp    = rosNow();
-  imu_msg.header.frame_id = "imu_link";
+  imu_msg.header.frame_id = imu_frame_id;
 
   imu_pub.publish(&imu_msg);
 }
@@ -260,7 +265,7 @@ void publishMagMsg(void)
   mag_msg = sensors.getMag();
 
   mag_msg.header.stamp    = rosNow();
-  mag_msg.header.frame_id = "mag_link";
+  mag_msg.header.frame_id = mag_frame_id;
 
   mag_pub.publish(&mag_msg);
 }
@@ -359,12 +364,73 @@ void publishDriveInformation(void)
 }
 
 /*******************************************************************************
+* Update TF Prefix
+*******************************************************************************/
+void updateTFPrefix(bool isConnected)
+{
+  static bool isChecked = false;
+  char log_msg[50];
+
+  if (isConnected)
+  {
+    if (isChecked == false)
+    {
+      nh.getParam("~tf_prefix", &get_tf_prefix);
+
+      if (!strcmp(get_tf_prefix, ""))
+      {
+        sprintf(odom_header_frame_id, "odom");
+        sprintf(odom_child_frame_id, "base_footprint");  
+
+        sprintf(imu_frame_id, "imu_link");
+        sprintf(mag_frame_id, "mag_link");
+        sprintf(joint_state_header_frame_id, "base_link");
+      }
+      else
+      {
+        strcpy(odom_header_frame_id, get_tf_prefix);
+        strcpy(odom_child_frame_id, get_tf_prefix);
+
+        strcpy(imu_frame_id, get_tf_prefix);
+        strcpy(mag_frame_id, get_tf_prefix);
+        strcpy(joint_state_header_frame_id, get_tf_prefix);
+
+        strcat(odom_header_frame_id, "/odom");
+        strcat(odom_child_frame_id, "/base_footprint");
+
+        strcat(imu_frame_id, "/imu_link");
+        strcat(mag_frame_id, "/mag_link");
+        strcat(joint_state_header_frame_id, "/base_link");
+      }
+
+      sprintf(log_msg, "Setup TF on Odometry [%s]", odom_header_frame_id);
+      nh.loginfo(log_msg); 
+
+      sprintf(log_msg, "Setup TF on IMU [%s]", imu_frame_id);
+      nh.loginfo(log_msg); 
+
+      sprintf(log_msg, "Setup TF on MagneticField [%s]", mag_frame_id);
+      nh.loginfo(log_msg); 
+
+      sprintf(log_msg, "Setup TF on JointState [%s]", joint_state_header_frame_id);
+      nh.loginfo(log_msg); 
+
+      isChecked = true;
+    }
+  }
+  else
+  {
+    isChecked = false;
+  }
+}
+
+/*******************************************************************************
 * Update the odometry
 *******************************************************************************/
 void updateOdometry(void)
 {
-  odom.header.frame_id = "odom";
-  odom.child_frame_id  = "base_link";
+  odom.header.frame_id = odom_header_frame_id;
+  odom.child_frame_id  = odom_child_frame_id;
 
   odom.pose.pose.position.x = odom_pose[0];
   odom.pose.pose.position.y = odom_pose[1];
@@ -419,7 +485,7 @@ void updateJointStates(void)
 void updateTF(geometry_msgs::TransformStamped& odom_tf)
 {
   odom_tf.header = odom.header;
-  odom_tf.child_frame_id = "base_footprint";
+  odom_tf.child_frame_id = odom.child_frame_id;
   odom_tf.transform.translation.x = odom.pose.pose.position.x;
   odom_tf.transform.translation.y = odom.pose.pose.position.y;
   odom_tf.transform.translation.z = odom.pose.pose.position.z;
@@ -736,7 +802,7 @@ void initJointStates(void)
 {
   static char *joint_states_name[] = {"wheel_left_joint", "wheel_right_joint", "joint1", "joint2", "joint3", "joint4", "grip_joint", "grip_joint_sub"};
 
-  joint_states.header.frame_id = "base_link";
+  joint_states.header.frame_id = joint_state_header_frame_id;
   joint_states.name            = joint_states_name;
 
   joint_states.name_length     = WHEEL_NUM + JOINT_NUM + PALM_NUM;
