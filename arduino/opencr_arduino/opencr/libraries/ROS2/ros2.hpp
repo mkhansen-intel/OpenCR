@@ -10,7 +10,10 @@
 
 #include "publisher.hpp"
 #include "subscriber.hpp"
+#include "topic.hpp"
 
+
+void onTopicCallback(ObjectId id, MicroBuffer* serialized_topic, void* args);
 
 
 namespace ros2 {
@@ -25,6 +28,7 @@ class Node
     {
       err_code = 0;
       participant_.is_init = false;
+      micrortps::setup(onTopicCallback, (void*) this);
       node_register_state_ = micrortps::createParticipant(&this->participant_);
     }
 
@@ -113,7 +117,8 @@ class Node
       return p_sub;
     }
 
-    virtual void callback(void) = 0;
+    virtual void timerCallback(void) = 0;
+    virtual void userTopicCallback(uint8_t topic_id, void* topic_msg) = 0;
 
     NodeHandle* pub_list_[20];
     NodeHandle* sub_list_[20];
@@ -146,7 +151,7 @@ class Node
 
 
 
-bool init(OnTopic callback);
+bool init();
 void spin(Node *node);
 
 

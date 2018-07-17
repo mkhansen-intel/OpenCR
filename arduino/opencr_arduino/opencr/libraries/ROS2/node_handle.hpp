@@ -23,13 +23,16 @@ public:
   {
   }
 
-  virtual void callback(void)
-  {
-    return;
-  }
+  virtual ~NodeHandle(){}
 
-  void (*timerCallback)(void);
-  void (*topicCallback)(void);
+  // virtual void callback(void)
+  // {
+  //   return;
+  // }
+  // void (*timerCallback)(void);
+  // void (*topicCallback)(void);
+
+  virtual void recreate(void) = 0;
 
   uint32_t last_call_time_us;
   uint32_t callback_interval_us;

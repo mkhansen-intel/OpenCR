@@ -9,7 +9,9 @@
 #define ROS2_TOPIC_HPP_
 
 #include <stdlib.h>
+#include <string.h>
 #include "micrortps.hpp"
+#include "topic_config.h"
 
 #define DEFAULT_TOPIC_XML ("<dds><topic><name>rt/%s</name><dataType>%s</dataType></topic></dds>")
 

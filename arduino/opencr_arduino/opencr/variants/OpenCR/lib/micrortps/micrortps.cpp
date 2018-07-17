@@ -26,9 +26,9 @@ ClientKey    g_client_key = {{0xAA, 0xBB, 0xCC, 0xDD}};
 //
 
 
-bool micrortps::setup(OnTopic callback)
+bool micrortps::setup(OnTopic callback, void* callback_arg)
 {
-  if(new_serial_session(&g_rtps_session, g_session_id, g_client_key, "opencr_usb", callback, NULL) == false)
+  if(new_serial_session(&g_rtps_session, g_session_id, g_client_key, "opencr_usb", callback, callback_arg) == false)
   {
     return false;
   }
