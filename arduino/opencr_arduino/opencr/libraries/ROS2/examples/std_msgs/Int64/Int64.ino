@@ -6,11 +6,6 @@
 #define DEBUG_SERIAL Serial2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
-static bool is_get_Int64_topic = false;
-
-
-
 
 
 class Int64PubSub : public ros2::Node
@@ -26,26 +21,31 @@ public:
   }
 
 private:  
-  void callback()
+  void timerCallback()
   {
     if(publisher_->isTimeToPublish())
     {
-      callbackInt64Pub();
-    }
+      std_msgs::Int64 int64_topic;
+      int64_topic.data = (int64_t)get_nano_time();
 
-    if(is_get_Int64_topic)
-    {
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-      is_get_Int64_topic = false;
+      publisher_->publish(&int64_topic, STREAMID_BUILTIN_RELIABLE);
     }
   }
 
-  void callbackInt64Pub(void)
+  void userTopicCallback(uint8_t topic_id, void* topic_msg)
   {
-    std_msgs::Int64 int64_topic;
-    int64_topic.data = 1234567891011121314;//(int64_t)millis();
 
-    publisher_->publish(&int64_topic, STREAMID_BUILTIN_RELIABLE);
+    if(topic_id == subscriber_->topic_id_)
+    {
+      std_msgs::Int64 *topic = (std_msgs::Int64*)topic_msg;
+
+      DEBUG_SERIAL.println();
+      DEBUG_SERIAL.print(" Int64: ");
+      DEBUG_SERIAL.print((int32_t)(topic->data >> 32));
+      DEBUG_SERIAL.println((int32_t)(topic->data));
+
+      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+    }
   }
 
   ros2::Publisher<std_msgs::Int64>* publisher_;
@@ -61,7 +61,7 @@ void setup()
   
   while (!RTPS_SERIAL);
 
-  ros2::init(on_topic);
+  ros2::init();
 }
 
 void loop() 
@@ -79,31 +79,4 @@ void loop()
   }
 
   ros2::spin(&Int64Node);
-}
-
-
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
-{
-  ((void)(args));
-
-  switch(id.data[0])
-  {
-    case STD_MSGS_INT64_TOPIC:
-    {
-      std_msgs::Int64 topic;
-
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Int64: ");
-      DEBUG_SERIAL.print((int32_t)(topic.data >> 32));
-      DEBUG_SERIAL.println((int32_t)(topic.data));
-
-      is_get_Int64_topic = true;
-
-      break;
-    }
-
-    default:
-      break;
-  }
 }
