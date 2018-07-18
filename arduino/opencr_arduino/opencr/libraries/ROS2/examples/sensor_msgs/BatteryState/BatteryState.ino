@@ -32,7 +32,7 @@ private:
       nano_time_ = get_nano_time();
 
       sensor_msgs::BatteryState battery_state_topic;
-      battery_state_topic.header.frame_id = (char*) "CommXel BatteryState";
+      battery_state_topic.header.frame_id = (char*) "OpenCR BatteryState";
       battery_state_topic.header.stamp.sec = nano_time_/(uint64_t)1000000000;
       battery_state_topic.header.stamp.nanosec = nano_time_%(uint64_t)1000000000;
 
