@@ -155,3 +155,9 @@ uint8_t micrortps::getLastStatus()
 {
   return g_rtps_session.last_status.status;
 }
+
+
+uint64_t micrortps::getNanoTime(void)
+{
+  return get_nano_time();
+}

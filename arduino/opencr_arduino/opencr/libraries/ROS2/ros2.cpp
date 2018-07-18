@@ -23,6 +23,11 @@ void ros2::spin(ros2::Node *node)
 }
 
 
+uint64_t ros2::getNanoTime(void)
+{
+  return micrortps::getNanoTime();
+}
+
 
 #include "std_msgs/Bool.hpp"
 #include "std_msgs/Empty.hpp"

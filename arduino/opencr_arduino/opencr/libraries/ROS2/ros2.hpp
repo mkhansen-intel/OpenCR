@@ -153,6 +153,7 @@ class Node
 
 bool init();
 void spin(Node *node);
+uint64_t getNanoTime(void);
 
 
 } /* namespace ros2 */
