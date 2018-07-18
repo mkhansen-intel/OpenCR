@@ -24,15 +24,37 @@ class Node
     uint8_t err_code;
 
     Node()
-      : pub_cnt_(0), sub_cnt_(0)
+    {
+      err_code = 0, pub_cnt_ = 0, sub_cnt_ = 0, node_register_state_ = false;
+      this->recreate();
+    }
+
+    virtual ~Node(){};
+
+    void recreate()
     {
       err_code = 0;
       participant_.is_init = false;
       micrortps::setup(onTopicCallback, (void*) this);
       node_register_state_ = micrortps::createParticipant(&this->participant_);
-    }
 
-    virtual ~Node(){};
+      uint8_t i;
+      for(i = 0; i < pub_cnt_; i++)
+      {
+        if(pub_list_[i] != NULL)
+        {
+          pub_list_[i]->recreate();
+        }
+      }
+
+      for(i = 0; i < sub_cnt_; i++)
+      {
+        if(sub_list_[i] != NULL)
+        {
+          sub_list_[i]->recreate();
+        }
+      }
+    }
 
     template <
       typename MsgT>
