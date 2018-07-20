@@ -10,34 +10,68 @@
 
 #include <stdio.h>
 #include "micrortps.hpp"
+#include "hw.h"
 
 
 namespace ros2 {
 
-class NodeHandle
+class PublisherHandle
 {
  
 public:
-  NodeHandle()
-   : last_call_time_us(0), callback_interval_us(0)
+  PublisherHandle()
+    : is_registered_(false), pub_msg_cnt_(0),
+      last_call_time_ms_(0), callback_interval_ms_(0)
   {
   }
+  virtual ~PublisherHandle(){}
 
-  virtual ~NodeHandle(){}
-
-  // virtual void callback(void)
-  // {
-  //   return;
-  // }
-  // void (*timerCallback)(void);
-  // void (*topicCallback)(void);
-
+  void (*callback)(void* topic);
   virtual void recreate(void) = 0;
+  virtual void publish(void) = 0;
 
-  uint32_t last_call_time_us;
-  uint32_t callback_interval_us;
+  void setInterval(uint32_t msec)
+  {
+    this->callback_interval_ms_ = msec;
+  }
+
+  bool isTimeToPublish()
+  {
+    if(this->callback_interval_ms_ > 0 && millis() - this->last_call_time_ms_ >= this->callback_interval_ms_)
+    {
+      this->last_call_time_ms_ = millis();
+      return true;
+    }
+    return false;
+  }
+
+  bool is_registered_;
+  uint32_t pub_msg_cnt_;
+
+private: 
+  uint32_t last_call_time_ms_;
+  uint32_t callback_interval_ms_;
 };
 
+
+class SubscriberHandle
+{
+ 
+public:
+  SubscriberHandle()
+    : is_registered_(false), topic_id_(0), sub_msg_cnt_(0)
+  {
+  }
+  virtual ~SubscriberHandle(){}
+
+  void (*callback)(void* topic);
+  virtual void recreate(void) = 0;
+  virtual void subscribe(void) = 0;
+
+  bool is_registered_;
+  uint8_t topic_id_;
+  uint32_t sub_msg_cnt_;
+};
 
 } // namespace ros2
 

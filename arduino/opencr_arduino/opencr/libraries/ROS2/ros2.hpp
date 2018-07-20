@@ -11,6 +11,7 @@
 #include "publisher.hpp"
 #include "subscriber.hpp"
 #include "topic.hpp"
+#include "builtin_interfaces/Time.hpp"
 
 
 void onTopicCallback(ObjectId id, MicroBuffer* serialized_topic, void* args);
@@ -34,6 +35,7 @@ class Node
     void recreate()
     {
       err_code = 0;
+      pub_cnt_ = 0, sub_cnt_ = 0;
       participant_.is_init = false;
       micrortps::setup(onTopicCallback, (void*) this);
       node_register_state_ = micrortps::createParticipant(&this->participant_);
@@ -84,23 +86,22 @@ class Node
       }
 
       p_pub = new ros2::Publisher<MsgT>(&this->participant_, name);
-      pub_list_[pub_cnt_++] = (NodeHandle*) p_pub;
-
+      
       if(p_pub->is_registered_ == false)
       {
         err_code = 3;
         return NULL;
       }
 
+      pub_list_[pub_cnt_++] = p_pub;
       err_code = 0;
 
       return p_pub;
     }
 
-
     template <
       typename MsgT>
-    Subscriber<MsgT>* createSubscriber(const char* name)
+    Subscriber<MsgT>* createSubscriber(const char* name, void (*callback)(void* topic_msg))
     {
       bool ret;
       ros2::Subscriber<MsgT> *p_sub = NULL;
@@ -125,25 +126,70 @@ class Node
         return NULL;
       }
 
-      p_sub = new ros2::Subscriber<MsgT>(&this->participant_, name);
-      sub_list_[sub_cnt_++] = (NodeHandle*) p_sub;
-
+      p_sub = new ros2::Subscriber<MsgT>(&this->participant_, name, callback);
+      
       if(p_sub->is_registered_ == false)
       {
         err_code = 10 + 3;
         return NULL;
       }
 
+      sub_list_[sub_cnt_++] = p_sub;
+      p_sub->subscribe();
       err_code = 0;
 
       return p_sub;
     }
 
-    virtual void timerCallback(void) = 0;
-    virtual void userTopicCallback(uint8_t topic_id, void* topic_msg) = 0;
+    void createWallTimer(uint32_t msec, void (*callback)(void* topic_msg), PublisherHandle* pub)
+    {
+      if(pub == NULL)
+      {
+        return;
+      }
 
-    NodeHandle* pub_list_[20];
-    NodeHandle* sub_list_[20];
+      pub->setInterval(msec);
+      pub->callback = callback;
+    }
+
+    void createWallFreq(uint32_t hz, void (*callback)(void* topic_msg), PublisherHandle* pub)
+    {
+      uint32_t msec;
+      if(hz > 1000)
+      {
+        hz = 1000;
+      }
+      msec = (uint32_t)(1000/hz);
+      this->createWallTimer(msec, callback, pub);
+    }
+
+    void runPubCallback()
+    {
+      uint8_t i;
+      for(i = 0; i < pub_cnt_; i++)
+      {
+        if(pub_list_[i] != NULL && pub_list_[i]->is_registered_ && pub_list_[i]->isTimeToPublish())
+        {
+          pub_list_[i]->publish();
+        }
+      }
+    }
+
+    void runSubCallback(uint8_t topic_id, void* topic_msg)
+    {
+      uint8_t i;
+      for(i = 0; i < sub_cnt_; i++)
+      {
+        if(sub_list_[i] != NULL && sub_list_[i]->is_registered_ && sub_list_[i]->topic_id_ == topic_id)
+        {
+          sub_list_[i]->callback(topic_msg);
+          sub_list_[i]->subscribe();
+        }
+      }
+    }
+
+    PublisherHandle*  pub_list_[20];
+    SubscriberHandle* sub_list_[20];
 
   private:
     bool node_register_state_;
@@ -165,7 +211,7 @@ class Node
 
       char topic_profile[256] = {0, };
       sprintf(topic_profile, DEFAULT_TOPIC_XML, name, topic.type_);
-      ret = micrortps::registerTopic(&this->participant_, topic_profile);
+      ret = micrortps::registerTopic(&this->participant_, topic_profile, topic.id_);
 
       return ret;
     }
@@ -176,6 +222,7 @@ class Node
 bool init();
 void spin(Node *node);
 uint64_t getNanoTime(void);
+builtin_interfaces::Time now();
 
 
 } /* namespace ros2 */
