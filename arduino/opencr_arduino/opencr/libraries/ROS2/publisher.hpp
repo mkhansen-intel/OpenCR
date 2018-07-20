@@ -59,7 +59,7 @@ public:
 
     char writer_profile[512] = {0, };
     sprintf(writer_profile, DEFAULT_WRITER_XML, name_, topic_.type_);
-    is_registered_ = micrortps::createPublisher(node_, &publisher_, publisher_profile, writer_profile);
+    is_registered_ = micrortps::createPublisher(node_, &publisher_, topic_.id_, publisher_profile, writer_profile);
   }
 
 private:
