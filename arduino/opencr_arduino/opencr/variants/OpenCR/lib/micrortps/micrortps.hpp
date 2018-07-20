@@ -35,12 +35,13 @@ typedef struct Participant{
   bool is_init;
   ObjectId id;
   Session *session;
+  uint8_t topic_list[256];
 } Participant_t;
 
 
 bool setup(OnTopic callback, void* callback_arg);
 bool createParticipant(Participant_t* participant);
-bool registerTopic(Participant_t* participant, char* topic_profile);
+bool registerTopic(Participant_t* participant, char* topic_profile, uint8_t topic_id);
 bool createPublisher(Participant_t* participant, Publisher_t* publisher, char* publisher_profile, char* writer_profile);
 bool createSubscriber(Participant_t* participant, Subscriber_t* subscriber, uint8_t topic_id, char* subscriber_profile, char* reader_profile);
 void subscribe(Subscriber_t* subscriber, uint8_t StreamId);
