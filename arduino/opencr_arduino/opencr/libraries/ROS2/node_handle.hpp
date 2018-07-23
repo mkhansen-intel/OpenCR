@@ -15,6 +15,8 @@
 
 namespace ros2 {
 
+typedef void(*CallbackFunc)(void* topic_msg);
+
 class PublisherHandle
 {
  
@@ -26,7 +28,7 @@ public:
   }
   virtual ~PublisherHandle(){}
 
-  void (*callback)(void* topic);
+  CallbackFunc callback;
   virtual void recreate(void) = 0;
   virtual void publish(void) = 0;
 
@@ -64,7 +66,7 @@ public:
   }
   virtual ~SubscriberHandle(){}
 
-  void (*callback)(void* topic);
+  CallbackFunc callback;
   virtual void recreate(void) = 0;
   virtual void subscribe(void) = 0;
 

@@ -466,10 +466,8 @@ void sendDebuglog(void)
 
 
 //IMU data: angular velocity, linear acceleration, orientation
-void publishImu(void* topic_msg)
+void publishImu(sensor_msgs::Imu* msg)
 {
-  sensor_msgs::Imu* msg = (sensor_msgs::Imu*)topic_msg;
-
   sensor_msgs::Imu imu_msg = sensors.getIMU();
   memcpy(msg, &imu_msg, sizeof(sensor_msgs::Imu));
   
@@ -479,20 +477,16 @@ void publishImu(void* topic_msg)
 
 
 //CMD Velocity data from RC100 : angular velocity, linear velocity
-void publishCmdVelRC100(void* topic_msg)
+void publishCmdVelRC100(geometry_msgs::Twist* msg)
 {
-  geometry_msgs::Twist* msg = (geometry_msgs::Twist*)topic_msg;
-
   msg->linear.x  = goal_velocity_from_rc100[LINEAR];
   msg->angular.z = goal_velocity_from_rc100[ANGULAR];
 }
 
 
 //Odometry : 
-void publishOdometry(void* topic_msg)
+void publishOdometry(nav_msgs::Odometry* msg)
 {
-  nav_msgs::Odometry* msg = (nav_msgs::Odometry*)topic_msg;
-
   unsigned long time_now  = millis();
   unsigned long step_time = time_now - prev_update_time;
   calcOdometry((double)(step_time * 0.001));
@@ -510,10 +504,8 @@ void publishOdometry(void* topic_msg)
 
 
 //Joint State : 
-void publishJointState(void* topic_msg)
+void publishJointState(sensor_msgs::JointState* msg)
 {
-  sensor_msgs::JointState* msg = (sensor_msgs::JointState*)topic_msg;
-
   static char *joint_states_name[WHEEL_NUM];
   joint_states_name[0] = (char*)"wheel_left_joint";
   joint_states_name[1] = (char*)"wheel_right_joint";
@@ -531,10 +523,8 @@ void publishJointState(void* topic_msg)
 
 
 //Battery State : 
-void publishBatteryState(void* topic_msg)
+void publishBatteryState(sensor_msgs::BatteryState* msg)
 {
-  sensor_msgs::BatteryState* msg = (sensor_msgs::BatteryState*)topic_msg;
-
   msg->header.stamp    = ros2::now();
   msg->design_capacity = 1.8f; //Ah
   msg->voltage         = sensors.checkVoltage();
@@ -544,10 +534,8 @@ void publishBatteryState(void* topic_msg)
 
 
 //Magnetic : 
-void publishMagneticField(void* topic_msg)
+void publishMagneticField(sensor_msgs::MagneticField* msg)
 {
-  sensor_msgs::MagneticField* msg = (sensor_msgs::MagneticField*)topic_msg;
-  
   sensor_msgs::MagneticField magnetic_field_msg = sensors.getMag();
   memcpy(msg, &magnetic_field_msg, sizeof(sensor_msgs::MagneticField));
 
@@ -557,10 +545,8 @@ void publishMagneticField(void* topic_msg)
 
 
 //sensor_state: bumpers, cliffs, buttons, encoders, battery
-void publishSensorState(void* topic_msg)
+void publishSensorState(turtlebot3_msgs::SensorState* msg)
 {
-  turtlebot3_msgs::SensorState* msg = (turtlebot3_msgs::SensorState*)topic_msg;    
- 
   if (motor_driver.readEncoder(msg->left_encoder, msg->right_encoder))
   {
     updateMotorInfo(msg->left_encoder, msg->right_encoder);
@@ -577,10 +563,8 @@ void publishSensorState(void* topic_msg)
 
 
 //version info
-void publishVersionInfo(void* topic_msg)
+void publishVersionInfo(turtlebot3_msgs::VersionInfo* msg)
 {
-  turtlebot3_msgs::VersionInfo* msg = (turtlebot3_msgs::VersionInfo*)topic_msg;
-
   msg->hardware = (char*)HARDWARE_VER;
   msg->software = (char*)SOFTWARE_VER;
   msg->firmware = (char*)FIRMWARE_VER;  
@@ -588,35 +572,28 @@ void publishVersionInfo(void* topic_msg)
 
 
 
-void subscribeCmdVel(void* topic_msg)
+void subscribeCmdVel(geometry_msgs::Twist* msg)
 {
-  geometry_msgs::Twist* msg = (geometry_msgs::Twist*)topic_msg;
-
   goal_velocity_from_cmd[LINEAR]  = constrain(msg->linear.x,  MIN_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY);
   goal_velocity_from_cmd[ANGULAR] = constrain(msg->angular.z, MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
 }
 
 
-void subscribeSound(void* topic_msg)
+void subscribeSound(turtlebot3_msgs::Sound* msg)
 {
-  turtlebot3_msgs::Sound* msg = (turtlebot3_msgs::Sound*)topic_msg;
-
   sensors.makeSound(msg->value);
 }
 
 
-void subscribeMotorPower(void* topic_msg)
-{
-  std_msgs::Bool* msg = (std_msgs::Bool*)topic_msg;
-      
+void subscribeMotorPower(std_msgs::Bool* msg)
+{      
   motor_driver.setTorque(msg->data);
 }
 
 
-void subscribeReset(void* topic_msg)
+void subscribeReset(std_msgs::Empty* msg)
 {
-  (void)(topic_msg);
-  //std_msgs::Empty* msg = (std_msgs::Empty*)topic_msg;
+  (void)(msg);
 
   char log_msg[50];
 

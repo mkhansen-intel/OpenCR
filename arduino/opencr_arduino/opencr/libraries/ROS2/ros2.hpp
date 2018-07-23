@@ -101,7 +101,7 @@ class Node
 
     template <
       typename MsgT>
-    Subscriber<MsgT>* createSubscriber(const char* name, void (*callback)(void* topic_msg))
+    Subscriber<MsgT>* createSubscriber(const char* name, CallbackFunc callback)
     {
       bool ret;
       ros2::Subscriber<MsgT> *p_sub = NULL;
@@ -141,7 +141,7 @@ class Node
       return p_sub;
     }
 
-    void createWallTimer(uint32_t msec, void (*callback)(void* topic_msg), PublisherHandle* pub)
+    void createWallTimer(uint32_t msec, CallbackFunc callback, PublisherHandle* pub)
     {
       if(pub == NULL)
       {
@@ -152,7 +152,7 @@ class Node
       pub->callback = callback;
     }
 
-    void createWallFreq(uint32_t hz, void (*callback)(void* topic_msg), PublisherHandle* pub)
+    void createWallFreq(uint32_t hz, CallbackFunc callback, PublisherHandle* pub)
     {
       uint32_t msec;
       if(hz > 1000)
@@ -186,7 +186,10 @@ class Node
         p_sub = sub_list_[i];
         if(p_sub != NULL && p_sub->is_registered_ && p_sub->topic_id_ == topic_id)
         {
-          p_sub->callback(topic_msg);
+          if(p_sub->callback != NULL)
+          {
+            p_sub->callback(topic_msg);
+          }
           p_sub->subscribe();
         }
       }
