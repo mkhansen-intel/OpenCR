@@ -22,9 +22,12 @@ class PublisherHandle
  
 public:
   PublisherHandle()
-    : is_registered_(false), pub_msg_cnt_(0),
-      last_call_time_ms_(0), callback_interval_ms_(0)
+    : is_registered_(false)
   {
+    callback = NULL;
+    pub_msg_cnt_ = 0;
+    callback_interval_ms_ = 0;
+    last_call_time_ms_ = 0;
   }
   virtual ~PublisherHandle(){}
 
@@ -50,7 +53,7 @@ public:
   bool is_registered_;
   uint32_t pub_msg_cnt_;
 
-private: 
+private:
   uint32_t last_call_time_ms_;
   uint32_t callback_interval_ms_;
 };
@@ -58,11 +61,13 @@ private:
 
 class SubscriberHandle
 {
- 
+
 public:
   SubscriberHandle()
-    : is_registered_(false), topic_id_(0), sub_msg_cnt_(0)
+    : is_registered_(false), topic_id_(0)
   {
+    callback = NULL;
+    sub_msg_cnt_ = 0;
   }
   virtual ~SubscriberHandle(){}
 
