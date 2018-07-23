@@ -166,11 +166,13 @@ class Node
     void runPubCallback()
     {
       uint8_t i;
+      ros2::PublisherHandle *p_pub;
       for(i = 0; i < pub_cnt_; i++)
       {
-        if(pub_list_[i] != NULL && pub_list_[i]->is_registered_ && pub_list_[i]->isTimeToPublish())
+        p_pub = pub_list_[i];
+        if(p_pub != NULL && p_pub->is_registered_ && p_pub->isTimeToPublish())
         {
-          pub_list_[i]->publish();
+          p_pub->publish();
         }
       }
     }
@@ -178,12 +180,14 @@ class Node
     void runSubCallback(uint8_t topic_id, void* topic_msg)
     {
       uint8_t i;
+      ros2::SubscriberHandle *p_sub;
       for(i = 0; i < sub_cnt_; i++)
       {
-        if(sub_list_[i] != NULL && sub_list_[i]->is_registered_ && sub_list_[i]->topic_id_ == topic_id)
+        p_sub = sub_list_[i];
+        if(p_sub != NULL && p_sub->is_registered_ && p_sub->topic_id_ == topic_id)
         {
-          sub_list_[i]->callback(topic_msg);
-          sub_list_[i]->subscribe();
+          p_sub->callback(topic_msg);
+          p_sub->subscribe();
         }
       }
     }
