@@ -3,13 +3,13 @@
 #include "std_msgs/Header.hpp"
 
 
-#define DEBUG_SERIAL Serial2  
+#define DEBUG_SERIAL SerialBT2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
+#define HEADER_PUBLISH_FREQUENCY 2 //hz
 
-
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
-static bool is_get_Header_topic = false;
+void publishHeader(std_msgs::Header* msg);
+void subscribeHeader(std_msgs::Header* msg);
 
 
 class HeaderPubSub : public ros2::Node
@@ -18,56 +18,29 @@ public:
   HeaderPubSub()
   : Node()
   {
+    DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<std_msgs::Header>("Header");
-    publisher_->setPublishInterval(2); // 2 hz
-    subscriber_ = this->createSubscriber<std_msgs::Header>("Header");
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-
+    this->createWallFreq(HEADER_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishHeader, publisher_);
+    DEBUG_SERIAL.print(" [Publisher Create]   /Header : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
+    subscriber_ = this->createSubscriber<std_msgs::Header>("Header", (ros2::CallbackFunc)subscribeHeader);
+    DEBUG_SERIAL.print(" [Subscriber Create]  /Header : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));  
   }
 
 private:  
-  void callback()
-  {
-    if(publisher_->isTimeToPublish())
-    {
-      callbackHeaderPub();
-    }
-
-    if(is_get_Header_topic)
-    {
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-      is_get_Header_topic = false;
-    }
-  }
-
-  void callbackHeaderPub(void)
-  {
-    nano_time_ = get_nano_time();
-
-    std_msgs::Header header_topic;
-    header_topic.stamp.sec = nano_time_/1000000000;;
-    header_topic.stamp.nanosec = nano_time_%1000000000;
-    header_topic.frame_id = (char*) "OpenCR Frame ID";
-
-    publisher_->publish(&header_topic, STREAMID_BUILTIN_RELIABLE);
-  }
-
   ros2::Publisher<std_msgs::Header>* publisher_;
   ros2::Subscriber<std_msgs::Header>* subscriber_;
-
-  uint64_t nano_time_;
 };
 
 
 
 void setup() 
 {
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
   
   while (!RTPS_SERIAL);
 
-  ros2::init(on_topic);
+  ros2::init();
 }
 
 void loop() 
@@ -88,29 +61,18 @@ void loop()
 }
 
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+void publishHeader(std_msgs::Header* msg)
 {
-  ((void)(args));
+  msg->stamp    = ros2::now();
+  msg->frame_id = (char*) "OpenCR Frame ID";
+}
 
-  switch(id.data[0])
-  {
-    case STD_MSGS_HEADER_TOPIC:
-    {
-      std_msgs::Header topic;
 
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Header(frame_id,sec,nanosec): ");
-      DEBUG_SERIAL.print(topic.frame_id); DEBUG_SERIAL.print(", ");
-      DEBUG_SERIAL.print(topic.stamp.sec); DEBUG_SERIAL.print(", ");
-      DEBUG_SERIAL.println(topic.stamp.nanosec); 
-
-      is_get_Header_topic = true;
-
-      break;
-    }
-
-    default:
-      break;
-  }
+void subscribeHeader(std_msgs::Header* msg)
+{
+  DEBUG_SERIAL.println();
+  DEBUG_SERIAL.print(" Header(frame_id,sec,nanosec): ");
+    DEBUG_SERIAL.print(msg->frame_id); DEBUG_SERIAL.print(", ");
+    DEBUG_SERIAL.print(msg->stamp.sec); DEBUG_SERIAL.print(", ");
+    DEBUG_SERIAL.println(msg->stamp.nanosec); 
 }

@@ -3,13 +3,14 @@
 #include "geometry_msgs/Twist.hpp"
 
 
-#define DEBUG_SERIAL Serial2  
+#define DEBUG_SERIAL SerialBT2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
-static bool is_get_Twist_topic = false;
+#define TWIST_PUBLISH_FREQUENCY 2 //hz
 
+void publishTwist(geometry_msgs::Twist* msg);
+void subscribeTwist(geometry_msgs::Twist* msg);
 
 
 class TwistPubSub : public ros2::Node
@@ -18,40 +19,15 @@ public:
   TwistPubSub()
   : Node()
   {
+    DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<geometry_msgs::Twist>("Twist");
-    publisher_->setPublishInterval(2); // 2 hz
-    subscriber_ = this->createSubscriber<geometry_msgs::Twist>("Twist");
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+    this->createWallFreq(TWIST_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishTwist, publisher_);
+    DEBUG_SERIAL.print(" [Publisher Create]   /Twist : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
+    subscriber_ = this->createSubscriber<geometry_msgs::Twist>("Twist", (ros2::CallbackFunc)subscribeTwist);
+    DEBUG_SERIAL.print(" [Subscriber Create]  /Twist : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
 private:  
-  void callback()
-  {
-    if(publisher_->isTimeToPublish())
-    {
-      callbackTwistPub();
-    }
-
-    if(is_get_Twist_topic)
-    {
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-      is_get_Twist_topic = false;
-    }
-  }
-
-  void callbackTwistPub(void)
-  {
-    geometry_msgs::Twist twist_topic;
-    twist_topic.linear.x = micros()%128;
-    twist_topic.linear.y = micros()%128;
-    twist_topic.linear.z = micros()%128;
-    twist_topic.angular.x = micros()%180;
-    twist_topic.angular.y = micros()%180;
-    twist_topic.angular.z = micros()%180;
-
-    publisher_->publish(&twist_topic, STREAMID_BUILTIN_RELIABLE);
-  }
-
   ros2::Publisher<geometry_msgs::Twist>* publisher_;
   ros2::Subscriber<geometry_msgs::Twist>* subscriber_;
 };
@@ -60,12 +36,12 @@ private:
 
 void setup() 
 {
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
   
   while (!RTPS_SERIAL);
 
-  ros2::init(on_topic);
+  ros2::init();
 }
 
 void loop() 
@@ -87,34 +63,26 @@ void loop()
 
 
 
-
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+void publishTwist(geometry_msgs::Twist* msg)
 {
-  ((void)(args));
+  msg->linear.x = micros()%128;
+  msg->linear.y = micros()%128;
+  msg->linear.z = micros()%128;
+  msg->angular.x = micros()%180;
+  msg->angular.y = micros()%180;
+  msg->angular.z = micros()%180;
+}
 
-  switch(id.data[0])
-  {
-    case GEOMETRY_MSGS_TWIST_TOPIC:
-    {
-      geometry_msgs::Twist topic;
 
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Linear(x,y,z): ");
-      DEBUG_SERIAL.print(topic.linear.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.linear.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.linear.z);
-      DEBUG_SERIAL.print(" Angular(x,y,z): ");
-      DEBUG_SERIAL.print(topic.angular.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.angular.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.angular.z);
-
-      is_get_Twist_topic = true;
-
-      break;
-    }
-
-    default:
-      break;
-  }
+void subscribeTwist(geometry_msgs::Twist* msg)
+{
+  DEBUG_SERIAL.println();
+  DEBUG_SERIAL.print(" Linear(x,y,z): ");
+    DEBUG_SERIAL.print(msg->linear.x); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.print(msg->linear.y); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->linear.z);
+  DEBUG_SERIAL.print(" Angular(x,y,z): ");
+    DEBUG_SERIAL.print(msg->angular.x); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.print(msg->angular.y); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->angular.z);
 }

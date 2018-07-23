@@ -3,13 +3,13 @@
 #include "geometry_msgs/Vector3.hpp"
 
 
-#define DEBUG_SERIAL Serial2  
+#define DEBUG_SERIAL SerialBT2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
+#define VECTOR3_PUBLISH_FREQUENCY 2 //hz
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
-static bool is_get_Vector3_topic = false;
-
+void publishVector3(geometry_msgs::Vector3* msg);
+void subscribeVector3(geometry_msgs::Vector3* msg);
 
 
 class Vector3PubSub : public ros2::Node
@@ -18,38 +18,15 @@ public:
   Vector3PubSub()
   : Node()
   {
+    DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<geometry_msgs::Vector3>("Vector3");
-    publisher_->setPublishInterval(2); // 2 hz
-    subscriber_ = this->createSubscriber<geometry_msgs::Vector3>("Vector3");
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+    this->createWallFreq(VECTOR3_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishVector3, publisher_);
+    DEBUG_SERIAL.print(" [Publisher Create]   /Vector3 : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
+    subscriber_ = this->createSubscriber<geometry_msgs::Vector3>("Vector3", (ros2::CallbackFunc)subscribeVector3);
+    DEBUG_SERIAL.print(" [Subscriber Create]  /Vector3 : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
 private:  
-
-  void callback()
-  {
-    if(publisher_->isTimeToPublish())
-    {
-      callbackVector3Pub();
-    }
-
-    if(is_get_Vector3_topic)
-    {
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-      is_get_Vector3_topic = false;
-    }
-  }
-
-  void callbackVector3Pub()
-  {
-    geometry_msgs::Vector3 vector3_topic;
-    vector3_topic.x = millis()%128;
-    vector3_topic.y = millis()%128;
-    vector3_topic.z = millis()%128;
-
-    publisher_->publish(&vector3_topic, STREAMID_BUILTIN_RELIABLE);
-  }
-
   ros2::Publisher<geometry_msgs::Vector3>* publisher_;
   ros2::Subscriber<geometry_msgs::Vector3>* subscriber_;
 };
@@ -58,12 +35,12 @@ private:
 
 void setup() 
 {
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
   
   while (!RTPS_SERIAL);
 
-  ros2::init(on_topic);
+  ros2::init();
 }
 
 void loop() 
@@ -85,29 +62,20 @@ void loop()
 
 
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+
+void publishVector3(geometry_msgs::Vector3* msg)
 {
-  ((void)(args));
+    msg->x = millis()%128;
+    msg->y = millis()%128;
+    msg->z = millis()%128;
+}
 
-  switch(id.data[0])
-  {
-    case GEOMETRY_MSGS_VECTOR3_TOPIC:
-    {
-      geometry_msgs::Vector3 topic;
 
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Vector3(x,y,z): ");
-      DEBUG_SERIAL.print(topic.x); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.y); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.z);
-
-      is_get_Vector3_topic = true;
-      
-      break;
-    }
-
-    default:
-      break;
-  }
+void subscribeVector3(geometry_msgs::Vector3* msg)
+{
+  DEBUG_SERIAL.println();
+  DEBUG_SERIAL.print(" Vector3(x,y,z): ");
+    DEBUG_SERIAL.print(msg->x); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.print(msg->y); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->z);
 }

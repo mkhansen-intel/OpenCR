@@ -3,16 +3,15 @@
 #include "sensor_msgs/LaserScan.hpp"
 
 
-#define DEBUG_SERIAL Serial2  
+#define DEBUG_SERIAL SerialBT2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
 
-
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
-static bool is_get_LaserScan_topic = false;
+#define LASER_SCAN_PUBLISH_FREQUENCY 2 //hz
 
 
-
+void publishLaserScan(sensor_msgs::LaserScan* msg);
+void subscribeLaserScan(sensor_msgs::LaserScan* msg);
 
 
 class LaserScanPubSub : public ros2::Node
@@ -21,83 +20,29 @@ public:
   LaserScanPubSub()
   : Node()
   {
-    memset(ranges_data_, 0, sizeof(ranges_data_));
-    memset(intensities_data_, 0, sizeof(intensities_data_));
-
+    DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<sensor_msgs::LaserScan>("LaserScan");
-    publisher_->setPublishInterval(2); // 2 hz
-    subscriber_ = this->createSubscriber<sensor_msgs::LaserScan>("LaserScan");
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+    this->createWallFreq(LASER_SCAN_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishLaserScan, publisher_);
+    DEBUG_SERIAL.print(" [Publisher Create]   /LaserScan : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
+    subscriber_ = this->createSubscriber<sensor_msgs::LaserScan>("LaserScan", (ros2::CallbackFunc)subscribeLaserScan);
+    DEBUG_SERIAL.print(" [Subscriber Create]  /LaserScan : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
 private:  
-
-  void callback()
-  {
-    if(publisher_->isTimeToPublish())
-    {
-      callbackLaserScanPub();
-    }
-
-    if(is_get_LaserScan_topic)
-    {
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-      is_get_LaserScan_topic = false;
-    }
-  }
-
-  void callbackLaserScanPub()
-  {
-    nano_time_ = get_nano_time();
-
-    sensor_msgs::LaserScan laser_scan_topic;
-    laser_scan_topic.header.frame_id = (char*) "OpenCR LaserScan";
-    laser_scan_topic.header.stamp.sec = nano_time_/1000000000;
-    laser_scan_topic.header.stamp.nanosec = nano_time_%1000000000;
-    
-    laser_scan_topic.angle_min = 1;
-    laser_scan_topic.angle_max = 2;
-    laser_scan_topic.angle_increment = 3;
-    laser_scan_topic.time_increment = 4;
-    laser_scan_topic.scan_time = 5;
-    laser_scan_topic.range_min = 6;
-    laser_scan_topic.range_max = 7;
-
-    laser_scan_topic.ranges = ranges_data_;
-    laser_scan_topic.ranges_size = sizeof(ranges_data_)/sizeof(float);
-    for(uint32_t i = 0; i < laser_scan_topic.ranges_size; i++)
-    {
-      laser_scan_topic.ranges[i] = (float)(micros()%128);
-    }
-
-    laser_scan_topic.intensities = intensities_data_;
-    laser_scan_topic.intensities_size = sizeof(intensities_data_)/sizeof(float);
-    for(uint32_t i = 0; i < laser_scan_topic.intensities_size; i++)
-    {
-      laser_scan_topic.intensities[i] = (float)(micros()%128);
-    }
-
-    publisher_->publish(&laser_scan_topic, STREAMID_BUILTIN_RELIABLE);
-  }
-
   ros2::Publisher<sensor_msgs::LaserScan>* publisher_;
   ros2::Subscriber<sensor_msgs::LaserScan>* subscriber_;
-
-  float ranges_data_[8];
-  float intensities_data_[8];
-  uint64_t nano_time_;
 };
 
 
 
 void setup() 
 {
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
   
   while (!RTPS_SERIAL);
 
-  ros2::init(on_topic);
+  ros2::init();
 }
 
 void loop() 
@@ -118,53 +63,68 @@ void loop()
 }
 
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+
+void publishLaserScan(sensor_msgs::LaserScan* msg)
 {
-  ((void)(args));
+  float ranges_data_[8];
+  float intensities_data_[8];
 
-  switch(id.data[0])
+  msg->header.frame_id  = (char*) "OpenCR LaserScan";
+  msg->header.stamp     = ros2::now();
+      
+  msg->angle_min        = 1;
+  msg->angle_max        = 2;
+  msg->angle_increment  = 3;
+  msg->time_increment   = 4;
+  msg->scan_time        = 5;
+  msg->range_min        = 6;
+  msg->range_max        = 7;
+
+  msg->ranges           = ranges_data_;
+  msg->ranges_size      = sizeof(ranges_data_)/sizeof(float);
+  for(uint32_t i = 0; i < msg->ranges_size; i++)
   {
-    case SENSOR_MSGS_LASER_SCAN_TOPIC:
-    {
-      sensor_msgs::LaserScan topic;
-
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Header(frameID,sec,nanosec): "); 
-      DEBUG_SERIAL.print(topic.header.frame_id); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.header.stamp.sec); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.header.stamp.nanosec);
-      DEBUG_SERIAL.print(" Angle(min,max,inc): ");
-      DEBUG_SERIAL.print(topic.angle_min); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.print(topic.angle_max); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.angle_increment);
-      DEBUG_SERIAL.print(" Time(inc,scan): ");
-      DEBUG_SERIAL.print(topic.time_increment); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.scan_time);
-      DEBUG_SERIAL.print(" Range(min,max): ");
-      DEBUG_SERIAL.print(topic.range_min); DEBUG_SERIAL.print(","); 
-      DEBUG_SERIAL.println(topic.range_max);
-      DEBUG_SERIAL.print(" Range(data:size): ");
-      for(uint32_t i = 0; i < topic.ranges_size; i++)
-      {
-        DEBUG_SERIAL.print(topic.ranges[i]); DEBUG_SERIAL.print(" ");
-      }
-      DEBUG_SERIAL.print(": ");
-      DEBUG_SERIAL.println(topic.ranges_size);
-      DEBUG_SERIAL.print(" Intensity(data:size): ");
-      for(uint32_t i = 0; i < topic.intensities_size; i++)
-      {
-        DEBUG_SERIAL.print(topic.intensities[i]); DEBUG_SERIAL.print(" ");
-      }
-      DEBUG_SERIAL.print(": ");
-      DEBUG_SERIAL.println(topic.intensities_size);
-
-      is_get_LaserScan_topic = true;
-
-      break;
-    }
-
-    default:
-      break;
+    msg->ranges[i]      = (float)(micros()%128);
   }
+
+  msg->intensities      = intensities_data_;
+  msg->intensities_size = sizeof(intensities_data_)/sizeof(float);
+  for(uint32_t i = 0; i < msg->intensities_size; i++)
+  {
+    msg->intensities[i] = (float)(micros()%128);
+  }
+}
+
+
+void subscribeLaserScan(sensor_msgs::LaserScan* msg)
+{
+  DEBUG_SERIAL.println();
+  DEBUG_SERIAL.print(" Header(frameID,sec,nanosec): "); 
+    DEBUG_SERIAL.print(msg->header.frame_id); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.print(msg->header.stamp.sec); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->header.stamp.nanosec);
+  DEBUG_SERIAL.print(" Angle(min,max,inc): ");
+    DEBUG_SERIAL.print(msg->angle_min); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.print(msg->angle_max); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->angle_increment);
+  DEBUG_SERIAL.print(" Time(inc,scan): ");
+    DEBUG_SERIAL.print(msg->time_increment); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->scan_time);
+  DEBUG_SERIAL.print(" Range(min,max): ");
+    DEBUG_SERIAL.print(msg->range_min); DEBUG_SERIAL.print(","); 
+    DEBUG_SERIAL.println(msg->range_max);
+  DEBUG_SERIAL.print(" Range(data:size): ");
+    for(uint32_t i = 0; i < msg->ranges_size; i++)
+    {
+      DEBUG_SERIAL.print(msg->ranges[i]); DEBUG_SERIAL.print(" ");
+    }
+  DEBUG_SERIAL.print(": ");
+    DEBUG_SERIAL.println(msg->ranges_size);
+  DEBUG_SERIAL.print(" Intensity(data:size): ");
+    for(uint32_t i = 0; i < msg->intensities_size; i++)
+    { 
+      DEBUG_SERIAL.print(msg->intensities[i]); DEBUG_SERIAL.print(" ");
+    }
+  DEBUG_SERIAL.print(": ");
+    DEBUG_SERIAL.println(msg->intensities_size);
 }

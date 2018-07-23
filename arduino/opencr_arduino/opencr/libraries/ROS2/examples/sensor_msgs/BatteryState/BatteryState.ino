@@ -9,8 +9,8 @@
 #define BATTERY_STATE_PUBLISH_FREQUENCY 2 //hz
 
 
-void publishBatteryState(void* topic_msg);
-void subscribeBatteryState(void* topic_msg);
+void publishBatteryState(sensor_msgs::BatteryState* msg);
+void subscribeBatteryState(sensor_msgs::BatteryState* msg);
 
 
 class BatteryStatePubSub : public ros2::Node
@@ -21,9 +21,9 @@ public:
   {
     DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<sensor_msgs::BatteryState>("BatteryState");
-    this->createWallFreq(BATTERY_STATE_PUBLISH_FREQUENCY, publishBatteryState, publisher_);
+    this->createWallFreq(BATTERY_STATE_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishBatteryState, publisher_);
     DEBUG_SERIAL.print(" [Publisher Create]   /BatteryState : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
-    subscriber_ = this->createSubscriber<sensor_msgs::BatteryState>("BatteryState", subscribeBatteryState);
+    subscriber_ = this->createSubscriber<sensor_msgs::BatteryState>("BatteryState", (ros2::CallbackFunc)subscribeBatteryState);
     DEBUG_SERIAL.print(" [Subscriber Create]  /BatteryState : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
@@ -61,9 +61,8 @@ void loop()
   ros2::spin(&BatteryStateNode);
 }
 
-void publishBatteryState(void* topic_msg)
+void publishBatteryState(sensor_msgs::BatteryState* msg)
 {
-      sensor_msgs::BatteryState* msg = (sensor_msgs::BatteryState*)topic_msg;
       static float cell_voltage_data_[3];
 
       msg->header.frame_id          = (char*) "OpenCR BatteryState";
@@ -93,10 +92,8 @@ void publishBatteryState(void* topic_msg)
 }
 
 
-void subscribeBatteryState(void* topic_msg)
+void subscribeBatteryState(sensor_msgs::BatteryState* msg)
 {
-  sensor_msgs::BatteryState* msg = (sensor_msgs::BatteryState*)topic_msg;
-
   DEBUG_SERIAL.println();
   DEBUG_SERIAL.print(" Header(frameID,sec,nanosec): "); 
     DEBUG_SERIAL.print(msg->header.frame_id); DEBUG_SERIAL.print(","); 

@@ -3,65 +3,44 @@
 #include "std_msgs/String.hpp"
 
 
-#define DEBUG_SERIAL Serial2  
+#define DEBUG_SERIAL SerialBT2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
+#define STRING_PUBLISH_FREQUENCY 2 //hz
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args);
-static bool is_get_String_topic = false;
-
-
+void publishString(std_msgs::String* msg);
+void subscribeString(std_msgs::String* msg);
 
 
 class StringPubSub : public ros2::Node
 {
 public:
   StringPubSub()
-  : Node(), cnt_(0)
+  : Node()
   {
+    DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<std_msgs::String>("String");
-    publisher_->setPublishInterval(2); // 2 hz
-    subscriber_ = this->createSubscriber<std_msgs::String>("String");
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+    this->createWallFreq(STRING_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishString, publisher_);
+    DEBUG_SERIAL.print(" [Publisher Create]   /String : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
+    subscriber_ = this->createSubscriber<std_msgs::String>("String", (ros2::CallbackFunc)subscribeString);
+    DEBUG_SERIAL.print(" [Subscriber Create]  /String : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
 private:  
-  void callback()
-  {
-    if(publisher_->isTimeToPublish())
-    {
-      callbackStringPub();
-    }
-
-    if(is_get_String_topic)
-    {
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-      is_get_String_topic = false;
-    }
-  }
-
-  void callbackStringPub(void)
-  {
-    std_msgs::String string_topic;
-    sprintf(string_topic.data, "String %d", cnt_++);
-    publisher_->publish(&string_topic, STREAMID_BUILTIN_RELIABLE);
-  }
-
   ros2::Publisher<std_msgs::String>* publisher_;
   ros2::Subscriber<std_msgs::String>* subscriber_;
-  int cnt_;
 };
 
 
 
 void setup() 
 {
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
   
   while (!RTPS_SERIAL);
 
-  ros2::init(on_topic);
+  ros2::init();
 }
 
 void loop() 
@@ -82,27 +61,16 @@ void loop()
 }
 
 
-void on_topic(ObjectId id, MicroBuffer* serialized_topic, void* args)
+void publishString(std_msgs::String* msg)
 {
-  ((void)(args));
+  static int cnt = 0;
+  sprintf(msg->data, "String %d", cnt++);
+}
 
-  switch(id.data[0])
-  {
-    case STD_MSGS_STRING_TOPIC:
-    {
-      std_msgs::String topic;
 
-      topic.deserialize(serialized_topic, &topic);
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" String: ");
-      DEBUG_SERIAL.println(topic.data);
-      
-      is_get_String_topic = true;
-      
-      break;
-    }
-
-    default:
-      break;
-  }
+void subscribeString(std_msgs::String* msg)
+{
+  DEBUG_SERIAL.println();
+  DEBUG_SERIAL.print(" String: ");
+    DEBUG_SERIAL.println(msg->data);
 }

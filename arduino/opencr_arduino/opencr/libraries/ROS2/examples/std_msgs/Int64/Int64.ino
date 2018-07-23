@@ -3,8 +3,13 @@
 #include "std_msgs/Int64.hpp"
 
 
-#define DEBUG_SERIAL Serial2  
+#define DEBUG_SERIAL SerialBT2  
 #define RTPS_SERIAL  Serial   //OpenCR USB
+
+#define INT64_PUBLISH_FREQUENCY 2 //hz
+
+void publishInt64(std_msgs::Int64* msg);
+void subscribeInt64(std_msgs::Int64* msg);
 
 
 
@@ -14,40 +19,15 @@ public:
   Int64PubSub()
   : Node()
   {
+    DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<std_msgs::Int64>("Int64");
-    publisher_->setPublishInterval(2); // 2 hz
-    subscriber_ = this->createSubscriber<std_msgs::Int64>("Int64");
-    subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
+    this->createWallFreq(INT64_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishInt64, publisher_);
+    DEBUG_SERIAL.print(" [Publisher Create]   /Int64 : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
+    subscriber_ = this->createSubscriber<std_msgs::Int64>("Int64", (ros2::CallbackFunc)subscribeInt64);
+    DEBUG_SERIAL.print(" [Subscriber Create]  /Int64 : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
 private:  
-  void timerCallback()
-  {
-    if(publisher_->isTimeToPublish())
-    {
-      std_msgs::Int64 int64_topic;
-      int64_topic.data = (int64_t)get_nano_time();
-
-      publisher_->publish(&int64_topic, STREAMID_BUILTIN_RELIABLE);
-    }
-  }
-
-  void userTopicCallback(uint8_t topic_id, void* topic_msg)
-  {
-
-    if(topic_id == subscriber_->topic_id_)
-    {
-      std_msgs::Int64 *topic = (std_msgs::Int64*)topic_msg;
-
-      DEBUG_SERIAL.println();
-      DEBUG_SERIAL.print(" Int64: ");
-      DEBUG_SERIAL.print((int32_t)(topic->data >> 32));
-      DEBUG_SERIAL.println((int32_t)(topic->data));
-
-      subscriber_->subscribe(STREAMID_BUILTIN_RELIABLE);
-    }
-  }
-
   ros2::Publisher<std_msgs::Int64>* publisher_;
   ros2::Subscriber<std_msgs::Int64>* subscriber_;
 };
@@ -56,7 +36,7 @@ private:
 
 void setup() 
 {
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
   
   while (!RTPS_SERIAL);
@@ -79,4 +59,21 @@ void loop()
   }
 
   ros2::spin(&Int64Node);
+}
+
+
+
+void publishInt64(std_msgs::Int64* msg)
+{
+  static int64_t i = 0;
+  msg->data = i++;
+}
+
+
+void subscribeInt64(std_msgs::Int64* msg)
+{
+  DEBUG_SERIAL.println();
+  DEBUG_SERIAL.print(" Int64: ");
+    DEBUG_SERIAL.print((int32_t)(msg->data >> 32));
+    DEBUG_SERIAL.println((int32_t)(msg->data));
 }
