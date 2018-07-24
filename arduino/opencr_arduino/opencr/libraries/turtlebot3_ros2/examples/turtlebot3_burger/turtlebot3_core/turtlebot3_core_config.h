@@ -76,6 +76,7 @@
 
 //#define DEBUG                            
 #define DEBUG_SERIAL                     SerialBT2
+#define RTPS_SERIAL                      Serial
 #ifdef DEBUG
   #define DEBUG_PRINT(x)                 DEBUG_SERIAL.print(x)
 #else

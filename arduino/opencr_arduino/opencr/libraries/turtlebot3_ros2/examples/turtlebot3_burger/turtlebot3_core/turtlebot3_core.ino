@@ -24,7 +24,7 @@
 void setup()
 {
   DEBUG_SERIAL.begin(57600);
-  while(!Serial)
+  while(!RTPS_SERIAL)
   {
     DEBUG_SERIAL.print(".");
   }
