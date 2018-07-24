@@ -76,7 +76,11 @@
 
 //#define DEBUG                            
 #define DEBUG_SERIAL                     SerialBT2
-
+#ifdef DEBUG
+  #define DEBUG_PRINT(x)                 DEBUG_SERIAL.print(x)
+#else
+  #define DEBUG_PRINT(x)                  
+#endif
 
 
 
@@ -188,51 +192,50 @@ public:
     /*******************************************************************************
     * Publisher
     *******************************************************************************/
-    DEBUG_SERIAL.println();
     // Command velocity of Turtlebot3 using RC100 remote controller
     cmd_vel_rc100_pub_ = this->createPublisher<geometry_msgs::Twist>("cmd_vel_rc100");
     this->createWallFreq(CMD_VEL_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishCmdVelRC100, cmd_vel_rc100_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /cmd_vel_rc100  : "); DEBUG_SERIAL.print((cmd_vel_rc100_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /cmd_vel_rc100  : "); DEBUG_PRINT((cmd_vel_rc100_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // Odometry of Turtlebot3
     odom_pub_          = this->createPublisher<nav_msgs::Odometry>("odom");
     this->createWallFreq(ODOMETRY_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishOdometry, odom_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /odom           : "); DEBUG_SERIAL.print((odom_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /odom           : "); DEBUG_PRINT((odom_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // Joint(Dynamixel) state of Turtlebot3
     joint_states_pub_  = this->createPublisher<sensor_msgs::JointState>("joint_states");
     this->createWallFreq(JOINT_STATE_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishJointState, joint_states_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /joint_states   : "); DEBUG_SERIAL.print((joint_states_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /joint_states   : "); DEBUG_PRINT((joint_states_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // Battey state of Turtlebot3
     battery_state_pub_ = this->createPublisher<sensor_msgs::BatteryState>("battery_state");
     this->createWallFreq(BATTERY_STATE_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishBatteryState, battery_state_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /battery_state  : "); DEBUG_SERIAL.print((battery_state_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /battery_state  : "); DEBUG_PRINT((battery_state_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // Magnetic field
     mag_pub_           = this->createPublisher<sensor_msgs::MagneticField>("magnetic_field");
     this->createWallFreq(MAGNETIC_FIELD_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishMagneticField, mag_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /magnetic_field : "); DEBUG_SERIAL.print((mag_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /magnetic_field : "); DEBUG_PRINT((mag_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // Sensor State
     sensor_state_pub_  = this->createPublisher<turtlebot3_msgs::SensorState>("sensor_state");
     this->createWallFreq(SENSOR_STATE_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishSensorState, sensor_state_pub_);  
-    DEBUG_SERIAL.print(" [Publisher Create]   /sensor_state   : "); DEBUG_SERIAL.print((sensor_state_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /sensor_state   : "); DEBUG_PRINT((sensor_state_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // Version information of Turtlebot3
     version_info_pub_  = this->createPublisher<turtlebot3_msgs::VersionInfo>("version_info");
     this->createWallFreq(VERSION_INFORMATION_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishVersionInfo, version_info_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /version_info   : "); DEBUG_SERIAL.print((version_info_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /version_info   : "); DEBUG_PRINT((version_info_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     // IMU of Turtlebot3
     imu_pub_           = this->createPublisher<sensor_msgs::Imu>("imu");
     this->createWallFreq(IMU_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishImu, imu_pub_);
-    DEBUG_SERIAL.print(" [Publisher Create]   /imu            : "); DEBUG_SERIAL.print((imu_pub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Publisher Create]   /imu            : "); DEBUG_PRINT((imu_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
    
     /*******************************************************************************
     * Subscriber
     *******************************************************************************/
     cmd_vel_sub_       = this->createSubscriber<geometry_msgs::Twist>("cmd_vel", (ros2::CallbackFunc)subscribeCmdVel);
-    DEBUG_SERIAL.print(" [Subscriber Create]  /cmd_vel        : "); DEBUG_SERIAL.print((cmd_vel_sub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Subscriber Create]  /cmd_vel        : "); DEBUG_PRINT((cmd_vel_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     sound_sub_         = this->createSubscriber<turtlebot3_msgs::Sound>("sound", (ros2::CallbackFunc)subscribeSound);
-    DEBUG_SERIAL.print(" [Subscriber Create]  /sound          : "); DEBUG_SERIAL.print((sound_sub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Subscriber Create]  /sound          : "); DEBUG_PRINT((sound_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     motor_power_sub_   = this->createSubscriber<std_msgs::Bool>("motor_power", (ros2::CallbackFunc)subscribeMotorPower);
-    DEBUG_SERIAL.print(" [Subscriber Create]  /motor_power    : "); DEBUG_SERIAL.print((motor_power_sub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Subscriber Create]  /motor_power    : "); DEBUG_PRINT((motor_power_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     reset_sub_         = this->createSubscriber<std_msgs::Empty>("reset", (ros2::CallbackFunc)subscribeReset);
-    DEBUG_SERIAL.print(" [Subscriber Create]  /reset          : "); DEBUG_SERIAL.print((reset_sub_!=NULL?"Success":"Fail")); DEBUG_SERIAL.println(this->err_code);
+    DEBUG_PRINT("\r\n [Subscriber Create]  /reset          : "); DEBUG_PRINT((reset_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
   }
 
 
