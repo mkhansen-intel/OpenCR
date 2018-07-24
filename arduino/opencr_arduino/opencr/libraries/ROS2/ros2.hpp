@@ -170,7 +170,7 @@ class Node
       for(i = 0; i < pub_cnt_; i++)
       {
         p_pub = pub_list_[i];
-        if(p_pub != NULL && p_pub->is_registered_ && p_pub->isTimeToPublish())
+        if(p_pub != NULL && p_pub->isTimeToPublish())
         {
           p_pub->publish();
         }
@@ -184,7 +184,7 @@ class Node
       for(i = 0; i < sub_cnt_; i++)
       {
         p_sub = sub_list_[i];
-        if(p_sub != NULL && p_sub->is_registered_ && p_sub->topic_id_ == topic_id)
+        if(p_sub != NULL && p_sub->topic_id_ == topic_id)
         {
           if(p_sub->callback != NULL)
           {
@@ -197,12 +197,13 @@ class Node
 
     PublisherHandle*  pub_list_[20];
     SubscriberHandle* sub_list_[20];
+    uint8_t sub_cnt_;
 
   private:
     bool node_register_state_;
     micrortps::Participant_t participant_;
     uint8_t pub_cnt_;
-    uint8_t sub_cnt_;
+    
 
     template <
       typename MsgT>

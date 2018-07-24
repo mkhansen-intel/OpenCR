@@ -26,7 +26,7 @@ void setup()
   DEBUG_SERIAL.begin(57600);
   while(!RTPS_SERIAL)
   {
-    DEBUG_SERIAL.print(".");
+    DEBUG_PRINT(".");
   }
 
   pinMode(LED_WORKING_CHECK, OUTPUT);
@@ -598,13 +598,16 @@ void subscribeReset(std_msgs::Empty* msg)
   char log_msg[50];
 
   sprintf(log_msg, "Start Calibration of Gyro");
+  DEBUG_SERIAL.println(log_msg);
   //nh.loginfo(log_msg);
 
   sensors.calibrationGyro();
 
   sprintf(log_msg, "Calibration End");
+  DEBUG_SERIAL.println(log_msg);
   //nh.loginfo(log_msg);
 
   sprintf(log_msg, "Reset Odometry");
+  DEBUG_SERIAL.println(log_msg);
   //nh.loginfo(log_msg);  
 }
