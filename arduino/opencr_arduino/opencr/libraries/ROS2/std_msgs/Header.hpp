@@ -59,7 +59,7 @@ public:
     uint32_t size_frame_id = 0;
 
     stamp.deserialize(reader, &topic->stamp);
-    deserialize_sequence_char(reader, &topic->frame_id, &size_frame_id);
+    deserialize_sequence_char(reader, topic->frame_id, &size_frame_id);
 
     return reader->error == BUFFER_OK;
   }

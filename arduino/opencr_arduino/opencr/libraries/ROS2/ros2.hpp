@@ -197,11 +197,11 @@ class Node
 
     PublisherHandle*  pub_list_[20];
     SubscriberHandle* sub_list_[20];
-    uint8_t sub_cnt_;
 
   private:
     bool node_register_state_;
     micrortps::Participant_t participant_;
+    uint8_t sub_cnt_;
     uint8_t pub_cnt_;
     
 

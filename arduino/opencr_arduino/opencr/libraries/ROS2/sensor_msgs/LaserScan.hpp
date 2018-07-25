@@ -85,8 +85,8 @@ public:
     deserialize_float(reader, &topic->scan_time);
     deserialize_float(reader, &topic->range_min);
     deserialize_float(reader, &topic->range_max);
-    deserialize_sequence_float(reader, &topic->ranges, &topic->ranges_size); 
-    deserialize_sequence_float(reader, &topic->intensities, &topic->intensities_size); 
+    deserialize_sequence_float(reader, topic->ranges, &topic->ranges_size); 
+    deserialize_sequence_float(reader, topic->intensities, &topic->intensities_size); 
 
     return reader->error == BUFFER_OK;
   }

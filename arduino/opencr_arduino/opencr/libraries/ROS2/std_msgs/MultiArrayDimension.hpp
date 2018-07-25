@@ -56,7 +56,7 @@ public:
   virtual bool deserialize(MicroBuffer* reader, MultiArrayDimension* topic)
   {
     uint32_t size_label = 0;
-    deserialize_sequence_char(reader, &topic->label, &size_label);
+    deserialize_sequence_char(reader, topic->label, &size_label);
     deserialize_uint32_t(reader, &topic->size);
     deserialize_uint32_t(reader, &topic->stride);
 

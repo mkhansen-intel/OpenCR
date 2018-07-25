@@ -131,9 +131,9 @@ public:
     deserialize_uint8_t(reader, &topic->power_supply_health);
     deserialize_uint8_t(reader, &topic->power_supply_technology);
     deserialize_bool(reader, &topic->present);
-    deserialize_sequence_float(reader, &topic->cell_voltage, &topic->cell_voltage_size); 
-    deserialize_sequence_char(reader, &topic->location, &size_location);
-    deserialize_sequence_char(reader, &topic->serial_number, &size_serial_number);
+    deserialize_sequence_float(reader, topic->cell_voltage, &topic->cell_voltage_size); 
+    deserialize_sequence_char(reader, topic->location, &size_location);
+    deserialize_sequence_char(reader, topic->serial_number, &size_serial_number);
 
     return reader->error == BUFFER_OK;
   }

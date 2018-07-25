@@ -61,7 +61,7 @@ public:
     uint32_t size_child_frame_id = 0;
 
     header.deserialize(reader, &topic->header);
-    deserialize_sequence_char(reader, &topic->child_frame_id, &size_child_frame_id);
+    deserialize_sequence_char(reader, topic->child_frame_id, &size_child_frame_id);
     transform.deserialize(reader, &topic->transform);
     
     return reader->error == BUFFER_OK;

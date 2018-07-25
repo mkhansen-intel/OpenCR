@@ -51,7 +51,7 @@ public:
   virtual bool deserialize(MicroBuffer* reader, String* topic)
   {
       uint32_t size_data = 0;
-      deserialize_sequence_char(reader, &topic->data, &size_data);
+      deserialize_sequence_char(reader, topic->data, &size_data);
       return reader->error == BUFFER_OK;
   }
 

@@ -57,9 +57,9 @@ public:
     uint32_t size_hardware = 0;
     uint32_t size_firmware = 0;
     uint32_t size_software = 0;
-    deserialize_sequence_char(reader, &topic->hardware, &size_hardware);
-    deserialize_sequence_char(reader, &topic->firmware, &size_firmware);
-    deserialize_sequence_char(reader, &topic->software, &size_software);
+    deserialize_sequence_char(reader, topic->hardware, &size_hardware);
+    deserialize_sequence_char(reader, topic->firmware, &size_firmware);
+    deserialize_sequence_char(reader, topic->software, &size_software);
     return reader->error == BUFFER_OK;
   }
 

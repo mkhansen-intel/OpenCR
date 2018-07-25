@@ -68,9 +68,9 @@ public:
   {
     header.deserialize(reader, &topic->header);
     //deserialize_sequence_char(reader, &topic->name_data, &topic->name_size); 
-    deserialize_sequence_double(reader, &topic->position, &topic->position_size); 
-    deserialize_sequence_double(reader, &topic->velocity, &topic->velocity_size); 
-    deserialize_sequence_double(reader, &topic->effort, &topic->effort_size); 
+    deserialize_sequence_double(reader, topic->position, &topic->position_size); 
+    deserialize_sequence_double(reader, topic->velocity, &topic->velocity_size); 
+    deserialize_sequence_double(reader, topic->effort, &topic->effort_size); 
 
     return reader->error == BUFFER_OK;
   }
