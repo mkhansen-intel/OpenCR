@@ -12,10 +12,12 @@
 #include "micrortps.hpp"
 #include "node_handle.hpp"
 #include "topic.hpp"
+#include "hw.h"
 
 #define DEFAULT_WRITER_XML ("<profiles><publisher profile_name=\"default_xrce_publisher_profile\"><topic><kind>NO_KEY</kind><name>rt/%s</name><dataType>%s</dataType><historyQos><kind>KEEP_LAST</kind><depth>10</depth></historyQos><durability><kind>TRANSIENT_LOCAL</kind></durability></topic></publisher></profiles>")
 
 extern uint32_t micros(void);
+
 
 
 namespace ros2 {
@@ -30,7 +32,6 @@ public:
   {
     node_ = node;
     name_ = name;
-    stream_id_ = STREAMID_BUILTIN_RELIABLE;
     this->recreate();
   }
   virtual ~Publisher(){};
@@ -47,7 +48,7 @@ public:
       callback((void*)&topic_);
     }
 
-    topic_.writeTopic(node_->session, publisher_.writer_id, stream_id_, &topic_);
+    topic_.writeTopic(node_->session, publisher_.writer_id, node_->reliable_out, &topic_);
   }
 
   void recreate()
@@ -63,9 +64,8 @@ public:
 private:
   MsgT topic_;
   const char* name_;
-  StreamId stream_id_;
   micrortps::Participant_t* node_;
-  micrortps::Publisher_t publisher_;  
+  micrortps::Publisher_t publisher_;
 };
 
 

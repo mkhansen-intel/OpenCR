@@ -37,10 +37,7 @@ OpenCR.build.inc7=lib/micrortps
 OpenCR.build.inc8=lib/micrortps/client/include
 OpenCR.build.inc9=lib/micrortps/client/include/micrortps/client
 OpenCR.build.inc10=lib/micrortps/client/src/c
-OpenCR.build.inc11=lib/micrortps/cdr/include
-OpenCR.build.inc12=lib/micrortps/transport/include
-OpenCR.build.inc13=lib/micrortps/transport/include/micrortps/transport
-OpenCR.build.inc14=lib/micrortps/transport/src/c
+OpenCR.build.inc11=lib/micrortps/client/thirdparty/microcdr/include
 
 
 #OpenCR.upload.tool=opencr_ld

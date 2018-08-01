@@ -8,16 +8,21 @@
 #ifndef ROS2_HPP_
 #define ROS2_HPP_
 
+#include <string.h>
 #include "publisher.hpp"
 #include "subscriber.hpp"
 #include "topic.hpp"
 #include "builtin_interfaces/Time.hpp"
 
 
-void onTopicCallback(ObjectId id, MicroBuffer* serialized_topic, void* args);
+void onTopicCallback(mrSession* session, mrObjectId object_id, uint16_t request_id, mrStreamId stream_id, struct MicroBuffer* mb, void* args);
 
 
 namespace ros2 {
+
+extern char* client_communication_method;
+extern char* server_ip;
+extern uint16_t server_port;
 
 class Node
 {
@@ -35,9 +40,16 @@ class Node
     void recreate()
     {
       err_code = 0;
-      pub_cnt_ = 0, sub_cnt_ = 0;
       participant_.is_init = false;
-      micrortps::setup(onTopicCallback, (void*) this);
+      if(strcmp(client_communication_method, "Serial") == 0)
+      {
+        micrortps::setup(onTopicCallback, (void*) this);
+      }
+      else
+      {
+        micrortps::setup(server_ip, server_port, onTopicCallback, (void*) this);
+      }
+
       node_register_state_ = micrortps::createParticipant(&this->participant_);
 
       uint8_t i;
@@ -86,7 +98,7 @@ class Node
       }
 
       p_pub = new ros2::Publisher<MsgT>(&this->participant_, name);
-      
+
       if(p_pub->is_registered_ == false)
       {
         err_code = 3;
@@ -127,7 +139,7 @@ class Node
       }
 
       p_sub = new ros2::Subscriber<MsgT>(&this->participant_, name, callback);
-      
+
       if(p_sub->is_registered_ == false)
       {
         err_code = 10 + 3;
@@ -170,7 +182,7 @@ class Node
       for(i = 0; i < pub_cnt_; i++)
       {
         p_pub = pub_list_[i];
-        if(p_pub != NULL && p_pub->isTimeToPublish())
+        if(p_pub != NULL && p_pub->is_registered_ && p_pub->isTimeToPublish())
         {
           p_pub->publish();
         }
@@ -184,7 +196,7 @@ class Node
       for(i = 0; i < sub_cnt_; i++)
       {
         p_sub = sub_list_[i];
-        if(p_sub != NULL && p_sub->topic_id_ == topic_id)
+        if(p_sub != NULL && p_sub->is_registered_ && p_sub->topic_id_ == topic_id)
         {
           if(p_sub->callback != NULL)
           {
@@ -201,9 +213,8 @@ class Node
   private:
     bool node_register_state_;
     micrortps::Participant_t participant_;
-    uint8_t sub_cnt_;
     uint8_t pub_cnt_;
-    
+    uint8_t sub_cnt_;
 
     template <
       typename MsgT>
@@ -226,10 +237,10 @@ class Node
 };
 
 
-
-bool init();
+bool init(void);
+bool init(const char* p_server_ip, uint16_t server_port);
 void spin(Node *node);
-uint64_t getNanoTime(void);
+int64_t getMillisTime(void);
 builtin_interfaces::Time now();
 
 

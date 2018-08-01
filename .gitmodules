@@ -1,9 +1,3 @@
 [submodule "arduino/opencr_arduino/opencr/variants/OpenCR/lib/micrortps/client"]
 	path = arduino/opencr_arduino/opencr/variants/OpenCR/lib/micrortps/client
 	url = https://github.com/ROBOTIS-GIT/micro-RTPS-client.git
-[submodule "arduino/opencr_arduino/opencr/variants/OpenCR/lib/micrortps/cdr"]
-	path = arduino/opencr_arduino/opencr/variants/OpenCR/lib/micrortps/cdr
-	url = https://github.com/ROBOTIS-GIT/micro-CDR.git
-[submodule "arduino/opencr_arduino/opencr/variants/OpenCR/lib/micrortps/transport"]
-	path = arduino/opencr_arduino/opencr/variants/OpenCR/lib/micrortps/transport
-	url = https://github.com/ROBOTIS-GIT/micro-RTPS-transport.git

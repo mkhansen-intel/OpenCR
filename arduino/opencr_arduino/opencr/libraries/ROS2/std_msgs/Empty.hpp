@@ -35,24 +35,23 @@ public:
   { 
   }
 
-  virtual bool serialize(MicroBuffer* writer, const Empty* topic)
+  bool serialize(struct MicroBuffer* writer, const Empty* topic)
   {
       serialize_bool(writer, topic->_dummy);
 
       return writer->error == BUFFER_OK;
   }
 
-  virtual bool deserialize(MicroBuffer* reader, Empty* topic)
+  bool deserialize(struct MicroBuffer* reader, Empty* topic)
   {
       deserialize_bool(reader, &topic->_dummy);
 
       return reader->error == BUFFER_OK;
   }
 
-  virtual uint32_t size_of_topic(const Empty* topic)
+  uint32_t size_of_topic(const Empty* topic, uint32_t size)
   {
       (void)(topic);
-      uint32_t size = 0;
 
       size += 1 + get_alignment(size, 1);
 
