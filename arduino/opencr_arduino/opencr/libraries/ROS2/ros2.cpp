@@ -94,6 +94,7 @@ builtin_interfaces::Time ros2::now()
 
 void onTopicCallback(mrSession* session, mrObjectId object_id, uint16_t request_id, mrStreamId stream_id, struct MicroBuffer* mb, void* args)
 {
+  (void)(session); (void)(request_id); (void)(stream_id);
   ros2::Node* node = (ros2::Node*) args;
   uint8_t topic_id = object_id.type;
 
