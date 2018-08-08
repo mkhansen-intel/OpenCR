@@ -52,7 +52,7 @@ builtin_interfaces::Time ros2::now()
   int64_t msec = ros2::getMillisTime();
 
   time.sec = (int32_t)(msec/(int64_t)1000);
-  time.nanosec = (uint32_t)(msec%(int64_t)1000);
+  time.nanosec = (uint32_t)((msec%(int64_t)1000)*1000000);
 
   return time;
 }
