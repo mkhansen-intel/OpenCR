@@ -64,8 +64,8 @@ void loop()
 
 void publishImu(sensor_msgs::Imu* msg)
 {
-    msg->header.frame_id = (char*) "OpenCR IMU";
-    msg->header.stamp    = ros2::now();
+    msg->header.frame_id       = (char*) "OpenCR IMU";
+    msg->header.stamp          = ros2::now();
     
     msg->orientation.x         = 1;
     msg->orientation.y         = 2;

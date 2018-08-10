@@ -7,7 +7,7 @@
 #define RTPS_SERIAL  Serial   //OpenCR USB
 
 
-#define LASER_SCAN_PUBLISH_FREQUENCY 2 //hz
+#define LASER_SCAN_PUBLISH_FREQUENCY 200 //hz
 
 
 void publishLaserScan(sensor_msgs::LaserScan* msg);

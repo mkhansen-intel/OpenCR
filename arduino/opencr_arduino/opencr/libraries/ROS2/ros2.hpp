@@ -182,7 +182,7 @@ class Node
       for(i = 0; i < pub_cnt_; i++)
       {
         p_pub = pub_list_[i];
-        if(p_pub != NULL && p_pub->is_registered_ && p_pub->isTimeToPublish())
+        if(p_pub->is_registered_ && p_pub->isTimeToPublish())
         {
           p_pub->publish();
         }
@@ -196,19 +196,34 @@ class Node
       for(i = 0; i < sub_cnt_; i++)
       {
         p_sub = sub_list_[i];
-        if(p_sub != NULL && p_sub->is_registered_ && p_sub->topic_id_ == topic_id)
+        if(p_sub->is_registered_ && p_sub->topic_id_ == topic_id)
         {
           if(p_sub->callback != NULL)
           {
             p_sub->callback(topic_msg);
           }
-          p_sub->subscribe();
+          //p_sub->subscribe();
+        }
+      }
+    }
+
+    void runSession(uint32_t timeout_ms)
+    {
+      uint8_t read_data_status, i;
+      ros2::SubscriberHandle *p_sub;
+      for(i = 0; i < sub_cnt_; i++)
+      {
+        p_sub = sub_list_[i];
+        if(p_sub->is_registered_)
+        {
+          mr_run_session_until_status(participant_.session, timeout_ms, &p_sub->request_id_, &read_data_status, 1);
         }
       }
     }
 
     PublisherHandle*  pub_list_[20];
     SubscriberHandle* sub_list_[20];
+
 
   private:
     bool node_register_state_;

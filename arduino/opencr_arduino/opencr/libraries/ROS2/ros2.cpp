@@ -35,7 +35,7 @@ void ros2::spin(ros2::Node *node)
 {
   node->runPubCallback();
 
-  if(micrortps::runCommunication(1000) == false)
+  if(micrortps::runCommunication(100) == false)
   {
     node->recreate();
   }
