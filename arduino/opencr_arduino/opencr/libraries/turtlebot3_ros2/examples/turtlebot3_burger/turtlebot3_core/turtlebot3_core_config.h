@@ -229,8 +229,8 @@ public:
     /*******************************************************************************
     * Subscriber
     *******************************************************************************/
-    // cmd_vel_sub_       = this->createSubscriber<geometry_msgs::Twist>("cmd_vel", (ros2::CallbackFunc)subscribeCmdVel);
-    // DEBUG_PRINT("\r\n [Subscriber Create]  /cmd_vel        : "); DEBUG_PRINT((cmd_vel_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
+    cmd_vel_sub_       = this->createSubscriber<geometry_msgs::Twist>("cmd_vel", (ros2::CallbackFunc)subscribeCmdVel);
+    DEBUG_PRINT("\r\n [Subscriber Create]  /cmd_vel        : "); DEBUG_PRINT((cmd_vel_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     motor_power_sub_   = this->createSubscriber<std_msgs::Bool>("motor_power", (ros2::CallbackFunc)subscribeMotorPower);
     DEBUG_PRINT("\r\n [Subscriber Create]  /motor_power    : "); DEBUG_PRINT((motor_power_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
     reset_sub_         = this->createSubscriber<std_msgs::Empty>("reset", (ros2::CallbackFunc)subscribeReset);
