@@ -69,7 +69,7 @@ void publishLaserScan(sensor_msgs::LaserScan* msg)
   float ranges_data_[8];
   float intensities_data_[8];
 
-  msg->header.frame_id  = (char*) "OpenCR LaserScan";
+  strcpy(msg->header.frame_id, "OpenCR LaserScan");
   msg->header.stamp     = ros2::now();
       
   msg->angle_min        = 1;
@@ -94,7 +94,6 @@ void publishLaserScan(sensor_msgs::LaserScan* msg)
     msg->intensities[i] = (float)(micros()%128);
   }
 }
-
 
 void subscribeLaserScan(sensor_msgs::LaserScan* msg)
 {

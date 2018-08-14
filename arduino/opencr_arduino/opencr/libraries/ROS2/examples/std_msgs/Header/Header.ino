@@ -64,7 +64,7 @@ void loop()
 void publishHeader(std_msgs::Header* msg)
 {
   msg->stamp    = ros2::now();
-  msg->frame_id = (char*) "OpenCR Frame ID";
+  strcpy(msg->frame_id, "OpenCR Frame ID");
 }
 
 
