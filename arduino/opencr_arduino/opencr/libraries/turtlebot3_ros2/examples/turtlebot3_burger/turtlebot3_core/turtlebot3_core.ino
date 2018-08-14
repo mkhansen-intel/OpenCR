@@ -472,7 +472,7 @@ void publishImu(sensor_msgs::Imu* msg)
   memcpy(msg, &imu_msg, sizeof(sensor_msgs::Imu));
   
   msg->header.stamp    = ros2::now();
-  msg->header.frame_id = imu_frame_id;
+  strcpy(msg->header.frame_id, imu_frame_id);
 }
 
 
@@ -492,8 +492,8 @@ void publishOdometry(nav_msgs::Odometry* msg)
   calcOdometry((double)(step_time * 0.001));
 
   msg->header.stamp          = ros2::now();
-  msg->header.frame_id       = odom_header_frame_id;
-  msg->child_frame_id        = odom_child_frame_id;
+  strcpy(msg->header.frame_id, odom_header_frame_id);
+  strcpy(msg->child_frame_id, odom_child_frame_id);
   msg->pose.pose.position.x  = odom_pose[0];
   msg->pose.pose.position.y  = odom_pose[1];
   msg->pose.pose.position.z  = 0;
@@ -511,7 +511,7 @@ void publishJointState(sensor_msgs::JointState* msg)
   joint_states_name[1] = (char*)"wheel_right_joint";
       
   msg->header.stamp    = ros2::now();
-  msg->header.frame_id = joint_state_header_frame_id;
+  strcpy(msg->header.frame_id, joint_state_header_frame_id);
   msg->name            = joint_states_name;
   msg->name_size       = WHEEL_NUM;
   msg->position_size   = WHEEL_NUM;
@@ -540,7 +540,7 @@ void publishMagneticField(sensor_msgs::MagneticField* msg)
   memcpy(msg, &magnetic_field_msg, sizeof(sensor_msgs::MagneticField));
 
   msg->header.stamp    = ros2::now();
-  msg->header.frame_id = mag_frame_id;
+  strcpy(msg->header.frame_id, mag_frame_id);
 }
 
 
