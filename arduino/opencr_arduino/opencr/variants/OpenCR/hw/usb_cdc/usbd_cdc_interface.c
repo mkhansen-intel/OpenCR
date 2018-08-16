@@ -34,7 +34,7 @@
 /* Private define ------------------------------------------------------------*/
 #define APP_RX_BUF_SIZE   (1024*16)
 #define APP_RX_DATA_SIZE  (1024*2)
-#define APP_TX_DATA_SIZE  (1024*2)
+#define APP_TX_DATA_SIZE  (1024*8)
 
 
 const char *JUMP_BOOT_STR = "OpenCR 5555AAAA";

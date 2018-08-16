@@ -41,6 +41,8 @@ uint8_t  drv_uart_get_mode(uint8_t uart_num);
 uint32_t drv_uart_available(uint8_t uart_num);
 int      drv_uart_read(uint8_t uart_num);
 
+int32_t  uart_printf(uint8_t uart_num, const char *fmt, ...);
+
 #ifdef __cplusplus
 }
 #endif

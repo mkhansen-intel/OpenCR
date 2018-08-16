@@ -186,6 +186,29 @@ void drv_uart_err_handler(uint8_t uart_num)
 }
 
 
+#include <stdarg.h>
+int32_t uart_printf(uint8_t uart_num, const char *fmt, ...)
+{
+  int32_t ret = 0;
+  va_list arg;
+  va_start (arg, fmt);
+  int32_t len;
+  static char print_buffer[255];
+
+  len = vsnprintf(print_buffer, 255, fmt, arg);
+  va_end (arg);
+
+  int32_t i;
+  for(i = 0; i < len; i++)
+  {
+    drv_uart_write(uart_num, print_buffer[i]);
+  }
+  ret = i;
+
+  return ret;
+}
+
+
 
 
 void USART6_IRQHandler(void)
