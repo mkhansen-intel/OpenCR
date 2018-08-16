@@ -33,7 +33,7 @@ bool ros2::init(const char* p_server_ip, uint16_t server_port)
 
 void ros2::spin(ros2::Node *node)
 {
-  if(micrortps::runCommunication(100) == false)
+  if(micrortps::runCommunication(1000) == false)
   {
     //node->recreate();
   }
