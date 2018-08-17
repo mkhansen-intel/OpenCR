@@ -60,7 +60,7 @@ public:
     (void) serialize_uint32_t(writer, topic->name_size);
     for(uint32_t i = 0; i < topic->name_size; i++)
     {
-      (void) serialize_sequence_char(writer, topic->name[i], (uint32_t)(strlen(name[i])+1));
+      (void) serialize_sequence_char(writer, topic->name[i], (uint32_t)(strlen(topic->name[i])+1));
     } 
 
     (void) serialize_sequence_double(writer, topic->position, topic->position_size);
