@@ -34,8 +34,8 @@ uint8_t      input_reliable_stream_buffer[BUFFER_SIZE];
 
 bool micrortps::setup(mrOnTopicFunc callback, void* callback_arg)
 {
-#if defined(PROFILE_SERIAL_TRANSPORT)  
   bool ret = false;
+#if defined(PROFILE_SERIAL_TRANSPORT)  
   // Transport
   static mrSerialTransport transport;
   if(mr_init_uart_transport(&transport, "usb", 0, 0) == false)

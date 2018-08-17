@@ -40,6 +40,8 @@ void setup()
   // Setting for ROBOTIS RC100 remote controller and cmd_vel
   controllers.init(MAX_LINEAR_VELOCITY, MAX_ANGULAR_VELOCITY);
 
+  updateGyroCali(true);
+
   ros2::init();
 
   setup_end = true;
@@ -476,30 +478,26 @@ void publishImu(sensor_msgs::Imu* msg)
 }
 
 
-//CMD Velocity data from RC100 : angular velocity, linear velocity
-void publishCmdVelRC100(geometry_msgs::Twist* msg)
-{
-  msg->linear.x  = goal_velocity_from_rc100[LINEAR];
-  msg->angular.z = goal_velocity_from_rc100[ANGULAR];
-}
-
-
 //Odometry : 
 void publishOdometry(nav_msgs::Odometry* msg)
 {
-  unsigned long time_now  = millis();
-  unsigned long step_time = time_now - prev_update_time;
+  unsigned long time_now       = millis();
+  unsigned long step_time      = time_now - prev_update_time;
   calcOdometry((double)(step_time * 0.001));
 
-  msg->header.stamp          = ros2::now();
+  msg->header.stamp            = ros2::now();
   strcpy(msg->header.frame_id, odom_header_frame_id);
   strcpy(msg->child_frame_id, odom_child_frame_id);
-  msg->pose.pose.position.x  = odom_pose[0];
-  msg->pose.pose.position.y  = odom_pose[1];
-  msg->pose.pose.position.z  = 0;
+  msg->pose.pose.position.x    = odom_pose[0];
+  msg->pose.pose.position.y    = odom_pose[1];
+  msg->pose.pose.position.z    = 0;
   //msg->pose.pose.orientation = tf::createQuaternionFromYaw(odom_pose[2]);
-  msg->twist.twist.linear.x  = odom_vel[0];
-  msg->twist.twist.angular.z = odom_vel[2];
+  msg->pose.pose.orientation.x = 0;
+  msg->pose.pose.orientation.y = 0;
+  msg->pose.pose.orientation.z = 0;
+  msg->pose.pose.orientation.w = 0;
+  msg->twist.twist.linear.x    = odom_vel[0];
+  msg->twist.twist.angular.z   = odom_vel[2];
 }
 
 
@@ -507,6 +505,7 @@ void publishOdometry(nav_msgs::Odometry* msg)
 void publishJointState(sensor_msgs::JointState* msg)
 {
   static char *joint_states_name[WHEEL_NUM];
+  static double effort_val[WHEEL_NUM] = {0, 0};
   joint_states_name[0] = (char*)"wheel_left_joint";
   joint_states_name[1] = (char*)"wheel_right_joint";
       
@@ -519,28 +518,7 @@ void publishJointState(sensor_msgs::JointState* msg)
   msg->effort_size     = WHEEL_NUM;
   msg->position        = joint_states_pos;
   msg->velocity        = joint_states_vel;
-}
-
-
-//Battery State : 
-void publishBatteryState(sensor_msgs::BatteryState* msg)
-{
-  msg->header.stamp    = ros2::now();
-  msg->design_capacity = 1.8f; //Ah
-  msg->voltage         = sensors.checkVoltage();
-  msg->percentage      = (float)(msg->voltage / 11.1f);
-  msg->present         = (battery_state != 0) ? true : false;
-}
-
-
-//Magnetic : 
-void publishMagneticField(sensor_msgs::MagneticField* msg)
-{
-  sensor_msgs::MagneticField magnetic_field_msg = sensors.getMag();
-  memcpy(msg, &magnetic_field_msg, sizeof(sensor_msgs::MagneticField));
-
-  msg->header.stamp    = ros2::now();
-  strcpy(msg->header.frame_id, mag_frame_id);
+  msg->effort          = effort_val;
 }
 
 
@@ -586,7 +564,7 @@ void subscribeSound(turtlebot3_msgs::Sound* msg)
 
 
 void subscribeMotorPower(std_msgs::Bool* msg)
-{      
+{ 
   motor_driver.setTorque(msg->data);
 }
 
