@@ -15,7 +15,7 @@
 
 namespace ros2 {
 
-typedef void(*CallbackFunc)(void* topic_msg);
+typedef void(*CallbackFunc)(void* msg);
 
 class PublisherHandle
 {

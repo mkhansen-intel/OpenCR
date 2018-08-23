@@ -56,7 +56,7 @@ void loop()
 
   uint32_t t = millis();
   updateVariable(true);
-  updateTFPrefix(true);
+  //updateTFPrefix(true);
 
   if ((t-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_FREQUENCY))
   {
@@ -74,10 +74,10 @@ void loop()
 #endif
 
   // Send log message after ROS connection
-  sendLogMsg();
+  //sendLogMsg();
 
   // Receive data from RC100 
-  controllers.getRCdata(goal_velocity_from_rc100);
+  //controllers.getRCdata(goal_velocity_from_rc100);
 
   // Check push button pressed for simple test drive
   driveTest(diagnosis.getButtonPress(3000));
@@ -96,7 +96,7 @@ void loop()
   diagnosis.showLedStatus(true);
 
   // Update Voltage
-  battery_state = diagnosis.updateVoltageCheck(setup_end);
+  //battery_state = diagnosis.updateVoltageCheck(setup_end);
 
   // Call all the callbacks waiting to be called at that point in time
   ros2::spin(&turtlebot3_node);
@@ -525,18 +525,20 @@ void publishJointState(sensor_msgs::JointState* msg)
 //sensor_state: bumpers, cliffs, buttons, encoders, battery
 void publishSensorState(turtlebot3_msgs::SensorState* msg)
 {
+  msg->header.stamp = ros2::now();
+  strcpy(msg->header.frame_id, sensor_state_header_frame_id);
+  msg->bumper       = sensors.checkPushBumper();
+  msg->cliff        = sensors.getIRsensorData();
+  msg->sonar        = 0.0 ;//TODO : sensors.getSonarData();
+  msg->illumination = sensors.getIlluminationData();
+  msg->led          = 0;
+  msg->button       = sensors.checkPushButton();
+  msg->torque       = motor_driver.getTorque();
   if (motor_driver.readEncoder(msg->left_encoder, msg->right_encoder))
   {
     updateMotorInfo(msg->left_encoder, msg->right_encoder);
-    msg->header.stamp = ros2::now();
-    msg->battery      = sensors.checkVoltage();
-    msg->bumper       = sensors.checkPushBumper();
-    msg->cliff        = sensors.getIRsensorData();
-    //TODO : msg->sonar = sensors.getSonarData();
-    msg->illumination = sensors.getIlluminationData();
-    msg->button       = sensors.checkPushButton();
-    msg->torque       = motor_driver.getTorque();
   }
+  msg->battery      = sensors.checkVoltage();
 }
 
 

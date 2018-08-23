@@ -152,6 +152,7 @@ char imu_frame_id[30];
 char mag_frame_id[30];
 
 char joint_state_header_frame_id[30];
+char sensor_state_header_frame_id[30];
 
 
 void updateTFPrefix(bool isConnected);
@@ -165,20 +166,20 @@ void sendLogMsg(void);
 void sendDebuglog(void);
 
 
-void publishOdometry(nav_msgs::Odometry* topic_msg);
-void publishImu(sensor_msgs::Imu* topic_msg);
-void publishJointState(sensor_msgs::JointState* topic_msg);
-void publishSensorState(turtlebot3_msgs::SensorState* topic_msg);
-void publishVersionInfo(turtlebot3_msgs::VersionInfo* topic_msg);
+void publishOdometry(nav_msgs::Odometry* msg);
+void publishImu(sensor_msgs::Imu* msg);
+void publishJointState(sensor_msgs::JointState* msg);
+void publishSensorState(turtlebot3_msgs::SensorState* msg);
+void publishVersionInfo(turtlebot3_msgs::VersionInfo* msg);
 
-//void publishCmdVelRC100(geometry_msgs::Twist* topic_msg);
-//void publishBatteryState(sensor_msgs::BatteryState* topic_msg);
-//void publishMagneticField(sensor_msgs::MagneticField* topic_msg);
+//void publishCmdVelRC100(geometry_msgs::Twist* msg);
+//void publishBatteryState(sensor_msgs::BatteryState* msg);
+//void publishMagneticField(sensor_msgs::MagneticField* msg);
 
-void subscribeCmdVel(geometry_msgs::Twist* topic_msg);
-void subscribeSound(turtlebot3_msgs::Sound* topic_msg);
-void subscribeMotorPower(std_msgs::Bool* topic_msg);
-void subscribeReset(std_msgs::Empty* topic_msg);
+void subscribeCmdVel(geometry_msgs::Twist* msg);
+void subscribeSound(turtlebot3_msgs::Sound* msg);
+void subscribeMotorPower(std_msgs::Bool* msg);
+void subscribeReset(std_msgs::Empty* msg);
 
 
 /*******************************************************************************
