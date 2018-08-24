@@ -44,6 +44,10 @@ void setup()
 
   ros2::init();
 
+  sprintf(imu_frame_id, "imu_link");
+  sprintf(joint_state_header_frame_id, "base_link");
+  sprintf(sensor_state_header_frame_id, "sensor_state");
+  
   setup_end = true;
 }
 
@@ -468,8 +472,9 @@ void sendDebuglog(void)
 
 
 //IMU data: angular velocity, linear acceleration, orientation
-void publishImu(sensor_msgs::Imu* msg)
+void publishImu(sensor_msgs::Imu* msg, void* arg)
 {
+  (void)(arg);
   sensor_msgs::Imu imu_msg = sensors.getIMU();
   memcpy(msg, &imu_msg, sizeof(sensor_msgs::Imu));
   
@@ -479,8 +484,9 @@ void publishImu(sensor_msgs::Imu* msg)
 
 
 //Odometry : 
-void publishOdometry(nav_msgs::Odometry* msg)
+void publishOdometry(nav_msgs::Odometry* msg, void* arg)
 {
+  (void)(arg);
   unsigned long time_now       = millis();
   unsigned long step_time      = time_now - prev_update_time;
   calcOdometry((double)(step_time * 0.001));
@@ -502,8 +508,9 @@ void publishOdometry(nav_msgs::Odometry* msg)
 
 
 //Joint State : 
-void publishJointState(sensor_msgs::JointState* msg)
+void publishJointState(sensor_msgs::JointState* msg, void* arg)
 {
+  (void)(arg);
   static char *joint_states_name[WHEEL_NUM];
   static double effort_val[WHEEL_NUM] = {0, 0};
   joint_states_name[0] = (char*)"wheel_left_joint";
@@ -523,8 +530,9 @@ void publishJointState(sensor_msgs::JointState* msg)
 
 
 //sensor_state: bumpers, cliffs, buttons, encoders, battery
-void publishSensorState(turtlebot3_msgs::SensorState* msg)
+void publishSensorState(turtlebot3_msgs::SensorState* msg, void* arg)
 {
+  (void)(arg);
   msg->header.stamp = ros2::now();
   strcpy(msg->header.frame_id, sensor_state_header_frame_id);
   msg->bumper       = sensors.checkPushBumper();
@@ -543,8 +551,9 @@ void publishSensorState(turtlebot3_msgs::SensorState* msg)
 
 
 //version info
-void publishVersionInfo(turtlebot3_msgs::VersionInfo* msg)
+void publishVersionInfo(turtlebot3_msgs::VersionInfo* msg, void* arg)
 {
+  (void)(arg);
   msg->hardware = (char*)HARDWARE_VER;
   msg->software = (char*)SOFTWARE_VER;
   msg->firmware = (char*)FIRMWARE_VER;  
@@ -552,28 +561,32 @@ void publishVersionInfo(turtlebot3_msgs::VersionInfo* msg)
 
 
 
-void subscribeCmdVel(geometry_msgs::Twist* msg)
+void subscribeCmdVel(geometry_msgs::Twist* msg, void* arg)
 {
+  (void)(arg);
   goal_velocity_from_cmd[LINEAR]  = constrain(msg->linear.x,  MIN_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY);
   goal_velocity_from_cmd[ANGULAR] = constrain(msg->angular.z, MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
 }
 
 
-void subscribeSound(turtlebot3_msgs::Sound* msg)
+void subscribeSound(turtlebot3_msgs::Sound* msg, void* arg)
 {
+  (void)(arg);
   sensors.makeSound(msg->value);
 }
 
 
-void subscribeMotorPower(std_msgs::Bool* msg)
+void subscribeMotorPower(std_msgs::Bool* msg, void* arg)
 { 
+  (void)(arg);
   motor_driver.setTorque(msg->data);
 }
 
 
-void subscribeReset(std_msgs::Empty* msg)
+void subscribeReset(std_msgs::Empty* msg, void* arg)
 {
   (void)(msg);
+  (void)(arg);
 
   char log_msg[50];
 

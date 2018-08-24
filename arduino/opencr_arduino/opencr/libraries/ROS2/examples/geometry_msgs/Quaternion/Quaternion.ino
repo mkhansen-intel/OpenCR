@@ -21,9 +21,9 @@ public:
   {
     DEBUG_SERIAL.println();
     publisher_ = this->createPublisher<geometry_msgs::Quaternion>("Quaternion");
-    this->createWallFreq(QUATERNION_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishQuaternion, publisher_);
+    this->createWallFreq(QUATERNION_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishQuaternion, NULL, publisher_);
     DEBUG_SERIAL.print(" [Publisher Create]   /Quaternion : "); DEBUG_SERIAL.println((publisher_!=NULL?"Success":"Fail"));
-    subscriber_ = this->createSubscriber<geometry_msgs::Quaternion>("Quaternion", (ros2::CallbackFunc)subscribeQuaternion);
+    subscriber_ = this->createSubscriber<geometry_msgs::Quaternion>("Quaternion", (ros2::CallbackFunc)subscribeQuaternion, NULL);
     DEBUG_SERIAL.print(" [Subscriber Create]  /Quaternion : "); DEBUG_SERIAL.println((subscriber_!=NULL?"Success":"Fail"));
   }
 
@@ -64,17 +64,21 @@ void loop()
 
 
 
-void publishQuaternion(geometry_msgs::Quaternion* msg)
+void publishQuaternion(geometry_msgs::Quaternion* msg, void* arg)
 {
-    msg->x = micros()%128;
-    msg->y = micros()%128;
-    msg->z = micros()%128;
-    msg->w = micros()%180;
+  (void)(arg);
+
+  msg->x = micros()%128;
+  msg->y = micros()%128;
+  msg->z = micros()%128;
+  msg->w = micros()%180;
 }
 
 
-void subscribeQuaternion(geometry_msgs::Quaternion* msg)
+void subscribeQuaternion(geometry_msgs::Quaternion* msg, void* arg)
 {
+  (void)(arg);
+
   DEBUG_SERIAL.println();
   DEBUG_SERIAL.print(" Quaternion(x,y,z,w): ");
     DEBUG_SERIAL.print(msg->x); DEBUG_SERIAL.print(","); 
