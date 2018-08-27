@@ -72,7 +72,7 @@ void loop()
 #ifdef DEBUG
   if ((t-tTime[1]) >= (1000 / DEBUG_LOG_FREQUENCY))
   {
-    sendDebuglog();
+    //sendDebuglog();
     tTime[1] = t;
   }
 #endif
@@ -603,4 +603,12 @@ void subscribeReset(std_msgs::Empty* msg, void* arg)
   sprintf(log_msg, "Reset Odometry");
   DEBUG_SERIAL.println(log_msg);
   //nh.loginfo(log_msg);  
+}
+
+
+void subscribeTimeSync(builtin_interfaces::Time* msg, void* arg)
+{
+  (void)(arg);
+  
+  ros2::syncTimeFromRemote(msg);
 }

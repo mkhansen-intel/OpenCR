@@ -180,6 +180,7 @@ void subscribeCmdVel(geometry_msgs::Twist* msg, void* arg);
 void subscribeSound(turtlebot3_msgs::Sound* msg, void* arg);
 void subscribeMotorPower(std_msgs::Bool* msg, void* arg);
 void subscribeReset(std_msgs::Empty* msg, void* arg);
+void subscribeTimeSync(builtin_interfaces::Time* msg, void* arg);
 
 
 /*******************************************************************************
@@ -249,6 +250,9 @@ public:
 
     sound_sub_         = this->createSubscriber<turtlebot3_msgs::Sound>("sound", (ros2::CallbackFunc)subscribeSound, NULL);
     DEBUG_PRINT("\r\n [Subscriber Create]  /sound          : "); DEBUG_PRINT((sound_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
+
+    time_sync_sub_     = this->createSubscriber<builtin_interfaces::Time>("time_sync", (ros2::CallbackFunc)subscribeTimeSync, NULL);
+    DEBUG_PRINT("\r\n [Subscriber Create]  /time_sync      : "); DEBUG_PRINT((time_sync_sub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
   }
 
 
@@ -270,6 +274,7 @@ private:
   ros2::Subscriber<turtlebot3_msgs::Sound>*       sound_sub_;
   ros2::Subscriber<std_msgs::Bool>*               motor_power_sub_;
   ros2::Subscriber<std_msgs::Empty>*              reset_sub_;
+  ros2::Subscriber<builtin_interfaces::Time>*     time_sync_sub_;
 };
 
 
