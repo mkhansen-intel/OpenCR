@@ -195,9 +195,9 @@ public:
     /*******************************************************************************
     * Publisher
     *******************************************************************************/
-    // Odometry of Turtlebot3
+    // // Odometry of Turtlebot3
     // odom_pub_          = this->createPublisher<nav_msgs::Odometry>("odom");
-    // this->createWallFreq(ODOMETRY_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishOdometry, odom_pub_);
+    // this->createWallFreq(ODOMETRY_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishOdometry, NULL, odom_pub_);
     // DEBUG_PRINT("\r\n [Publisher Create]   /odom           : "); DEBUG_PRINT((odom_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
 
     // Sensor State
@@ -217,12 +217,12 @@ public:
 
     // // (Not necessary) Battey state of Turtlebot3 
     // battery_state_pub_ = this->createPublisher<sensor_msgs::BatteryState>("battery_state");
-    // this->createWallFreq(BATTERY_STATE_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishBatteryState, battery_state_pub_);
+    // this->createWallFreq(BATTERY_STATE_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishBatteryState, NULL, battery_state_pub_);
     // DEBUG_PRINT("\r\n [Publisher Create]   /battery_state  : "); DEBUG_PRINT((battery_state_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
 
     // // (Not necessary) Magnetic field
     // mag_pub_           = this->createPublisher<sensor_msgs::MagneticField>("magnetic_field");
-    // this->createWallFreq(MAGNETIC_FIELD_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishMagneticField, mag_pub_);
+    // this->createWallFreq(MAGNETIC_FIELD_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishMagneticField, NULL, mag_pub_);
     // DEBUG_PRINT("\r\n [Publisher Create]   /magnetic_field : "); DEBUG_PRINT((mag_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
 
     // Version information of Turtlebot3
@@ -232,7 +232,7 @@ public:
 
     // // (Not necessary) Command velocity of Turtlebot3 using RC100 remote controller
     // cmd_vel_rc100_pub_ = this->createPublisher<geometry_msgs::Twist>("cmd_vel_rc100");
-    // this->createWallFreq(CMD_VEL_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishCmdVelRC100, cmd_vel_rc100_pub_);
+    // this->createWallFreq(CMD_VEL_PUBLISH_FREQUENCY, (ros2::CallbackFunc)publishCmdVelRC100, NULL, cmd_vel_rc100_pub_);
     // DEBUG_PRINT("\r\n [Publisher Create]   /cmd_vel_rc100  : "); DEBUG_PRINT((cmd_vel_rc100_pub_!=NULL?"Success":"Fail")); DEBUG_PRINT(this->err_code);
    
 
