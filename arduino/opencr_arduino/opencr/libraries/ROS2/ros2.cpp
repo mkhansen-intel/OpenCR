@@ -54,16 +54,17 @@ builtin_interfaces::Time ros2::now()
 {
   builtin_interfaces::Time ret_time = synced_time_from_remote;
   uint32_t msec_offset = millis() - ros2::millis_when_synced_time;
+  uint32_t t_sec = (ret_time.nanosec/1000000 + msec_offset%1000)/1000;
   
   ret_time.sec += (int32_t)(msec_offset/1000);
-  if(ret_time.nanosec/1000000 + msec_offset%1000 < 1000)
+  if(t_sec < 1)
   {
     ret_time.nanosec += (uint32_t)((msec_offset%1000)*1000000);
   }
-  else //nanosec + offset >= 1sec
+  else //t_sec >= 1sec
   {
-    ret_time.sec += (ret_time.nanosec/1000000 + msec_offset)/1000;
-    ret_time.nanosec = (uint32_t)(ret_time.nanosec%1000000000 + (msec_offset%1000)*1000000);
+    ret_time.sec += t_sec;
+    ret_time.nanosec = (uint32_t)(ret_time.nanosec + msec_offset*1000000 - t_sec);
   }
 
   return ret_time;
