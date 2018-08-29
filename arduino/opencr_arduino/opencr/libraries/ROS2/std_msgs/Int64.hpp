@@ -51,11 +51,11 @@ public:
 
   uint32_t size_of_topic(const Int64* topic, uint32_t size)
   {
-      (void)(topic);
+    (void)(topic);
 
-      size += 8 + get_alignment(size, 8);
+    size += 8 + get_alignment(size, 8);
 
-      return size;
+    return size;
   }
 
 };
