@@ -48,10 +48,10 @@
 #define ACTIVE_JOINT_SIZE 3
 
 #define CIRCLE 11
-#define RHOMBUS 12
-#define HEART 13
-#define CIRCLE2 14
-#define RHOMBUS2 15
+#define RHOMBUS 13
+#define HEART 15
+#define CIRCLE2 12
+#define RHOMBUS2 14
 #define HEART2 16
 
 #define PLATFORM
@@ -99,7 +99,7 @@ void initManipulator()
                 COMP3,
                 OM_MATH::makeVector3(0.107, 0.0, 0.0),
                 Eigen::Matrix3f::Identity(3, 3),
-                5,
+                15,
                 1.0f); // Change unit from `meter` to `radian`
 
   SCARA.initKinematics(kinematics);
