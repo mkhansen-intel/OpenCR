@@ -88,7 +88,7 @@ void test()
       SCARA.toolMove(TOOL, -0.0f);
 
       if (motion_page == CIRCLE) {
-        radius = 0.040f;          
+        radius = 0.035f;          
         SCARA.drawInit(CIRCLE, move_time, p_init_arg);
         SCARA.setRadiusForDrawing(CIRCLE, radius);  
         SCARA.setStartPositionForDrawing(CIRCLE, SCARA.getComponentPositionToWorld(TOOL));
@@ -119,7 +119,7 @@ void test()
       } 
 
       else if (motion_page == RHOMBUS) {
-        radius = 0.040f;          
+        radius = 0.035f;          
         SCARA.drawInit(RHOMBUS, move_time, p_init_arg);
         SCARA.setRadiusForDrawing(RHOMBUS, radius);  
         SCARA.setStartPositionForDrawing(RHOMBUS, SCARA.getComponentPositionToWorld(TOOL));
