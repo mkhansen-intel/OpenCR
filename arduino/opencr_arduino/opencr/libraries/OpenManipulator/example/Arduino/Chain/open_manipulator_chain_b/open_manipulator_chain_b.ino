@@ -32,24 +32,20 @@ void setup()
 {
   Serial.begin(57600);
   DEBUG.begin(57600);
-   while (!Serial)
-     ;
+  // while (!Serial)
+  // ;
 
   connectProcessing();
-
-
-  
-  //connectRC100();
+  // connectRC100();
   
   initManipulator();
   initManipulator2();
   
-
   pinMode(BDPIN_PUSH_SW_1, INPUT);
   pinMode(BDPIN_PUSH_SW_2, INPUT);
 
-  //initThread();
-  //startThread();
+  // initThread();
+  // startThread();
 }
 
 void loop()
@@ -86,6 +82,7 @@ void loop()
     chain2.jointControl();
     previous_time[2] = (float)(millis()/1000.0f);
   }
+
   if(continue_flag == true)
   {
     if(continue_waiting_time == 0.0)

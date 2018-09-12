@@ -31,9 +31,9 @@ uint8_t sub_motion_cnt[2] = {0, 0};
 void gripOnOff(OpenManipulator* manipulator, bool data)
 {
   if(data)
-    manipulator->toolMove(TOOL, -0.8f); // gripper open
+    manipulator->toolMove(TOOL, -0.9f); // gripper open
   else
-    manipulator->toolMove(TOOL, 0.02f); // gripper close
+    manipulator->toolMove(TOOL, -0.35f); // gripper close
 }
 void moveJS(OpenManipulator* manipulator, float j1, float j2, float j3, float j4, float t)
 {
@@ -587,7 +587,7 @@ void setMotion2()
     break;
     ////////// O O O
     case 7:
-      if(pickStick2(&chain2, 1))
+      if(pickStick1(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
