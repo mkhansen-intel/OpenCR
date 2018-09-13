@@ -133,7 +133,7 @@ bool pickStick2(OpenManipulator* manipulator, int index)
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f);
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.01, 0.0, 0.115f), 0.6f);
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.01, 0.0, 0.115f), 0.6f);  // x 앞으로 살짝 밀며 꺼내기
           return 1; break;
   }
   return 0;
@@ -152,7 +152,7 @@ bool pickStick3(OpenManipulator* manipulator, int index)
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.01, 0.0, 0.115f), 0.6f);
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.01, 0.0, 0.115f), 0.6f); // x 앞으로 살짝 밀며 꺼내기
           return 1; break;
   }
   return 0;
@@ -205,7 +205,7 @@ bool placeStick2(OpenManipulator* manipulator, int index, int opt)
 bool placeStick3(OpenManipulator* manipulator, int index, int opt)
 {
   float depth = -0.080f;
-  if(opt == 1)
+  if(opt == 1)  // 1 == 전달받음 / 0 == 전달 안받음
     depth = -0.035f; // 전달 받았을때 놓기위해 내려가는 z 높이
 
   switch(sub_motion_cnt[index])
