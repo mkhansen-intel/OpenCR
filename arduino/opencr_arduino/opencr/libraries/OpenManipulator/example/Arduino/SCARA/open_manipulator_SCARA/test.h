@@ -21,6 +21,8 @@ void test()
     return;
   }
   else {
+
+    // Erasing
     if (motion_erase == 1){
       if (motion_repeat == 0){
         SCARA.toolMove(TOOL, -0.5f);
@@ -89,6 +91,8 @@ void test()
         motion_repeat = 0;
       }
     }
+
+    // Drawing
     else {
 
       SCARA.toolMove(TOOL, -0.0f);
