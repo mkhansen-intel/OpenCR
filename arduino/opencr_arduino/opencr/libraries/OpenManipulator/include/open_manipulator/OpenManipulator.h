@@ -224,9 +224,11 @@ public:
   std::vector<float> receiveAllActuatorAngle();
 
   // DRAW (INCLUDES VIRTUAL)
-  void drawInit(Name name, float move_time, float angular_position, const void *arg);
+  void drawInit(Name name, float move_time, const void *arg);
   void setRadiusForDrawing(Name name, float radius);
   void setStartPositionForDrawing(Name name, Vector3f start_position);
+  void setStartAngularPositionForDrawing(Name name, float start_position);
+
   Pose getPoseForDrawing(Name name, float tick);
   void draw(Name object);
   bool drawing();
@@ -266,6 +268,8 @@ public:
   void setMove(Name tool_name, Vector3f meter, float move_time = 1.0f);
 
   void drawLine(Name tool_name, Vector3f meter, float move_time = 1.0f);
+  
+  bool checkManipulatorMoving();
 };
 } // namespace OPEN_MANIPULATOR
 

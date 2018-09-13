@@ -16,108 +16,95 @@
 
 /* Authors: Darby Lim */
 
-#include "SCARA.h"
+#include "Chain.h"
 #include "Processing.h"
+#include "Motion.h"
 #include "RemoteController.h"
-#include "test.h"
 
 std::vector<float> goal_position;
 Pose goal_pose;
 
 float present_time = 0.0;
 float previous_time[3] = {0.0, 0.0, 0.0};
+float continue_waiting_time = 0.0;
 
 void setup()
 {
   Serial.begin(57600);
   DEBUG.begin(57600);
-  // while (!Serial);
+   while (!Serial)
+     ;
 
   connectProcessing();
-  // connectRC100();
+
+
+  
+  //connectRC100();
   
   initManipulator();
+  initManipulator2();
+  
 
-  SCARA.addDraw(RHOMBUS, rhombus);
-  SCARA.addDraw(CIRCLE, circle);
-  SCARA.addDraw(HEART, heart);
+  pinMode(BDPIN_PUSH_SW_1, INPUT);
+  pinMode(BDPIN_PUSH_SW_2, INPUT);
 
-  Serial.println("Setup");
+  //initThread();
+  //startThread();
 }
 
 void loop()
 {
   present_time = (float)(millis()/1000.0f);
-  //get Data 
-  getData(10);
 
+  getData(10);
   if(present_time-previous_time[0] >= LOOP_TIME)
   {
-    test();
+    switchRead();
+    setMotion1();
+    setMotion2();
     previous_time[0] = (float)(millis()/1000.0f);
-
   }
 
   //solve Kinematics
   if(present_time-previous_time[1] >= ROBOT_STATE_UPDATE_TIME)
   {
     updateAllJointAngle();
-    SCARA.forward(SCARA.getWorldChildName());
+    updateAllJointAngle2();
+    chain.forward(chain.getWorldChildName());
+    chain2.forward(chain.getWorldChildName());
     previous_time[1] = (float)(millis()/1000.0f);
-
   }
 
   //Joint Control
   if(present_time-previous_time[2] >= ACTUATOR_CONTROL_TIME)
-  {    
-    SCARA.setPresentTime((float)(millis()/1000.0f));
-    SCARA.jointControl();
-    SCARA.jointControlForDrawing(TOOL);    
-    previous_time[2] = (float)(millis()/1000.0f);
-
-  }
-}
-
-//---------------- DO NOT MODIFY THE BELOW CODE---------------------//
-
-namespace THREAD
-{
-osThreadId loop;
-osThreadId robot_state;
-osThreadId actuator_control;
-} // namespace THREAD
-
-void initThread()
-{
-  MUTEX::create();
-
-  // define thread
-  osThreadDef(THREAD_NAME_LOOP, Loop, osPriorityNormal, 0, 1024 * 10);
-  osThreadDef(THREAD_NAME_ROBOT_STATE, THREAD::Robot_State, osPriorityNormal, 0, 1024 * 10);
-  osThreadDef(THREAD_NAME_ACTUATOR_CONTROL, THREAD::Actuator_Control, osPriorityNormal, 0, 1024 * 10);
-
-  // create thread
-  THREAD::loop = osThreadCreate(osThread(THREAD_NAME_LOOP), NULL);
-  THREAD::robot_state = osThreadCreate(osThread(THREAD_NAME_ROBOT_STATE), NULL);
-  THREAD::actuator_control = osThreadCreate(osThread(THREAD_NAME_ACTUATOR_CONTROL), NULL);
-}
-
-void startThread()
-{
-  // start kernel
-  Serial.println("Thread Start");
-  osKernelStart();
-}
-
-static void Loop(void const *argument)
-{
-  (void)argument;
-
-  for (;;)
   {
-    loop();
-    showLedStatus();
+    chain.setPresentTime((float)(millis()/1000.0f));
+    chain.jointControlForDrawing(TOOL);
+    chain.jointControl();
+    chain2.setPresentTime((float)(millis()/1000.0f));
+    chain2.jointControlForDrawing(TOOL);
+    chain2.jointControl();
+    previous_time[2] = (float)(millis()/1000.0f);
   }
+  if(continue_flag == true)
+  {
+    if(continue_waiting_time == 0.0)
+      continue_waiting_time = (float)(millis()/1000.0f);
+    else if(present_time - continue_waiting_time >= 7.0)
+    {
+      continue_waiting_time = 0.0;
+      continue_flag = false;
+      motionStart();      
+    }
+  }
+}
+
+void switchRead()
+{
+  if(digitalRead(BDPIN_PUSH_SW_1))
+    motionStart();
+  if(digitalRead(BDPIN_PUSH_SW_2))
+    motionStop();
 }
 
 void getData(uint32_t wait_time)
@@ -173,3 +160,46 @@ void getData(uint32_t wait_time)
      break;
   }
 }
+
+// /// DON'T TOUCH BELOW CODE///
+
+// namespace THREAD
+// {
+// osThreadId loop;
+// osThreadId robot_state;
+// osThreadId actuator_control;
+// } // namespace THREAD
+
+// void initThread()
+// {
+//   MUTEX::create();
+
+//   // define thread
+//   osThreadDef(THREAD_NAME_LOOP, Loop, osPriorityNormal, 0, 1024 * 10);
+//   osThreadDef(THREAD_NAME_ROBOT_STATE, THREAD::Robot_State, osPriorityNormal, 0, 1024 * 10);
+//   osThreadDef(THREAD_NAME_ACTUATOR_CONTROL, THREAD::Actuator_Control, osPriorityNormal, 0, 1024 * 10);
+
+//   // create thread
+//   THREAD::loop = osThreadCreate(osThread(THREAD_NAME_LOOP), NULL);
+//   THREAD::robot_state = osThreadCreate(osThread(THREAD_NAME_ROBOT_STATE), NULL);
+//   THREAD::actuator_control = osThreadCreate(osThread(THREAD_NAME_ACTUATOR_CONTROL), NULL);
+// }
+
+// void startThread()
+// {
+//   // start kernel
+//   Serial.println("Thread Start");
+//   osKernelStart();
+// }
+
+// static void Loop(void const *argument)
+// {
+//   (void)argument;
+
+//   for (;;)
+//   {
+//     loop();
+//     showLedStatus();
+//   }
+// }
+

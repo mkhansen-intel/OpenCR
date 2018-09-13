@@ -612,7 +612,7 @@ void OpenManipulator::actuatorDisable()
 }
 
 // DRAW
-void OpenManipulator::drawInit(Name name, float drawing_time, float angular_position, const void *arg)
+void OpenManipulator::drawInit(Name name, float drawing_time, const void *arg)
 {
   drawing_time_ = drawing_time;
 
@@ -627,7 +627,11 @@ void OpenManipulator::setRadiusForDrawing(Name name, float radius)
 void OpenManipulator::setStartPositionForDrawing(Name name, Vector3f start_position)
 {
   draw_.at(name)->setStartPosition(start_position);
-  drawing_ = true;
+}
+
+void OpenManipulator::setStartAngularPositionForDrawing(Name name, float start_angular_position)
+{
+  draw_.at(name)->setAngularStartPosition(start_angular_position);
 }
 
 Pose OpenManipulator::getPoseForDrawing(Name name, float tick)
@@ -748,13 +752,13 @@ void OpenManipulator::jointControlForDrawing(Name tool_name)
   if(drawing_)
   {
     tick_time = present_time_ - start_time_;
-    DEBUG.print(" drawing : ");
-    DEBUG.print("tick_time = ");
-    DEBUG.print(tick_time);
-    DEBUG.print("present_time_ = ");
-    DEBUG.print(present_time_);
-    DEBUG.print("start_time_ = ");
-    DEBUG.print(start_time_);  
+    // DEBUG.print(" drawing : ");
+    // DEBUG.print("tick_time = ");
+    // DEBUG.print(tick_time);
+    // DEBUG.print("present_time_ = ");
+    // DEBUG.print(present_time_);
+    // DEBUG.print("start_time_ = ");
+    // DEBUG.print(start_time_);  
 
   //   if(tick_time < drawing_time_)
   //   {
@@ -873,13 +877,13 @@ void OpenManipulator::jointControl()
   if(moving_)
   {
     tick_time = present_time_ - start_time_;
-    DEBUG.print(" moving : ");
-    DEBUG.print("tick_time = ");
-    DEBUG.print(tick_time);
-    DEBUG.print("present_time_ = ");
-    DEBUG.print(present_time_);
-    DEBUG.print("start_time_ = ");
-    DEBUG.print(start_time_);  
+    // DEBUG.print(" moving : ");
+    // DEBUG.print("tick_time = ");
+    // DEBUG.print(tick_time);
+    // DEBUG.print("present_time_ = ");
+    // DEBUG.print(present_time_);
+    // DEBUG.print("start_time_ = ");
+    // DEBUG.print(start_time_);  
 
     if(tick_time < move_time_)
     {
@@ -1111,4 +1115,12 @@ void OpenManipulator::wait(float wait_time)
   setMoveTime(wait_time);
   makeTrajectory(start_trajectory_, goal_trajectory_);
   move();
+}
+
+bool OpenManipulator::checkManipulatorMoving()
+{
+  if(moving_ || drawing_)
+    return true;
+  else
+    return false;
 }
