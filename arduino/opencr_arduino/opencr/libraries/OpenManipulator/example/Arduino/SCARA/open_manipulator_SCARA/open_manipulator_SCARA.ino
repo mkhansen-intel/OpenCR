@@ -38,8 +38,8 @@ void setup()
   
   initManipulator();
 
-  SCARA.addDraw(RHOMBUS, rhombus);
   SCARA.addDraw(CIRCLE, circle);
+  SCARA.addDraw(RHOMBUS, rhombus);
   SCARA.addDraw(HEART, heart);
 
   Serial.println("Setup");

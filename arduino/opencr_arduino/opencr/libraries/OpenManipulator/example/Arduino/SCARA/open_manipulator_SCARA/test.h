@@ -21,6 +21,8 @@ void test()
     return;
   }
   else {
+
+    // Erasing
     if (motion_erase == 1){
       if (motion_repeat == 0){
         SCARA.toolMove(TOOL, -0.5f);
@@ -28,9 +30,10 @@ void test()
       }    
       else if (motion_repeat == 1){
         std::vector<float> goal_position;
-        goal_position.push_back(-0.51);
-        goal_position.push_back(0.6);
-        goal_position.push_back(0.70);
+        // goal_position.push_back(-2.15);
+        goal_position.push_back(-2.17);
+        goal_position.push_back(0.82);
+        goal_position.push_back(2.05);
 
         SCARA.jointMove(goal_position, 3.0f); 
         motion_repeat++;
@@ -39,9 +42,9 @@ void test()
         SCARA.toolMove(TOOL, -0.0f);
 
         std::vector<float> goal_position;
-        goal_position.push_back(-0.51);
-        goal_position.push_back(0.6);
-        goal_position.push_back(0.70);
+        goal_position.push_back(-2.17);
+        goal_position.push_back(0.82);
+        goal_position.push_back(2.05);
         SCARA.jointMove(goal_position, 3.0f); 
 
         motion_repeat++;
@@ -50,9 +53,9 @@ void test()
         SCARA.toolMove(TOOL, -0.5f);
 
         std::vector<float> goal_position;
-        goal_position.push_back(-0.51);
-        goal_position.push_back(0.6);
-        goal_position.push_back(0.70);
+        goal_position.push_back(-2.17);
+        goal_position.push_back(0.82);
+        goal_position.push_back(2.05);
         SCARA.jointMove(goal_position, 3.0f); 
 
         motion_repeat++;
@@ -60,7 +63,7 @@ void test()
       else {
         std::vector<float> goal_position;
 
-        if (motion_page == CIRCLE || motion_page == RHOMBUS){
+        if (motion_page == CIRCLE){
           goal_position.push_back(-1.05);
           goal_position.push_back(0.9);
           goal_position.push_back(0.9);
@@ -72,17 +75,25 @@ void test()
           goal_position.push_back(1.2);
           SCARA.jointMove(goal_position, 2.0f); 
         }
+        else if (motion_page == RHOMBUS || motion_page == RHOMBUS2) {
+          goal_position.push_back(-1.80);
+          goal_position.push_back(1.43);
+          goal_position.push_back(1.43);
+          SCARA.jointMove(goal_position, 2.0f); 
+        }
 
         else {
-          goal_position.push_back(-1.2);
-          goal_position.push_back(1.0);
-          goal_position.push_back(1.0);
+          goal_position.push_back(-1.6);
+          goal_position.push_back(1.3);
+          goal_position.push_back(1.3);
           SCARA.jointMove(goal_position, 2.0f); 
         }
         motion_erase = 0;
         motion_repeat = 0;
       }
     }
+
+    // Drawing
     else {
 
       SCARA.toolMove(TOOL, -0.0f);
@@ -120,6 +131,7 @@ void test()
 
       else if (motion_page == RHOMBUS) {
         radius = 0.035f;          
+        start_angular_position = PI;
         SCARA.drawInit(RHOMBUS, move_time, p_init_arg);
         SCARA.setRadiusForDrawing(RHOMBUS, radius);  
         SCARA.setStartPositionForDrawing(RHOMBUS, SCARA.getComponentPositionToWorld(TOOL));
@@ -129,9 +141,11 @@ void test()
         motion_erase = 1;
         motion_page++;
         radius = 0.020f;
+        start_angular_position = 0;
       } 
 
       else if (motion_page == RHOMBUS2) {
+        start_angular_position = PI;
         SCARA.drawInit(RHOMBUS, move_time, p_init_arg);
         SCARA.setRadiusForDrawing(RHOMBUS, radius);  
         SCARA.setStartPositionForDrawing(RHOMBUS, SCARA.getComponentPositionToWorld(TOOL));
@@ -146,11 +160,13 @@ void test()
           motion_page++;
           motion_repeat = 0;
           radius = 0.020f;
+          start_angular_position = 0;
         }
       } 
 
       else if (motion_page == HEART) { 
-        radius = 0.050f;
+        radius = 0.045f;
+        start_angular_position = PI;
         SCARA.drawInit(HEART, move_time, p_init_arg);
         SCARA.setRadiusForDrawing(HEART, radius);  
         SCARA.setStartPositionForDrawing(HEART, SCARA.getComponentPositionToWorld(TOOL));
@@ -158,45 +174,11 @@ void test()
         SCARA.draw(HEART);
 
         motion_erase = 1;
-        motion_page++;
+        // motion_page++;
         radius = 0.020f;
+        start_angular_position = 0;
+        motion_page = 11;
       } 
-
-      // else if (motion_page == RHOMBUS2) { 
-      //   SCARA.drawInit(RHOMBUS, move_time, p_init_arg);
-      //   SCARA.setRadiusForDrawing(RHOMBUS, radius);  
-      //   SCARA.setStartPositionForDrawing(RHOMBUS, SCARA.getComponentPositionToWorld(TOOL));
-      //   SCARA.setStartAngularPositionForDrawing(RHOMBUS, start_angular_position);
-      //   SCARA.draw(RHOMBUS);
-
-      //   motion_repeat++;
-      //   start_angular_position = start_angular_position + PI/4;
-
-      //   if (motion_repeat == 8){
-      //     motion_erase = 1;
-      //     motion_page++;
-      //     motion_repeat = 0;
-      //     start_angular_position = 0;
-      //   }
-      // } 
-
-      // else if (motion_page == HEART2) { 
-      //   SCARA.drawInit(HEART, move_time, p_init_arg);
-      //   SCARA.setRadiusForDrawing(HEART, radius);  
-      //   SCARA.setStartPositionForDrawing(HEART, SCARA.getComponentPositionToWorld(TOOL));
-      //   SCARA.setStartAngularPositionForDrawing(HEART, start_angular_position);
-      //   SCARA.draw(HEART);
-
-      //   motion_repeat++;
-      //   start_angular_position = start_angular_position + PI/4;
-
-      //   if (motion_repeat == 8){
-      //     motion_erase = 1;
-      //     motion_page++;
-      //     motion_repeat = 0;
-      //     start_angular_position = 0;
-      //   }
-      // } 
 
       else
         motion_page = 11;
