@@ -313,7 +313,7 @@ void Rhombus::init(float move_time, float control_time)
   start.velocity = 0.0;
   start.acceleration = 0.0;
 
-  goal.position = 2 * M_PI; 
+  goal.position = 2.03 * M_PI; 
   goal.velocity = 0.0;
   goal.acceleration = 0.0;
 
@@ -425,10 +425,24 @@ Pose Heart::heart(float time_var)
 {
   Pose pose;
 
-  pose.position(0) = start_position_(0) - 1.0f/17.0f*radius_*7  
+  // pose.position(0) = start_position_(0) - 1.0f/17.0f*radius_*7  
+  //   + (1.0f/17.0f*radius_*(13*cos(time_var) - 5*cos(2*time_var) - 2*cos(3*time_var) - cos(4*time_var)));
+  // pose.position(1) = start_position_(1)
+  //   + 1.0f/17.0f*radius_*(16*sin(time_var)*sin(time_var)*sin(time_var));
+  // pose.position(2) = start_position_(2);
+
+  double traj[2];
+  double diff_pose[2];
+
+  traj[0] =  - 1.0f/17.0f*radius_*7  
     + (1.0f/17.0f*radius_*(13*cos(time_var) - 5*cos(2*time_var) - 2*cos(3*time_var) - cos(4*time_var)));
-  pose.position(1) = start_position_(1)
-    + 1.0f/17.0f*radius_*(16*sin(time_var)*sin(time_var)*sin(time_var));
+  traj[1] = 1.0f/17.0f*radius_*(16*sin(time_var)*sin(time_var)*sin(time_var));
+
+  diff_pose[0] = traj[0]*cos(start_angular_position_) - traj[1]*sin(start_angular_position_);
+  diff_pose[1] = traj[0]*sin(start_angular_position_) + traj[1]*cos(start_angular_position_);
+
+  pose.position(0) = start_position_(0) + diff_pose[0];
+  pose.position(1) = start_position_(1) + diff_pose[1];
   pose.position(2) = start_position_(2);
 
   return pose;
