@@ -111,7 +111,7 @@ std::vector<float> Chain::inverse(OM_MANAGER::Manipulator *manipulator, Name too
 
 std::vector<float> Chain::inverseKinematics(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose)
 {
-  const float lambda = 0.7;
+  const float lambda = 0.1;
   const int8_t iteration = 10;
 
   OM_MANAGER::Manipulator _manipulator = *manipulator;

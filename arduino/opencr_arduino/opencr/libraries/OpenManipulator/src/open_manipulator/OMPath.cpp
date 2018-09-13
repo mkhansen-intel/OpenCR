@@ -484,20 +484,7 @@ Pose Heart::getPose(float tick)
   return heart(get_time_var);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 BottleShake::BottleShake() {}
-
 BottleShake::~BottleShake() {}
 
 void BottleShake::init(float move_time, float control_time)
@@ -566,6 +553,82 @@ Pose BottleShake::getPose(float tick)
 }
 
 void BottleShake::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
+
+BottleShake2::BottleShake2() {}
+BottleShake2::~BottleShake2() {}
+
+void BottleShake2::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 0.0;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 2 * M_PI;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void BottleShake2::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void BottleShake2::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void BottleShake2::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose BottleShake2::bottleshake(float time_var)
+{
+  Pose pose;
+  double diff_pose[2];
+
+  diff_pose[0] = (cos(time_var)-1)*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
+  diff_pose[1] = (cos(time_var)-1)*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
+
+  pose.position(0) = start_position_(0);
+  pose.position(1) = start_position_(1) + radius_ * diff_pose[1];
+  pose.position(2) = start_position_(2) + radius_ * diff_pose[0];
+
+  return pose;
+}
+
+Pose BottleShake2::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return bottleshake(get_time_var);
+}
+
+void BottleShake2::initDraw(const void *arg)
 {
   get_arg_ = (float *)arg;
 

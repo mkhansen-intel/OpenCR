@@ -39,10 +39,18 @@ void setup()
   // connectRC100();
   
   initManipulator();
-  initManipulator2();
+  //initManipulator2();
   
   pinMode(BDPIN_PUSH_SW_1, INPUT);
   pinMode(BDPIN_PUSH_SW_2, INPUT);
+
+  chain.addDraw(CIRCLE, circle);
+  chain.addDraw(RHOMBUS, rhombus);
+  chain.addDraw(HEART, heart);
+  chain.addDraw(BOTTLESHAKE, bottleshake);
+  chain.addDraw(BOTTLESHAKE2, bottleshake2);
+  
+
 
   // initThread();
   // startThread();
@@ -57,7 +65,7 @@ void loop()
   {
     switchRead();
     setMotion1();
-    setMotion2();
+    //setMotion2();
     previous_time[0] = (float)(millis()/1000.0f);
   }
 
@@ -65,10 +73,18 @@ void loop()
   if(present_time-previous_time[1] >= ROBOT_STATE_UPDATE_TIME)
   {
     updateAllJointAngle();
-    updateAllJointAngle2();
+    //updateAllJointAngle2();
     chain.forward(chain.getWorldChildName());
-    chain2.forward(chain.getWorldChildName());
-    previous_time[1] = (float)(millis()/1000.0f);
+    //chain2.forward(chain2.getWorldChildName());
+    previous_time[1] = (float)(millis()/1000.0f);/*
+    Pose temp = chain.getComponentPoseToWorld(TOOL);
+    DEBUG.print(temp.position(0));
+    DEBUG.print(", ");
+    DEBUG.print(temp.position(1));
+    DEBUG.print(", ");
+    DEBUG.print(temp.position(2));
+    DEBUG.print(", ");
+    DEBUG.println();*/
   }
 
   //Joint Control
@@ -77,9 +93,9 @@ void loop()
     chain.setPresentTime((float)(millis()/1000.0f));
     chain.jointControlForDrawing(TOOL);
     chain.jointControl();
-    chain2.setPresentTime((float)(millis()/1000.0f));
-    chain2.jointControlForDrawing(TOOL);
-    chain2.jointControl();
+    //chain2.setPresentTime((float)(millis()/1000.0f));
+    //chain2.jointControlForDrawing(TOOL);
+    //chain2.jointControl();
     previous_time[2] = (float)(millis()/1000.0f);
   }
 

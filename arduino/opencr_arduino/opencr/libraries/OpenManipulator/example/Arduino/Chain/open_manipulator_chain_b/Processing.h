@@ -51,7 +51,7 @@ void fromProcessing(String data)
       chain.sendToolData2Processing(chain.getComponentToolValue(TOOL));
 
 
-      chain2.actuatorEnable();
+      //chain2.actuatorEnable();
 
 
 #endif
@@ -60,7 +60,7 @@ void fromProcessing(String data)
     {
 #ifdef PLATFORM
       chain.actuatorDisable();
-      chain2.actuatorDisable();
+      //chain2.actuatorDisable();
 #endif
     }
   }
@@ -74,13 +74,13 @@ void fromProcessing(String data)
     }
 
     chain.jointMove(goal_position, 1.0f); // FIX TIME PARAM
-    chain2.jointMove(goal_position, 1.0f); // FIX TIME PARAM
+    //chain2.jointMove(goal_position, 1.0f); // FIX TIME PARAM
 
   }
   else if (cmd[0] == "gripper")
   {
     chain.toolMove(TOOL, cmd[1].toFloat());
-    chain2.toolMove(TOOL, cmd[1].toFloat());
+   // chain2.toolMove(TOOL, cmd[1].toFloat());
   }
   else if (cmd[0] == "grip")
   {
@@ -89,10 +89,10 @@ void fromProcessing(String data)
     else if (cmd[1] == "off")
       chain.toolMove(TOOL, -1.0f);
 
-    if (cmd[1] == "on")
-      chain2.toolMove(TOOL, 0.0f);
-    else if (cmd[1] == "off")
-      chain2.toolMove(TOOL, -1.0f);
+    // if (cmd[1] == "on")
+    //   chain2.toolMove(TOOL, 0.0f);
+    // else if (cmd[1] == "off")
+    //   chain2.toolMove(TOOL, -1.0f);
   }
   else if (cmd[0] == "task")
   {
@@ -112,20 +112,20 @@ void fromProcessing(String data)
       chain.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.0), 0.2f);
 
 
-    if (cmd[1] == "forward")
-      chain2.setMove(TOOL, OM_MATH::makeVector3(0.010f, 0.0, 0.0), 0.2f);
-    else if (cmd[1] == "back")
-      chain2.setMove(TOOL, OM_MATH::makeVector3(-0.010f, 0.0, 0.0), 0.2f);
-    else if (cmd[1] == "left")
-      chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.010f, 0.0), 0.2f);
-    else if (cmd[1] == "right")
-      chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, -0.010f, 0.0), 0.2f);
-    else if (cmd[1] == "up")
-      chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.010f), 0.2f);
-    else if (cmd[1] == "down")
-      chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.010f), 0.2f);
-    else
-      chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.0), 0.2f);
+    // if (cmd[1] == "forward")
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(0.010f, 0.0, 0.0), 0.2f);
+    // else if (cmd[1] == "back")
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(-0.010f, 0.0, 0.0), 0.2f);
+    // else if (cmd[1] == "left")
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.010f, 0.0), 0.2f);
+    // else if (cmd[1] == "right")
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, -0.010f, 0.0), 0.2f);
+    // else if (cmd[1] == "up")
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.010f), 0.2f);
+    // else if (cmd[1] == "down")
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.010f), 0.2f);
+    // else
+    //   chain2.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.0), 0.2f);
 
   }
   else if (cmd[0] == "torque")
@@ -135,10 +135,10 @@ void fromProcessing(String data)
       chain.actuatorEnable();
     else if (cmd[1] == "off")
       chain.actuatorDisable();
-    if (cmd[1] == "on")
-      chain2.actuatorEnable();
-    else if (cmd[1] == "off")
-      chain2.actuatorDisable();
+    // if (cmd[1] == "on")
+    //   chain2.actuatorEnable();
+    // else if (cmd[1] == "off")
+    //   chain2.actuatorDisable();
 #endif
   }
   // else if (cmd[0] == "get")
