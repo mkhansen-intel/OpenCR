@@ -560,10 +560,10 @@ void BottleShake::initDraw(const void *arg)
 }
 
 
-BottleShake2::BottleShake2() {}
-BottleShake2::~BottleShake2() {}
+BottleShakeY::BottleShakeY() {}
+BottleShakeY::~BottleShakeY() {}
 
-void BottleShake2::init(float move_time, float control_time)
+void BottleShakeY::init(float move_time, float control_time)
 {
   Trajectory start;
   Trajectory goal;
@@ -572,7 +572,7 @@ void BottleShake2::init(float move_time, float control_time)
   start.velocity = 0.0;
   start.acceleration = 0.0;
 
-  goal.position = 2 * M_PI;
+  goal.position = 4 * M_PI;
   goal.velocity = 0.0;
   goal.acceleration = 0.0;
 
@@ -584,22 +584,22 @@ void BottleShake2::init(float move_time, float control_time)
   coefficient_ = path_generator_.getCoefficient();
 }
 
-void BottleShake2::setStartPosition(Vector3f start_position)
+void BottleShakeY::setStartPosition(Vector3f start_position)
 {
   start_position_ = start_position;
 }
 
-void BottleShake2::setAngularStartPosition(float start_angular_position)
+void BottleShakeY::setAngularStartPosition(float start_angular_position)
 {
   start_angular_position_ = start_angular_position;
 }
 
-void BottleShake2::setRadius(float radius)
+void BottleShakeY::setRadius(float radius)
 {
   radius_ = radius;
 }
 
-Pose BottleShake2::bottleshake(float time_var)
+Pose BottleShakeY::bottleshake(float time_var)
 {
   Pose pose;
   double diff_pose[2];
@@ -614,7 +614,7 @@ Pose BottleShake2::bottleshake(float time_var)
   return pose;
 }
 
-Pose BottleShake2::getPose(float tick)
+Pose BottleShakeY::getPose(float tick)
 {
   float get_time_var = 0.0;
 
@@ -628,7 +628,164 @@ Pose BottleShake2::getPose(float tick)
   return bottleshake(get_time_var);
 }
 
-void BottleShake2::initDraw(const void *arg)
+void BottleShakeY::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
+BottleShakeX::BottleShakeX() {}
+BottleShakeX::~BottleShakeX() {}
+
+void BottleShakeX::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 0.0;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 4 * M_PI;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void BottleShakeX::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void BottleShakeX::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void BottleShakeX::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose BottleShakeX::bottleshake(float time_var)
+{
+  Pose pose;
+  double diff_pose[2];
+
+  diff_pose[0] = (cos(time_var)-1)*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
+  diff_pose[1] = (cos(time_var)-1)*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
+
+  pose.position(0) = start_position_(0) + radius_ * diff_pose[1];
+  pose.position(1) = start_position_(1);
+  pose.position(2) = start_position_(2) + radius_ * diff_pose[0];
+
+  return pose;
+}
+
+Pose BottleShakeX::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return bottleshake(get_time_var);
+}
+
+void BottleShakeX::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
+
+BottleShake3::BottleShake3() {}
+BottleShake3::~BottleShake3() {}
+
+void BottleShake3::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 0.0;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 6 * M_PI;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void BottleShake3::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void BottleShake3::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void BottleShake3::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose BottleShake3::bottleshake3(float time_var)
+{
+  Pose pose;
+  double obj_pose[3];
+  double diff_pose[3];
+
+  obj_pose[0] = (cos(time_var)-1)*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
+  obj_pose[1] = (cos(time_var)-1)*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
+  obj_pose[2] = 0;
+
+  diff_pose[0] = -sin(PI/4)*obj_pose[0] + sin(PI/4)*obj_pose[2];
+  diff_pose[1] = obj_pose[1];
+  diff_pose[2] = cos(PI/4)*obj_pose[0] + cos(PI/4)*obj_pose[2];
+
+  pose.position(0) = start_position_(0) + radius_ * diff_pose[0];
+  pose.position(1) = start_position_(1) + radius_ * diff_pose[1];
+  pose.position(2) = start_position_(2) + radius_ * diff_pose[2];
+
+  return pose;
+}
+
+Pose BottleShake3::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return bottleshake3(get_time_var);
+}
+
+void BottleShake3::initDraw(const void *arg)
 {
   get_arg_ = (float *)arg;
 

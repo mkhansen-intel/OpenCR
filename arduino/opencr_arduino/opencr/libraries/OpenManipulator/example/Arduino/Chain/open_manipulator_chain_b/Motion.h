@@ -25,7 +25,9 @@
 #define RHOMBUS 13
 #define HEART 15
 #define BOTTLESHAKE 17
-#define BOTTLESHAKE2 18
+#define BOTTLESHAKEY 18
+#define BOTTLESHAKEX 19
+#define BOTTLESHAKE3 20
 
 using namespace OPEN_MANIPULATOR;
 
@@ -34,7 +36,17 @@ OPEN_MANIPULATOR::Draw *circle = new OM_PATH::Circle();
 OPEN_MANIPULATOR::Draw *rhombus = new OM_PATH::Rhombus();
 OPEN_MANIPULATOR::Draw *heart = new OM_PATH::Heart();
 OPEN_MANIPULATOR::Draw *bottleshake = new OM_PATH::BottleShake();
-OPEN_MANIPULATOR::Draw *bottleshake2 = new OM_PATH::BottleShake2();
+OPEN_MANIPULATOR::Draw *bottleshakeY = new OM_PATH::BottleShakeY();
+OPEN_MANIPULATOR::Draw *bottleshakeX = new OM_PATH::BottleShakeX();
+OPEN_MANIPULATOR::Draw *bottleshake3 = new OM_PATH::BottleShake3();
+
+OPEN_MANIPULATOR::Draw *circle2 = new OM_PATH::Circle();
+OPEN_MANIPULATOR::Draw *rhombus2 = new OM_PATH::Rhombus();
+OPEN_MANIPULATOR::Draw *heart2 = new OM_PATH::Heart();
+OPEN_MANIPULATOR::Draw *bottleshake2 = new OM_PATH::BottleShake();
+OPEN_MANIPULATOR::Draw *bottleshakeY2 = new OM_PATH::BottleShakeY();
+OPEN_MANIPULATOR::Draw *bottleshakeX2 = new OM_PATH::BottleShakeX();
+OPEN_MANIPULATOR::Draw *bottleshake32 = new OM_PATH::BottleShake3();
 
 bool motion[2]    = {false, false};
 bool continue_flag = false;
@@ -95,9 +107,9 @@ bool pickStick1(OpenManipulator* manipulator, int index)
   case 0: gripOnOff(manipulator, true); moveJS(manipulator, 0.0, -1.05, 0.35, 0.7, 2.0);  break;
   case 1: 
     if(index == 0) moveCS(manipulator, -0.038, -0.000, 0.15, 1.5);
-    else if(index == 1) moveCS(manipulator, -0.040, -0.000, 0.15, 1.5);
+    else if(index == 1) moveCS(manipulator, -0.040, -0.000, 0.15, 1.5); /*OM2 가운데 구멍 위치 (x, y, z, time)*/
     break;
-  case 2: 
+  case 2: // 집으러 내려가기
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     break;
@@ -114,14 +126,14 @@ bool pickStick2(OpenManipulator* manipulator, int index)
   case 0:  gripOnOff(manipulator, true); moveJS(manipulator, -0.35, -1.05, 0.35, 0.7, 2.0); break;
   case 1: 
     if(index == 0) moveCS(manipulator, -0.040, -0.072, 0.15, 1.5); 
-    else if(index == 1) moveCS(manipulator, -0.040, -0.080, 0.15, 1.5); 
+    else if(index == 1) moveCS(manipulator, -0.040, -0.080, 0.15, 1.5); /*OM2 왼쪽 구멍 위치 (x, y, z, time)*/
     break;
-  case 2: 
+  case 2: // 집으러 내려가기
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f);
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.115f), 0.6f);
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.01, 0.0, 0.115f), 0.6f);
           return 1; break;
   }
   return 0;
@@ -133,14 +145,14 @@ bool pickStick3(OpenManipulator* manipulator, int index)
   case 0: gripOnOff(manipulator, true); moveJS(manipulator, 0.35, -1.05, 0.35, 0.7, 2.0); break;
   case 1: 
     if(index == 0) moveCS(manipulator, -0.044, 0.079, 0.15, 1.5);
-    else if(index == 1) moveCS(manipulator, -0.040, 0.080, 0.15, 1.5);
+    else if(index == 1) moveCS(manipulator, -0.040, 0.080, 0.15, 1.5); /*OM2 오른쪽 구멍 위치 (x, y, z, time)*/
     break;
-  case 2: 
+  case 2: // 집으러 내려가기
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.115f), 0.6f);
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.01, 0.0, 0.115f), 0.6f);
           return 1; break;
   }
   return 0;
@@ -148,15 +160,15 @@ bool pickStick3(OpenManipulator* manipulator, int index)
 
 bool placeStick1(OpenManipulator* manipulator, int index, int opt)
 {
-  float depth = -0.060f;
+  float depth = -0.080f;
   if(opt == 1)
-    depth = -0.015f;
+    depth = -0.035f; // 전달 받았을때 놓기위해 내려가는 z 높이
   switch(sub_motion_cnt[index])
   {
   case 0: moveJS(manipulator, 0.0, -1.05, 0.35, 0.7, 2.0); break;
   case 1: 
-    if(index == 0) moveCS(manipulator, -0.038, -0.000, 0.15, 1.5);
-    else if(index == 1) moveCS(manipulator, -0.040, -0.000, 0.15, 1.5);
+    if(index == 0) moveCS(manipulator, -0.038, -0.000, 0.17, 1.5); 
+    else if(index == 1) moveCS(manipulator, -0.040, -0.000, 0.17, 1.5); /*OM2 가운데 구멍 위치 (x, y, z, time)*/
     break;
   case 2: 
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
@@ -170,15 +182,15 @@ bool placeStick1(OpenManipulator* manipulator, int index, int opt)
 }
 bool placeStick2(OpenManipulator* manipulator, int index, int opt)
 {
-  float depth = -0.060f;
+  float depth = -0.080f;
   if(opt == 1)
-    depth = -0.015f;
+    depth = -0.035f; 
   switch(sub_motion_cnt[index])
   {
   case 0: moveJS(manipulator, -0.35, -1.05, 0.35, 0.7, 2.0); break;
   case 1: 
-    if(index == 0) moveCS(manipulator, -0.040, -0.072, 0.15, 1.5); 
-    else if(index == 1) moveCS(manipulator, -0.040, -0.080, 0.15, 1.5); 
+    if(index == 0) moveCS(manipulator, -0.040, -0.072, 0.17, 1.5); 
+    else if(index == 1) moveCS(manipulator, -0.040, -0.080, 0.17, 1.5); /*OM2 왼쪽 구멍 위치 (x, y, z, time)*/
     break;
   case 2: 
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
@@ -192,20 +204,20 @@ bool placeStick2(OpenManipulator* manipulator, int index, int opt)
 }
 bool placeStick3(OpenManipulator* manipulator, int index, int opt)
 {
-  float depth = -0.060f;
+  float depth = -0.080f;
   if(opt == 1)
-    depth = -0.015f;
+    depth = -0.035f; // 전달 받았을때 놓기위해 내려가는 z 높이
 
   switch(sub_motion_cnt[index])
   {
   case 0: moveJS(manipulator, 0.35, -1.05, 0.35, 0.7, 2.0); break;
   case 1: 
-    if(index == 0) moveCS(manipulator, -0.044, 0.079, 0.15, 1.5);
-    else if(index == 1) moveCS(manipulator, -0.040, 0.080, 0.15, 1.5);
+    if(index == 0) moveCS(manipulator, -0.044, 0.079, 0.17, 1.5);
+    else if(index == 1) moveCS(manipulator, -0.040, 0.080, 0.17, 1.5); /*OM2 오른쪽 구멍 위치 (x, y, z, time)*/
     break;
   case 2: 
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
-    else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
+    else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); // 전달 받았을때 놓기위해 내려가는 z 높이
     break;
   case 3: gripOnOff(manipulator, true); manipulator->wait(1.5); break;
   case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.100f), 0.6f);
@@ -392,24 +404,56 @@ bool motion4(OpenManipulator* manipulator, int index)
   switch(sub_motion_cnt[index])
   {
   case 0: moveJS(manipulator,  0.0, -0.86, 0.33, 0.53, 2.0);  break;
-  case 1: drawObj(manipulator, 3.0, BOTTLESHAKE, 0.050, 0.0); break;
+  case 1: drawObj(manipulator, 3.0, BOTTLESHAKE, 0.030, 0.0); break;
   case 2: moveJS(manipulator,  1.0, -0.86, 0.33, 0.53, 2.0);  break;
-  case 3: drawObj(manipulator, 3.0, BOTTLESHAKE, 0.050, 0.0); break;
+  case 3: drawObj(manipulator, 3.0, BOTTLESHAKE, 0.030, 0.0); break;
   case 4: moveJS(manipulator, -1.0, -0.86, 0.33, 0.53, 2.0);  break;
-  case 5: drawObj(manipulator, 3.0, BOTTLESHAKE, 0.050, 0.0); 
+  case 5: drawObj(manipulator, 3.0, BOTTLESHAKE, 0.030, 0.0); 
           return 1; break;
   }
   return 0;
 }
 
-bool motion5(OpenManipulator* manipulator, int index)
+bool motion5_2(OpenManipulator* manipulator, int index)
 {
   switch(sub_motion_cnt[index])
   {
-  case 0: moveJS(manipulator,  0.0, -0.86, 0.33, 0.53, 2.0);  break;
-  case 1: moveJS(manipulator, 0.0, -0.92, 0.08, -0.64, 0.8); break;
-  case 2: moveJS(manipulator, 0.0, -1.35, 0.81,  0.34, 0.8); break;
-  case 1: drawObj(manipulator, 0.7, BOTTLESHAKE2, 0.030, 0.0); 
+  case 0: moveJS(manipulator,  0.0, -0.86, 0.33, 0.53, 2.0); break;
+  case 1: moveJS(manipulator, -1.57, -1.33, 0.38, 0.87, 1.5); break;
+  case 2: drawObj(manipulator, 2.0, BOTTLESHAKEX, 0.035, 0.0); 
+          return 1; break;
+  }
+  return 0;
+}
+bool motion5_1(OpenManipulator* manipulator, int index)
+{
+  switch(sub_motion_cnt[index])
+  {
+  case 0: moveJS(manipulator,  0.0, -0.86, 0.33, 0.53, 2.0); break;
+  case 1: moveJS(manipulator,  0.0, -1.33, 0.38, 0.87, 1.5); break;
+  case 2: drawObj(manipulator, 2.0, BOTTLESHAKEY, 0.035, 0.0); 
+          return 1; break;
+  }
+  return 0;
+}
+bool motion5_3(OpenManipulator* manipulator, int index)
+{
+  switch(sub_motion_cnt[index])
+  {
+  case 0: moveJS(manipulator,  0.0, -0.86, 0.33, 0.53, 2.0); break;
+  case 1: moveJS(manipulator, 1.57, -1.33, 0.38, 0.87, 1.5); break;
+  case 2: drawObj(manipulator, 2.0, BOTTLESHAKEX, 0.035, 0.0); 
+          return 1; break;
+  }
+  return 0;
+}
+
+bool motion6(OpenManipulator* manipulator, int index)
+{
+  switch(sub_motion_cnt[index])
+  {
+  case 0: moveJS(manipulator,  0.0, -0.86, 0.33, 0.53, 2.0); break;
+  case 1: drawObj(manipulator, 2.0, BOTTLESHAKE3, 0.03, 0.0); 
           return 1; break;
   }
   return 0;
@@ -419,6 +463,7 @@ void setMotion1()
 {
   if(motion[0] && !chain.checkManipulatorMoving())
   {
+////////////////////////MOTION SETTING//////////////////////////////        
     switch(motion_cnt[0])
     {
     ////////// O X O 
@@ -429,77 +474,13 @@ void setMotion1()
         sub_motion_cnt[0] ++;
     break;
     case 1:
-      if(motion5(&chain, 0))
+      if(motion6(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
     break;
     case 2:
-      if(placeStick2(&chain, 0, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 3:
-      if(pickStick1(&chain, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 4:
-      if(motion4(&chain, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 5:
-      if(placeStick1(&chain, 0, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 6:
-      if(pickStick3(&chain, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 7:
-      if(motion4(&chain, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 8:
-      if(placeStick3(&chain, 0,0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 9:
-      moveJS(&chain, 0.0, -1.05, 0.35, 0.7, 2.0);
-      motion_cnt[0] ++; 
-      continue_flag = true;
-    break;
-    }
-////////////////////////MOTION SETTING//////////////////////////////        
-    /*switch(motion_cnt[0])
-    {
-    ////////// O X O 
-    case 0:
-      if(pickStick2(&chain, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 1:
-      if(shakeMotion2(&chain, 0))
-      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
-      else 
-        sub_motion_cnt[0] ++;
-    break;
-    case 2:
-      if(shakeMotion1(&chain, 0))
+      if(motion5_1(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
@@ -575,19 +556,19 @@ void setMotion1()
         sub_motion_cnt[0] ++;
     break;
     case 14:
-      if(shakeMotion2(&chain, 0))
+      if(motion5_2(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
     break;
     case 15:
-      if(shakeMotion1(&chain, 0))
+      if(motion5_1(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
     break;
     case 16:
-      if(shakeMotion3(&chain, 0))
+      if(motion5_3(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
@@ -642,11 +623,10 @@ void setMotion1()
       motion_cnt[0] ++; 
       continue_flag = true;
     break;
-    }*/
+    }
 ////////////////////////MOTION SETTING////////////////////////////// 
   }
 }
-
 
 void setMotion2()
 {
@@ -663,13 +643,13 @@ void setMotion2()
         sub_motion_cnt[1] ++;
     break;
     case 1:
-      if(shakeMotion3(&chain2, 1))
+      if(motion6(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
     break;
     case 2:
-      if(shakeMotion1(&chain2, 1))
+      if(motion5_1(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
@@ -745,19 +725,19 @@ void setMotion2()
         sub_motion_cnt[1] ++;
     break;
     case 14:
-      if(shakeMotion2(&chain2, 1))
+      if(motion5_2(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
     break;
     case 15:
-      if(shakeMotion1(&chain2, 1))
+      if(motion5_1(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
     break;
     case 16:
-      if(shakeMotion3(&chain2, 1))
+      if(motion5_3(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
@@ -818,3 +798,36 @@ void setMotion2()
 }
 
 #endif
+//  	  OM1	        OM2
+// 	    O X O	      O X O
+// 0	  Pick 2	    Pick 3
+// 1	  motion5_2   motion5_3
+// 2	  motion5_1	  motion5_1
+// 3	  Place 1	    Place 1
+// 	    X O O	      O O X
+// 4	  Pick 1	    Pick M
+// 5	  send 1to2	  send 1to2
+// 6	  Place M	    Place 3
+// 	    X X O	      O O O
+// 7	  Pick M	    Pick 1
+// 8	  send 2to1	  send 2to1
+// 9	  Place 2	    Place M
+// 	    O X O	      O X O
+// 10	  Pick 3	    Pick 2
+// 11	  Motion 4	  Motion 4
+// 12	  Place 1	    Place 1
+// 	    O O X	      X O O
+// 13	  Pick 2	    Pick 3
+// 14	  motion5_2	  motion5_2
+// 15	  motion5_1	  motion5_1
+// 16	  motion5_3	  motion5_3
+// 17	  Place 3	    Place 2
+// 	    X O O	      O O X
+// 18	  Pick M	    Pick 1
+// 19	  send 2to1	  send 2to1
+// 20	  Place 2	    Place M
+// 	    O O O	      O X X
+// 21	  Pick 1	    Pick M
+// 22	  send 1to2	  send 1to2
+// 23	  Place M	    Place 3
+// 	    O X O	      O X O
