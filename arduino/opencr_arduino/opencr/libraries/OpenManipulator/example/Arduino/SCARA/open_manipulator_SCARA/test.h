@@ -30,9 +30,10 @@ void test()
       }    
       else if (motion_repeat == 1){
         std::vector<float> goal_position;
-        goal_position.push_back(-2.15);
+        // goal_position.push_back(-2.15);
+        goal_position.push_back(-2.17);
         goal_position.push_back(0.82);
-        goal_position.push_back(2.1);
+        goal_position.push_back(2.05);
 
         SCARA.jointMove(goal_position, 3.0f); 
         motion_repeat++;
@@ -41,9 +42,9 @@ void test()
         SCARA.toolMove(TOOL, -0.0f);
 
         std::vector<float> goal_position;
-        goal_position.push_back(-2.15);
+        goal_position.push_back(-2.17);
         goal_position.push_back(0.82);
-        goal_position.push_back(2.1);
+        goal_position.push_back(2.05);
         SCARA.jointMove(goal_position, 3.0f); 
 
         motion_repeat++;
@@ -52,9 +53,9 @@ void test()
         SCARA.toolMove(TOOL, -0.5f);
 
         std::vector<float> goal_position;
-        goal_position.push_back(-2.15);
+        goal_position.push_back(-2.17);
         goal_position.push_back(0.82);
-        goal_position.push_back(2.1);
+        goal_position.push_back(2.05);
         SCARA.jointMove(goal_position, 3.0f); 
 
         motion_repeat++;
