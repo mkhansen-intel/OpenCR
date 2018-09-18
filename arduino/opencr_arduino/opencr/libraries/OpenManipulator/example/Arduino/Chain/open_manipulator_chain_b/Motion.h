@@ -122,7 +122,7 @@ bool pickStickMiddle(OpenManipulator* manipulator, int index)
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f);
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(-0.001, 0.0, 0.115f), 0.6f); return 1; 
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.003, 0.0, 0.115f), 0.5f); return 1; 
   }
   return 0;
 }
@@ -140,7 +140,7 @@ bool pickStickLeft(OpenManipulator* manipulator, int index)
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.058f), 1.0f);
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(-0.001, 0.0, 0.115f), 0.6f);  // x 앞으로 살짝 밀며 꺼내기
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.003, 0.0, 0.115f), 0.5f);  // x 앞으로 살짝 밀며 꺼내기
           return 1; 
   }
   return 0;
@@ -151,15 +151,15 @@ bool pickStickRight(OpenManipulator* manipulator, int index)
   {
   case 0: gripOnOff(manipulator, true); moveJS(manipulator, 0.35, -1.05, 0.35, 0.6, 2.0); break;
   case 1: /*OM 오른쪽 구멍 위치 (x, y, z, time)*/
-    if(index == 0) moveCS(manipulator, -0.046, 0.079, 0.15, 1.5);
-    else if(index == 1) moveCS(manipulator, -0.044, 0.080, 0.15, 1.5); 
+    if(index == 0) moveCS(manipulator, -0.040, 0.072, 0.15, 1.5);
+    else if(index == 1) moveCS(manipulator, -0.040, 0.080, 0.15, 1.5); 
     break;
   case 2: // 집으러 내려가기
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     else if(index == 1) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.060f), 1.0f); 
     break;
   case 3: gripOnOff(manipulator, false); manipulator->wait(1.5); break;
-  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(-0.001, 0.0, 0.115f), 0.6f); // x 앞으로 살짝 밀며 꺼내기
+  case 4: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.003, 0.0, 0.115f), 0.5f); // x 앞으로 살짝 밀며 꺼내기
           return 1; 
   }
   return 0;
@@ -167,15 +167,15 @@ bool pickStickRight(OpenManipulator* manipulator, int index)
 
 bool placeStickMiddle(OpenManipulator* manipulator, int index, int opt)
 {
-  float depth = -0.115f;
+  float depth = -0.112f;
   if(opt == 1)
-    depth = -0.031f; // 전달 받았을때 놓기위해 내려가는 z 높이
+    depth = -0.070f; // 전달 받았을때 놓기위해 내려가는 z 높이
   switch(sub_motion_cnt[index])
   {
   case 0: moveJS(manipulator, 0.0, -1.05, 0.35, 0.6, 2.0); break;
   case 1: 
-    if(index == 0) moveCS(manipulator, -0.045, 0.004, 0.200, 1.5); 
-    else if(index == 1) moveCS(manipulator, -0.045, -0.000, 0.200, 1.5); /*OM2 가운데 구멍 위치 (x, y, z, time)*/
+    if(index == 0) moveCS(manipulator, -0.045, 0.000, 0.200, 1.5); 
+    else if(index == 1) moveCS(manipulator, -0.043, -0.000, 0.200, 1.5); /*OM2 가운데 구멍 위치 (x, y, z, time)*/
     break;
   case 2: 
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
@@ -188,7 +188,7 @@ bool placeStickMiddle(OpenManipulator* manipulator, int index, int opt)
 }
 bool placeStickLeft(OpenManipulator* manipulator, int index, int opt)
 {
-  float depth = -0.140f;
+  float depth = -0.118f;
   if(opt == 1)
     depth = -0.070f; 
   switch(sub_motion_cnt[index])
@@ -196,7 +196,7 @@ bool placeStickLeft(OpenManipulator* manipulator, int index, int opt)
   case 0: moveJS(manipulator, -0.35, -1.05, 0.35, 0.6, 2.0); break;
   case 1: 
     if(index == 0) moveCS(manipulator, -0.036, -0.072, 0.20, 1.5); 
-    else if(index == 1) moveCS(manipulator, -0.043, -0.072, 0.22, 1.5); /*OM2 왼쪽 구멍 위치 (x, y, z, time)*/
+    else if(index == 1) moveCS(manipulator, -0.037, -0.072, 0.20, 1.5); /*OM2 왼쪽 구멍 위치 (x, y, z, time)*/
     break;
   case 2: 
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
@@ -209,16 +209,16 @@ bool placeStickLeft(OpenManipulator* manipulator, int index, int opt)
 }
 bool placeStickRight(OpenManipulator* manipulator, int index, int opt)
 {
-  float depth = -0.140f;
+  float depth = -0.128f;
   if(opt == 1)  // 1 == 전달받음 / 0 == 전달 안받음
-    depth = -0.070f; // 전달 받았을때 놓기위해 내려가는 z 높이
+    depth = -0.088f; // 전달 받았을때 놓기위해 내려가는 z 높이
 
   switch(sub_motion_cnt[index])
   {
   case 0: moveJS(manipulator, 0.35, -1.05, 0.35, 0.6, 2.0); break;
   case 1: 
-    if(index == 0) moveCS(manipulator, -0.044, 0.075, 0.22, 1.5);
-    else if(index == 1) moveCS(manipulator, -0.044, 0.082, 0.20, 1.5); /*OM2 오른쪽 구멍 위치 (x, y, z, time)*/
+    if(index == 0) moveCS(manipulator, -0.042, 0.075, 0.22, 1.5);
+    else if(index == 1) moveCS(manipulator, -0.043, 0.075, 0.22, 1.5); /*OM2 오른쪽 구멍 위치 (x, y, z, time)*/
     break;
   case 2: 
     if(index == 0) manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.0, 0.0, depth), 1.0f); 
@@ -234,7 +234,7 @@ bool motion1(OpenManipulator* manipulator, int index)
 {
   switch(sub_motion_cnt[index])
   {
-  case 0: moveJS(manipulator,  0.00, -1.05, 0.35,   0.7, 2.0);  break;
+  case 0: moveJS(manipulator,  0.00, -1.05, 0.35,   0.7, 2.0); break;
   case 1: moveJS(manipulator, -2.00, -1.22, 0.75, -0.76, 2.0); break;
   case 2: moveJS(manipulator, -0.52, -1.20, 0.05,  1.63, 2.0); break;
   case 3: moveJS(manipulator,  0.52, -1.22, 0.75, -0.76, 2.0); break;
@@ -246,7 +246,7 @@ bool motion2(OpenManipulator* manipulator, int index)
 {
   switch(sub_motion_cnt[index])
   {
-  case 0: moveJS(manipulator,  0.00, -1.05, 0.35,   0.7, 2.0);  break;
+  case 0: moveJS(manipulator,  0.00, -1.05, 0.35,   0.7, 2.0); break;
   case 1: moveJS(manipulator,  2.00, -1.20, 0.05,  1.63, 2.0); break;
   case 2: moveJS(manipulator,  0.52, -1.22, 0.75, -0.76, 2.0); break;
   case 3: moveJS(manipulator, -0.52, -1.20, 0.05,  1.63, 2.0); break;
@@ -347,18 +347,6 @@ void drawObj(OpenManipulator* manipulator, float move_time, int object, float ra
   void *p_init_arg = init_arg;
   manipulator->drawInit(object, move_time, p_init_arg);
   manipulator->setRadiusForDrawing(object, radius);
-  
-  // setAllActiveJointAngle(previous_goal_.position);
-  // forward(manipulator_.getWorldChildName());
-
-  // previous_goal_.pose = manipulator_.getComponentPoseToWorld(tool_name); // ??/
-
-  // if (platform_)
-  // {
-  //   setAllActiveJointAngle(receiveAllActuatorAngle());
-  //   forward(manipulator_.getWorldChildName());
-  // }
-
   manipulator->setStartPositionForDrawing(object, manipulator->getComponentPositionToWorld(TOOL));
   manipulator->setStartAngularPositionForDrawing(object, start_angular_position);
   manipulator->draw(object);
@@ -424,6 +412,52 @@ void setMotion1()
 {
   if(motion[0] && !chain.checkManipulatorMoving())
   {
+    /* switch(motion_cnt[0])
+    {
+    ////////// O X O 
+    case 0:
+      if(pickStickLeft(&chain, 0))
+      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
+      else 
+        sub_motion_cnt[0] ++;
+    break;
+    case 1:
+      if(placeStickMiddle(&chain, 0,0))
+      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
+      else 
+        sub_motion_cnt[0] ++;
+    break;
+    case 2:
+      if(pickStickMiddle(&chain, 0))
+      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
+      else 
+        sub_motion_cnt[0] ++;
+    break;
+    case 3:
+      if(placeStickRight(&chain, 0, 0))
+      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
+      else 
+        sub_motion_cnt[0] ++;
+    break;
+    ////////// X O O
+    case 4:
+      if(pickStickRight(&chain, 0))
+      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
+      else 
+        sub_motion_cnt[0] ++;
+    break;
+    case 5:
+      if(placeStickLeft(&chain, 0,0))
+      { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
+      else 
+        sub_motion_cnt[0] ++;
+    break;
+    case 6:
+      moveJS(&chain, 0.0, -1.05, 0.35, 0.7, 2.0);
+      motion_cnt[0] ++; 
+      continue_flag = true;
+    break;
+    }*/
 ////////////////////////MOTION SETTING//////////////////////////////        
     switch(motion_cnt[0])
     {
@@ -435,13 +469,13 @@ void setMotion1()
         sub_motion_cnt[0] ++;
     break;
     case 1:
-      if(motion6(&chain, 0))
+      if(motion5_2(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
     break;
     case 2:
-      if(motion5_1(&chain, 0))
+      if(motion6(&chain, 0))
       { sub_motion_cnt[0] = 0; motion_cnt[0] ++; }
       else 
         sub_motion_cnt[0] ++;
@@ -594,6 +628,52 @@ void setMotion2()
 {
   if(motion[1] && !chain2.checkManipulatorMoving())
   {
+     /*switch(motion_cnt[1])
+    {
+    ////////// O X O 
+    case 0:
+      if(pickStickLeft(&chain2, 1))
+      { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
+      else 
+        sub_motion_cnt[1] ++;
+    break;
+    case 1:
+      if(placeStickMiddle(&chain2, 1,0))
+      { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
+      else 
+        sub_motion_cnt[1] ++;
+    break;
+    case 2:
+      if(pickStickMiddle(&chain2, 1))
+      { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
+      else 
+        sub_motion_cnt[1] ++;
+    break;
+    case 3:
+      if(placeStickRight(&chain2, 1, 0))
+      { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
+      else 
+        sub_motion_cnt[1] ++;
+    break;
+    ////////// X O O
+    case 4:
+      if(pickStickRight(&chain2, 1))
+      { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
+      else 
+        sub_motion_cnt[1] ++;
+    break;
+    case 5:
+      if(placeStickLeft(&chain2, 1,0))
+      { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
+      else
+        sub_motion_cnt[1] ++;
+    break;
+    case 6:
+      moveJS(&chain2, 0.0, -1.05, 0.35, 0.7, 2.0);
+      motion_cnt[1] ++; 
+      continue_flag = true;
+    break;
+    }*/
 ////////////////////////MOTION SETTING//////////////////////////////        
     switch(motion_cnt[1])
     {
@@ -605,13 +685,13 @@ void setMotion2()
         sub_motion_cnt[1] ++;
     break;
     case 1:
-      if(motion6(&chain2, 1))
+      if(motion5_3(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
     break;
     case 2:
-      if(motion5_1(&chain2, 1))
+      if(motion6(&chain2, 1))
       { sub_motion_cnt[1] = 0; motion_cnt[1] ++; }
       else 
         sub_motion_cnt[1] ++;
