@@ -77,6 +77,22 @@ void fromProcessing(String data)
       planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.020f, 0.0), 1.0);
     else if (cmd[1] == "right")
       planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.020f, 0.0), 1.0);
+    else if (cmd[1] == "rotate"){
+      Pose target_pose;
+      target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
+      target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/6.0),  -sin(PI/6.0),   0.0f,
+                                                     sin(PI/6.0),   cos(PI/6.0),   0.0f,
+                                                     0.0f,          0.0f,          1.0f);
+      planar.setPose(TOOL, target_pose, 1.0);
+    }
+    else if (cmd[1] == "rotateinv"){
+      Pose target_pose;
+      target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
+      target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/6.0),  -sin(-PI/6.0),  0.0f,
+                                                     sin(-PI/6.0),  cos(PI/6.0),   0.0f,
+                                                     0.0f,          0.0f,          1.0f);
+      planar.setPose(TOOL, target_pose, 1.0);
+    }
     else
       planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.000f, 0.0), 1.0);
   }

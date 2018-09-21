@@ -297,6 +297,163 @@ void Circle::initDraw(const void *arg)
 }
 
 
+//-------------------- Spiral --------------------//
+
+Spiral::Spiral() {}
+
+Spiral::~Spiral() {}
+
+void Spiral::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 0.0;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 8 * M_PI;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void Spiral::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void Spiral::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void Spiral::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose Spiral::spiral(float time_var)
+{
+  Pose pose;
+  double diff_pose[2];
+
+  diff_pose[0] = cos(start_angular_position_)*cos(time_var) - sin(start_angular_position_)*sin(time_var);
+  diff_pose[1] = sin(start_angular_position_)*cos(time_var) + cos(start_angular_position_)*sin(time_var);
+
+  pose.position(0) = start_position_(0) + radius_ * (time_var / (2.0f*PI)) * diff_pose[0];
+  pose.position(1) = start_position_(1) + radius_ * (time_var / (2.0f*PI)) * diff_pose[1];
+  pose.position(2) = start_position_(2);
+
+  return pose;
+}
+
+Pose Spiral::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return spiral(get_time_var);
+}
+
+void Spiral::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
+
+//-------------------- Spiral2 --------------------//
+
+Spiral2::Spiral2() {}
+
+Spiral2::~Spiral2() {}
+
+void Spiral2::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 8 * M_PI;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 0;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void Spiral2::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void Spiral2::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void Spiral2::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose Spiral2::spiral2(float time_var)
+{
+  Pose pose;
+  double diff_pose[2];
+
+  diff_pose[0] = cos(start_angular_position_)*cos(time_var) - sin(start_angular_position_)*sin(time_var);
+  diff_pose[1] = sin(start_angular_position_)*cos(time_var) + cos(start_angular_position_)*sin(time_var);
+
+  pose.position(0) = start_position_(0) + radius_ * (time_var / (2.0f*PI)) * diff_pose[0];
+  pose.position(1) = start_position_(1) + radius_ * (time_var / (2.0f*PI)) * diff_pose[1];
+  pose.position(2) = start_position_(2);
+
+  return pose;
+}
+
+Pose Spiral2::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return spiral2(get_time_var);
+}
+
+void Spiral2::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
 
 
 //-------------------- Rhombus --------------------//
@@ -711,8 +868,18 @@ void BottleShakeX::initDraw(const void *arg)
 }
 
 
+
+
+
 BottleShake3::BottleShake3() {}
 BottleShake3::~BottleShake3() {}
+
+void BottleShake3::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
 
 void BottleShake3::init(float move_time, float control_time)
 {
@@ -735,6 +902,11 @@ void BottleShake3::init(float move_time, float control_time)
   coefficient_ = path_generator_.getCoefficient();
 }
 
+void BottleShake3::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
 void BottleShake3::setStartPosition(Vector3f start_position)
 {
   start_position_ = start_position;
@@ -745,9 +917,18 @@ void BottleShake3::setAngularStartPosition(float start_angular_position)
   start_angular_position_ = start_angular_position;
 }
 
-void BottleShake3::setRadius(float radius)
+Pose BottleShake3::getPose(float tick)
 {
-  radius_ = radius;
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return bottleshake3(get_time_var);
 }
 
 Pose BottleShake3::bottleshake3(float time_var)
@@ -769,25 +950,4 @@ Pose BottleShake3::bottleshake3(float time_var)
   pose.position(2) = start_position_(2) + radius_ * diff_pose[2];
 
   return pose;
-}
-
-Pose BottleShake3::getPose(float tick)
-{
-  float get_time_var = 0.0;
-
-  get_time_var = coefficient_(0) +
-                 coefficient_(1) * pow(tick, 1) +
-                 coefficient_(2) * pow(tick, 2) +
-                 coefficient_(3) * pow(tick, 3) +
-                 coefficient_(4) * pow(tick, 4) +
-                 coefficient_(5) * pow(tick, 5);
-
-  return bottleshake3(get_time_var);
-}
-
-void BottleShake3::initDraw(const void *arg)
-{
-  get_arg_ = (float *)arg;
-
-  init(get_arg_[0], get_arg_[1]);
 }

@@ -20,6 +20,7 @@
 #include "Processing.h"
 #include "RemoteController.h"
 #include "test.h"
+#include "test2.h"
 
 std::vector<float> goal_position;
 Pose goal_pose;
@@ -32,6 +33,9 @@ void setup()
   Serial.begin(57600);
   DEBUG.begin(57600);
   // while (!Serial);
+
+  planar.addDraw(SPIRAL, spiral);
+  planar.addDraw(SPIRAL2, spiral2);
 
   connectProcessing();
   // connectRC100();
@@ -49,7 +53,7 @@ void loop()
 
   if(present_time-previous_time[0] >= LOOP_TIME)
   {
-    // test();
+    // test2();
     previous_time[0] = (float)(millis()/1000.0f);
 
   }

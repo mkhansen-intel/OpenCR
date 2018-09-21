@@ -55,6 +55,15 @@
 
 #define ACTIVE_JOINT_SIZE 3
 
+#define CIRCLE 11
+#define RHOMBUS 13
+#define HEART 15
+#define CIRCLE2 12
+#define RHOMBUS2 14
+#define HEART2 16
+#define SPIRAL 20
+#define SPIRAL2 21
+
 #define PLATFORM
 
 OPEN_MANIPULATOR::OpenManipulator planar;
@@ -66,6 +75,8 @@ OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Planar();
 #ifdef PLATFORM 
 OPEN_MANIPULATOR::Actuator *actuator = new OM_DYNAMIXEL::Dynamixel();
 #endif 
+OPEN_MANIPULATOR::Draw *spiral = new OM_PATH::Spiral();
+OPEN_MANIPULATOR::Draw *spiral2 = new OM_PATH::Spiral2();
 
 void initManipulator()
 {

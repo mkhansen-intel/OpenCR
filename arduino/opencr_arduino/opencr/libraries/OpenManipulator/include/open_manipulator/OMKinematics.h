@@ -103,7 +103,28 @@ public:
 
 private:
   std::vector<float> geometricInverse(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose); //for basic model);
+  std::vector<float> geometricInverse2(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose); //for basic model);
 };
+
+class Delta : public OPEN_MANIPULATOR::Kinematics   // why parent class used here?
+{
+public:
+  Delta(){};
+  virtual ~Delta(){};
+
+  virtual MatrixXf jacobian(OM_MANAGER::Manipulator *manipulator, Name tool_name);
+
+  virtual void forward(OM_MANAGER::Manipulator *manipulator, Name component_name);
+  virtual void forward(OM_MANAGER::Manipulator *manipulator);
+
+  virtual std::vector<float> inverse(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose);
+
+private:
+  std::vector<float> geometricInverse(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose); //for basic model);
+};
+
+
+
 
 } // namespace OM_KINEMATICS
 

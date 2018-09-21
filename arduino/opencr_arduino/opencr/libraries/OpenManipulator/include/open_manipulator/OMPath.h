@@ -152,6 +152,65 @@ public:
   virtual Pose getPose(float tick);
 };
 
+class Spiral : public OPEN_MANIPULATOR::Draw
+{
+private:
+  MinimumJerk path_generator_;
+  MatrixXf coefficient_;
+
+  uint8_t joint_num_;
+
+  Vector3f start_position_;
+  float radius_;
+  float start_angular_position_;
+
+  float *get_arg_;
+
+public:
+  Spiral();
+  virtual ~Spiral();
+
+  void init(float move_time, float control_time);
+  Pose spiral(float time_var);
+
+  MatrixXf getCoefficient();
+
+  virtual void initDraw(const void *arg);
+  virtual void setRadius(float radius);  
+  virtual void setStartPosition(Vector3f start_position);
+  virtual void setAngularStartPosition(float start_angular_position);
+  virtual Pose getPose(float tick);
+};
+
+class Spiral2 : public OPEN_MANIPULATOR::Draw
+{
+private:
+  MinimumJerk path_generator_;
+  MatrixXf coefficient_;
+
+  uint8_t joint_num_;
+
+  Vector3f start_position_;
+  float radius_;
+  float start_angular_position_;
+
+  float *get_arg_;
+
+public:
+  Spiral2();
+  virtual ~Spiral2();
+
+  void init(float move_time, float control_time);
+  Pose spiral2(float time_var);
+
+  MatrixXf getCoefficient();
+
+  virtual void initDraw(const void *arg);
+  virtual void setRadius(float radius);  
+  virtual void setStartPosition(Vector3f start_position);
+  virtual void setAngularStartPosition(float start_angular_position);
+  virtual Pose getPose(float tick);
+};
 
 class Rhombus : public OPEN_MANIPULATOR::Draw
 {
@@ -215,7 +274,6 @@ public:
 
   virtual Pose getPose(float tick);
 };
-
 
 
 class BottleShake : public OPEN_MANIPULATOR::Draw
