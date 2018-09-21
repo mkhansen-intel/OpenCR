@@ -85,15 +85,7 @@ void loop()
     updateAllJointAngle2();
     chain.forward(chain.getWorldChildName());
     chain2.forward(chain2.getWorldChildName());
-    previous_time[1] = (float)(millis()/1000.0f);/*
-    Pose temp = chain.getComponentPoseToWorld(TOOL);
-    DEBUG.print(temp.position(0));
-    DEBUG.print(", ");
-    DEBUG.print(temp.position(1));
-    DEBUG.print(", ");
-    DEBUG.print(temp.position(2));
-    DEBUG.print(", ");
-    DEBUG.println();*/
+    previous_time[1] = (float)(millis()/1000.0f);
   }
 
   //Joint Control
