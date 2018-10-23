@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+/* Authors: Darby Lim */
 
 #ifndef OPEN_MANIPULATOR_PLANAR_H_
 #define OPEN_MANIPULATOR_PLANAR_H_
@@ -75,6 +76,7 @@ OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Planar();
 #ifdef PLATFORM 
 OPEN_MANIPULATOR::Actuator *actuator = new OM_DYNAMIXEL::Dynamixel();
 #endif 
+OPEN_MANIPULATOR::Draw *heart = new OM_PATH::Heart();
 OPEN_MANIPULATOR::Draw *spiral = new OM_PATH::Spiral();
 OPEN_MANIPULATOR::Draw *spiral2 = new OM_PATH::Spiral2();
 
@@ -82,7 +84,6 @@ void initManipulator()
 {
   planar.addWorld(WORLD,
                  COMP1);
-
   planar.addComponent(COMP1,
                      WORLD,
                      COMP4,
@@ -125,11 +126,15 @@ void initManipulator()
 
   planar.initKinematics(kinematics);
 #ifdef PLATFORM ////////////////////////////////////Actuator init
+  Serial.println("hahaha11??");
   planar.initActuator(actuator);
   uint32_t baud_rate = BAUD_RATE;
   void *p_baud_rate = &baud_rate;
+  Serial.println("hahaha12??");
   planar.actuatorInit(p_baud_rate);
+  Serial.println("hahaha13??");
   planar.actuatorEnable();
+  Serial.println("hahaha14??");
 #endif /////////////////////////////////////////////
   planar.initJointTrajectory();
   planar.setControlTime(ACTUATOR_CONTROL_TIME);

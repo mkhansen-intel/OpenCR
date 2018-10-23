@@ -19,6 +19,7 @@
 #define PROCESSING_H_
 
 #include "Planar.h"
+#include "demo.h"
 
 void connectProcessing()
 {
@@ -69,15 +70,15 @@ void fromProcessing(String data)
   }
   else if (cmd[0] == "task")
   {
-    if (cmd[1] == "forward")
+    if (cmd[1] == "f")
       planar.setMove(TOOL, OM_MATH::makeVector3(0.030f, 0.000f, 0.0), 1.0);
-    else if (cmd[1] == "backward")
+    else if (cmd[1] == "b")
       planar.setMove(TOOL, OM_MATH::makeVector3(-0.030f, 0.000f, 0.0), 1.0);
-    else if (cmd[1] == "left")
+    else if (cmd[1] == "l")
       planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.020f, 0.0), 1.0);
-    else if (cmd[1] == "right")
+    else if (cmd[1] == "r")
       planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.020f, 0.0), 1.0);
-    else if (cmd[1] == "rotate"){
+    else if (cmd[1] == "roti"){
       Pose target_pose;
       target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
       target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/6.0),  -sin(PI/6.0),   0.0f,
@@ -85,16 +86,36 @@ void fromProcessing(String data)
                                                      0.0f,          0.0f,          1.0f);
       planar.setPose(TOOL, target_pose, 1.0);
     }
-    else if (cmd[1] == "rotateinv"){
+    else if (cmd[1] == "rot"){
       Pose target_pose;
       target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
-      target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/6.0),  -sin(-PI/6.0),  0.0f,
-                                                     sin(-PI/6.0),  cos(PI/6.0),   0.0f,
+      target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/4.0),  -sin(-PI/4.0),  0.0f,
+                                                     sin(-PI/4.0),  cos(PI/4.0),   0.0f,
                                                      0.0f,          0.0f,          1.0f);
       planar.setPose(TOOL, target_pose, 1.0);
     }
     else
-      planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.000f, 0.0), 1.0);
+      planar.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.000f, 0.0), 1.0f);
+  }
+  else if (cmd[0] == "pos")
+  {
+    // Pose goal_pose;
+    // goal_pose.position(0) = cmd[1].toFloat();
+    // goal_pose.position(1) = cmd[2].toFloat();
+    // goal_pose.position(2) = 0.0f;
+    // goal_pose.orientation = Eigen::Matrix3f::Identity(3,3);
+    // planar.setPose(TOOL, goal_pose, 5.0f);
+    
+    if (~planar.moving() && ~planar.drawing())
+    {
+      // Serial.println(planar.moving());
+      // Serial.println(planar.drawing());
+      Vector3f pos;
+      pos(0) = cmd[1].toFloat();
+      pos(1) = cmd[2].toFloat();
+      pos(2) = 0.0;
+      planar.drawLine2(TOOL, pos, 1.5); 
+    }
   }
   else if (cmd[0] == "torque")
   {
@@ -104,6 +125,13 @@ void fromProcessing(String data)
     else if (cmd[1] == "off")
       planar.actuatorDisable();
 #endif
+  }
+  else if (cmd[0] == "motion")
+  {
+    if (cmd[1] == "start")
+      test2();
+    else if (cmd[1] == "stop")
+      test2Stop();
   }
 }
 #endif
