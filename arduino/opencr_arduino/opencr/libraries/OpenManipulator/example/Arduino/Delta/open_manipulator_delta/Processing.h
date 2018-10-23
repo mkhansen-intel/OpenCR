@@ -20,6 +20,7 @@
 #define PROCESSING_H_
 
 #include "Delta.h"
+// #include "Suction.h"
 
 void connectProcessing()
 {
@@ -71,20 +72,59 @@ void fromProcessing(String data)
   else if (cmd[0] == "task")
   {
     if (cmd[1] == "forward")
-      delta.setMove(TOOL, OM_MATH::makeVector3(0.020f, 0.000f, 0.0), 1.0);
+      delta.setMove(TOOL, OM_MATH::makeVector3(0.030f, 0.000f, 0.0), 1.0);
     else if (cmd[1] == "backward")
-      delta.setMove(TOOL, OM_MATH::makeVector3(-0.020f, 0.000f, 0.0), 1.0);
+      delta.setMove(TOOL, OM_MATH::makeVector3(-0.030f, 0.000f, 0.0), 1.0);
     else if (cmd[1] == "left")
-      delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.020f, 0.0), 1.0);
+      delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.030f, 0.0), 1.0);
     else if (cmd[1] == "right")
-      delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.020f, 0.0), 1.0);
+      delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.030f, 0.0), 1.0);
     else if (cmd[1] == "upward")
       delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, 0.020f), 1.0);
     else if (cmd[1] == "downward")
       delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, -0.020f), 1.0);
+    else if (cmd[1] == "1")
+      delta.setMove(TOOL, OM_MATH::makeVector3(-0.015f, -0.02598f, 0.0f), 1.0);
+    else if (cmd[1] == "2")
+      delta.setMove(TOOL, OM_MATH::makeVector3(-0.015f, 0.02598f, 0.0f), 1.0);
+    else if (cmd[1] == "3")
+      delta.setMove(TOOL, OM_MATH::makeVector3(0.030f,  0.0, 0.0f), 1.0);
+    else if (cmd[1] == "4")
+      delta.setMove(TOOL, OM_MATH::makeVector3(0.060f, 0.000f, 0.020f), 1.0);
+    else if (cmd[1] == "5")
+      delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.060f, 0.020f), 1.0);
+    else if (cmd[1] == "6")
+      delta.setMove(TOOL, OM_MATH::makeVector3(-0.060f, 0.000f, 0.020f), 1.0);
     else
       delta.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.000f, 0.0), 1.0);
   }
+  else if (cmd[0] == "pos")
+  {
+    // Pose goal_pose;
+    // goal_pose.position(0) = cmd[1].toFloat();
+    // goal_pose.position(1) = cmd[2].toFloat();
+    // goal_pose.position(2) = 0.0f;
+    // goal_pose.orientation = Eigen::Matrix3f::Identity(3,3);
+    // planar.setPose(TOOL, goal_pose, 5.0f);
+    Pose goal_pose;
+    goal_pose.position(0) = cmd[1].toFloat();
+    goal_pose.position(1) = cmd[2].toFloat();
+    goal_pose.position(2) = cmd[3].toFloat();
+    goal_pose.orientation = Eigen::Matrix3f::Identity(3,3);
+
+    delta.setPose(TOOL, goal_pose, 1.5f);
+  }
+  // else if (cmd[0] == "suction")
+  // {
+  //   if (cmd[1] == "on")
+  //   {
+  //     suctionOn();
+  //   }
+  //   else if (cmd[1] == "off")
+  //   {
+  //     suctionOff();
+  //   }
+  // }
   else if (cmd[0] == "torque")
   {
 #ifdef PLATFORM

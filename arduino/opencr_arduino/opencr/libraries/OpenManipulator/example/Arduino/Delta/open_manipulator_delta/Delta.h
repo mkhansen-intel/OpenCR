@@ -55,6 +55,15 @@
 #define BAUD_RATE 1000000
 #define DXL_SIZE 3
 
+#define CIRCLE 11
+#define RHOMBUS 13
+#define HEART 15
+#define CIRCLE2 12
+#define RHOMBUS2 14
+#define HEART2 16
+#define SPIRAL 20
+#define SPIRAL2 21
+
 #define PLATFORM
 
 OPEN_MANIPULATOR::OpenManipulator delta;
@@ -62,10 +71,20 @@ OPEN_MANIPULATOR::OpenManipulator delta;
 //-- Kinematics Init --//
 OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Delta();
 
+
+//////////////Suction Pin Num///////////////
+// #define RELAY_PIN 8
+// ////////////////////////////////////////////
+// bool suction = true;
+
 //-- Actuator Init --//
 #ifdef PLATFORM 
 OPEN_MANIPULATOR::Actuator *actuator = new OM_DYNAMIXEL::Dynamixel();
 #endif 
+
+OPEN_MANIPULATOR::Draw *heart = new OM_PATH::Heart();
+OPEN_MANIPULATOR::Draw *spiral = new OM_PATH::Spiral();
+OPEN_MANIPULATOR::Draw *spiral2 = new OM_PATH::Spiral2();
 
 void initManipulator()
 {
@@ -75,7 +94,7 @@ void initManipulator()
   delta.addComponent(COMP1,
                      WORLD,
                      COMP2,
-                     OM_MATH::makeVector3(0.000f, 0.000f, 0.170f),
+                     OM_MATH::makeVector3(0.000f, 0.000f, 0.169894f),
                      Eigen::Matrix3f::Identity(3, 3),
                      Z_AXIS,
                      -1);
@@ -83,25 +102,25 @@ void initManipulator()
   delta.addComponent(COMP2,
                      COMP1,
                      COMP5,
-                     OM_MATH::makeVector3(0.055f, 0.000f, 0.000f),
+                     OM_MATH::makeVector3(-0.055f, 0.000f, 0.0),
                      Eigen::Matrix3f::Identity(3, 3));
 
   delta.addComponent(COMP3,
                      COMP1,
                      COMP6,
-                     OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0), // should be modified
+                     OM_MATH::makeVector3(0.0275f, -0.0476f, 0.0), // should be modified
                      Eigen::Matrix3f::Identity(3, 3));
 
   delta.addComponent(COMP4,
                      COMP1,
                      COMP7,
-                     OM_MATH::makeVector3(-0.035f, 0.000f, 0.170f), // should be modified
+                     OM_MATH::makeVector3(0.0275f, 0.0476f, 0.0), // should be modified
                      Eigen::Matrix3f::Identity(3, 3));
 
   delta.addComponent(COMP5,
                      COMP2,
                      COMP8,
-                     OM_MATH::makeVector3(0.100f, 0.000f, 0.000f),
+                     OM_MATH::makeVector3(-0.100f, 0.000f, 0.0),
                      Eigen::Matrix3f::Identity(3, 3),
                      Z_AXIS,
                      1);
@@ -109,7 +128,7 @@ void initManipulator()
   delta.addComponent(COMP6,
                      COMP3,
                      COMP9,
-                     OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0), // should be modified
+                     OM_MATH::makeVector3(0.050f, -0.0866f, 0.0), // should be modified
                      Eigen::Matrix3f::Identity(3, 3),
                      Z_AXIS,
                      2);
@@ -117,7 +136,7 @@ void initManipulator()
   delta.addComponent(COMP7,
                      COMP4,
                      COMP10,
-                     OM_MATH::makeVector3(-0.035f, 0.000f, 0.170f), // should be modified
+                     OM_MATH::makeVector3(0.050f, 0.0866f, 0.0), // should be modified
                      Eigen::Matrix3f::Identity(3, 3),
                      Z_AXIS,
                      3);
@@ -125,23 +144,36 @@ void initManipulator()
   delta.addComponent(COMP8,
                      COMP5,
                      TOOL,
-                     OM_MATH::makeVector3(-0.135f, 0.000f, -0.170f), 
-                     Eigen::Matrix3f::Identity(3, 3));
+                     OM_MATH::makeVector3(0.135f, 0.000f, -0.169894f), 
+                     Eigen::Matrix3f::Identity(3, 3),
+                     Z_AXIS,
+                     -1);
+
   delta.addTool(TOOL,    // why defined like this???
                 COMP8,
-                OM_MATH::makeVector3(-0.020f, 0.0, 0.0),
+                OM_MATH::makeVector3(0.020f, 0.0, 0.0),
                 Eigen::Matrix3f::Identity(3, 3));
 
   delta.initKinematics(kinematics);
 #ifdef PLATFORM ////////////////////////////////////Actuator init
+  Serial.println("hahaha1??");
+  Serial.flush();;
   delta.initActuator(actuator);
   uint32_t baud_rate = BAUD_RATE;
   void *p_baud_rate = &baud_rate;
+  Serial.println("hahaha2??");
+  Serial.flush();;
   delta.actuatorInit(p_baud_rate);
+  Serial.println("hahaha3??");
+  Serial.flush();;
   delta.actuatorEnable();
+  Serial.println("hahaha31??");
+  Serial.flush();;
 #endif /////////////////////////////////////////////
   delta.initJointTrajectory();
   delta.setControlTime(ACTUATOR_CONTROL_TIME);
+  Serial.println("hahaha4??");
+  Serial.flush();;
 
 #ifdef PLATFORM ////////////////////////////////////Actuator init    
   std::vector<float> goal_position_;   // rename this var name
@@ -149,25 +181,13 @@ void initManipulator()
   goal_position_.push_back(0.0f);
   goal_position_.push_back(0.0f);
   delta.jointMove(goal_position_, 1.0f);
+  Serial.println("hahaha5??");
+  Serial.flush();;
 
   delta.setAllActiveJointAngle(delta.receiveAllActuatorAngle());
 #endif /////////////////////////////////////////////
   // delta.forward(COMP1);
 }
-
-//-- Compute Passive Angles --//
-void setPassiveJointAngle()
-{
-  float joint_angle[3];
-  joint_angle[0] = delta.getComponentJointAngle(COMP1);
-  joint_angle[1] = delta.getComponentJointAngle(COMP2);
-  joint_angle[2] = delta.getComponentJointAngle(COMP3);
-
-  delta.setComponentJointAngle(COMP4, (joint_angle[1] - joint_angle[2]));
-  delta.setComponentJointAngle(COMP5, -M_PI - (joint_angle[1] - joint_angle[2]));
-  delta.setComponentJointAngle(COMP6, -M_PI - (joint_angle[1] - joint_angle[2]));
-}
-
 
 void updateAllJointAngle()
 {

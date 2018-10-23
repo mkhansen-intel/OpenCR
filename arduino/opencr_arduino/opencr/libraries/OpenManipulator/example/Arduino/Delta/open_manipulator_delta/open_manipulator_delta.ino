@@ -19,7 +19,11 @@
 #include "Delta.h"
 #include "Processing.h"
 #include "RemoteController.h"
-#include "test.h"
+#include "demo.h"
+
+
+// #define BDPIN_PUSH_SW_1         34
+// #define BDPIN_PUSH_SW_2         35
 
 std::vector<float> goal_position;
 Pose goal_pose;
@@ -31,13 +35,18 @@ void setup()
 {
   Serial.begin(57600);
   DEBUG.begin(57600);
-  // while (!Serial);
+  while (!Serial);
+
+
+  delta.addDraw(HEART, heart);
+  delta.addDraw(SPIRAL, spiral);
+  delta.addDraw(SPIRAL2, spiral2);
 
   connectProcessing();
   // connectRC100();
   
   initManipulator();
-
+  // suctionInit();
   Serial.println("Setup");
 }
 
@@ -49,16 +58,15 @@ void loop()
 
   if(present_time-previous_time[0] >= LOOP_TIME)
   {
-    // test();
+    // test2();
     previous_time[0] = (float)(millis()/1000.0f);
-
   }
 
   //solve Kinematics
   if(present_time-previous_time[1] >= ROBOT_STATE_UPDATE_TIME)
   {
     updateAllJointAngle();
-    // SCARA.forward(SCARA.getWorldChildName());
+    // Delta.forward(SCARA.getWorldChildName());
     previous_time[1] = (float)(millis()/1000.0f);
 
   }
