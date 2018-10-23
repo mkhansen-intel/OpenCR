@@ -414,9 +414,6 @@ std::vector<float> SCARA::geometricInverse(OM_MANAGER::Manipulator *manipulator,
 }
 
 
-
-
-
 // --------------- Link below --------------- //
 
 MatrixXf Link::jacobian(OM_MANAGER::Manipulator *manipulator, Name tool_name)
@@ -547,7 +544,7 @@ std::vector<float> Planar::inverse(OM_MANAGER::Manipulator *manipulator, Name to
 //   double temp_target_angle[3];
 //   double target_angle[3];
 //   double link[2];
-//   double temp_x[3];       // why not use double...?
+//   double temp_x[3];     
 //   double temp_y[3];
 //   double target_pose_length[3];
 
@@ -573,12 +570,22 @@ std::vector<float> Planar::inverse(OM_MANAGER::Manipulator *manipulator, Name to
 
 //   target_pose_length[1] = sqrt(temp_y[1]*temp_y[1] + (temp_x[1]+0.1339)*(temp_x[1]+0.1339));
 //   temp_target_angle[1] = acos((target_pose_length[1]*target_pose_length[1] + link[0]*link[0] - link[1]*link[1]) 
-//                           / (2*target_pose_length[1]*link[0]));
-//   target_angle[1] = acos(-temp_y[1] / target_pose_length[1]) - temp_target_angle[1] - PI/4;
+//                           / (2*ta
+//   link[0] = 0.100f;
+//   link[1] = 0.217f_pose_length[1]*link[0]));
+//   target_angle[1] = acos(-temp_y[
+//   link[0] = 0.100f;
+//   link[1] = 0.217f target_pose_length[1]) - temp_target_angle[1] - PI/4;
 
-//   target_pose_length[2] = sqrt(temp_y[2]*temp_y[2] + (temp_x[2]+0.1339)*(temp_x[2]+0.1339));
-//   temp_target_angle[2] = acos((target_pose_length[2]*target_pose_length[2] + link[0]*link[0] - link[1]*link[1]) 
-//                           / (2*target_pose_length[2]*link[0]));
+//   target_pose_length[2] = sqrt(te
+//   link[0] = 0.100f;
+//   link[1] = 0.217f[2]*temp_y[2] + (temp_x[2]+0.1339)*(temp_x[2]+0.1339));
+//   temp_target_angle[2] = acos((ta
+//   link[0] = 0.100f;
+//   link[1] = 0.217f_pose_length[2]*target_pose_length[2] + link[0]*link[0] - link[1]*link[1]) 
+//                           / (2*ta
+//   link[0] = 0.100f;
+//   link[1] = 0.217f_pose_length[2]*link[0]));
 //   target_angle[2] = acos(-temp_y[2] / target_pose_length[2]) - temp_target_angle[2] - PI/4;
 
 //   // Set Joint Angle 
@@ -593,7 +600,7 @@ std::vector<float> Planar::geometricInverse2(OM_MANAGER::Manipulator *manipulato
 {
   std::vector<float> target_angle_vector;
 
-  float link[2];
+  float link[3];
   float start_x[3];    
   float start_y[3];
   float temp_x[3];       
@@ -606,26 +613,35 @@ std::vector<float> Planar::geometricInverse2(OM_MANAGER::Manipulator *manipulato
   float temp_target_angle[3];
   float temp_diff[3];      
   float target_pose_length[3];
-  float target_angle[3];
+  float target_angle[7];
 
   // Link Lengths
   link[0] = 0.120f;
   link[1] = 0.098f;
+  link[2] = 0.0366f;
 
   // Start Pose for each set of two joints
   for (int i=0; i<3; i++){
-    start_x[i] = cos(PI*2.0f/3.0f*i)*(-0.1705f) - sin(PI*2.0f/3.0f*i)*(-0.0000f);
-    start_y[i] = sin(PI*2.0f/3.0f*i)*(-0.1705f) + cos(PI*2.0f/3.0f*i)*(-0.0000f);
+    start_x[i] = cos(PI*2.0f/3.0f*i)*(-0.1705f);
+    start_y[i] = sin(PI*2.0f/3.0f*i)*(-0.1705f);
   }
 
   // Goal Pose without tool rotation for each set of two joints
   for (int i=0; i<3; i++){
-    temp_x[i] = target_pose.position(0) + cos(PI*2.0f/3.0f*i)*(-0.0366f);
-    temp_y[i] = target_pose.position(1) + sin(PI*2.0f/3.0f*i)*(-0.0366f);
+    temp_x[i] = target_pose.position(0) + cos(PI*2.0f/3.0f*i)*(-link[2]);
+    temp_y[i] = target_pose.position(1) + sin(PI*2.0f/3.0f*i)*(-link[2]);
   }
 
   // Goal Pose for each set of two joints after tool rotation
   goal_orientation = target_pose.orientation;
+  if (goal_orientation(0,0) || goal_orientation(0,1) || goal_orientation(0,2)
+   || goal_orientation(1,1) || goal_orientation(1,1) || goal_orientation(1,1)
+   || goal_orientation(2,1) || goal_orientation(2,1) || goal_orientation(2,1))
+  {
+    goal_orientation(0,0) = 1;
+    goal_orientation(1,1) = 1;
+    goal_orientation(2,2) = 1;
+  }
   for (int i=0; i<3; i++){
     goal_x[i] = goal_orientation(0,0)*temp_x[i] + goal_orientation(0,1)*temp_y[i];
     goal_y[i] = goal_orientation(1,0)*temp_x[i] + goal_orientation(1,1)*temp_y[i];
@@ -639,7 +655,7 @@ std::vector<float> Planar::geometricInverse2(OM_MANAGER::Manipulator *manipulato
     temp_target_angle[i] = acos((target_pose_length[i]*target_pose_length[i] + link[0]*link[0] - link[1]*link[1]) 
                             / (2*target_pose_length[i]*link[0]));
     temp_diff[i] = sin(-PI*2.0f/3.0f*i)*diff_x[i] + cos(-PI*2.0f/3.0f*i)*diff_y[i];
-    target_angle[i] = acos(-temp_diff[i] / target_pose_length[i]) - temp_target_angle[i] - PI/4;
+    target_angle[i] = acos(-temp_diff[i] / target_pose_length[i]) - temp_target_angle[i] - PI/4.0f;
   }
 
   // Set Joint Angle 
@@ -647,10 +663,30 @@ std::vector<float> Planar::geometricInverse2(OM_MANAGER::Manipulator *manipulato
   target_angle_vector.push_back(target_angle[1]);
   target_angle_vector.push_back(target_angle[2]);
 
+  for (int i=0; i<3; i++){
+    target_angle[i] += PI/4.0f; 
+    target_angle[i+3] = acos((-sin(PI*2.0f/3.0f*i)*diff_x[i] + cos(PI*2.0f/3.0f*i)*diff_y[i] 
+                              + link[0]*cos(target_angle[i])) / -link[1]) - target_angle[i] - PI*7.0f/12.0f;
+  }
+
+  target_angle_vector.push_back(target_angle[3]);
+  target_angle_vector.push_back(target_angle[4]);
+  target_angle_vector.push_back(target_angle[5]);
+
+  target_angle[3] += PI*7.0f/12.0f;
+  // target_angle[6] = acos((target_pose.position(1)-start_y[0]
+  //                         -link[0]*sin(target_angle[0])-link[1]*sin(target_angle[0]+target_angle[3]))/link[2])
+  //                         -target_angle[0] - target_angle[3];
+
+  if ((target_pose.position(0)-goal_x[0])/link[2] > 1)
+    target_pose.position(0) = goal_x[0] + link[2];
+
+  target_angle[6] = acos((target_pose.position(0)-goal_x[0])/link[2]) +PI/2- target_angle[0] - target_angle[3]+PI/3.0f;
+
+  target_angle_vector.push_back(target_angle[6]);
+
   return target_angle_vector;
 }
-
-
 
 
 // --------------- Delta below --------------- //
@@ -659,11 +695,11 @@ MatrixXf Delta::jacobian(OM_MANAGER::Manipulator *manipulator, Name tool_name)
 {
 }
 
-void Delta::forward(OM_MANAGER::Manipulator *manipulator)
+void Delta::forward(OM_MANAGER::Manipulator *manipulator, Name component_name)
 {
 }
 
-void Delta::forward(OM_MANAGER::Manipulator *manipulator, Name component_name)
+void Delta::forward(OM_MANAGER::Manipulator *manipulator)
 {
 }
 
@@ -679,6 +715,8 @@ std::vector<float> Delta::geometricInverse(OM_MANAGER::Manipulator *manipulator,
   float temp_angle[3];
   float temp_angle2[3];
   float target_angle[3];
+  float target_angle2[3];
+  float target_angle3[3];
   float link[2];
   float start_x[3];       
   float start_y[3];
@@ -699,14 +737,15 @@ std::vector<float> Delta::geometricInverse(OM_MANAGER::Manipulator *manipulator,
 
   // Start pose for each set of two joints
   for (int i=0; i<3; i++){
-    start_x[i] = cos(PI*2.0f/3.0f*i)*0.055f;
-    start_y[i] = sin(PI*2.0f/3.0f*i)*0.055f;
-    start_z[i] = 0.170;
+    start_x[i] = cos(PI*2.0/3.0*i)*(-0.055f);
+    start_y[i] = sin(PI*2.0/3.0*i)*(-0.055f);
+    start_z[i] = 0.169894;
   }
-  // Target pose for each set of two joints
+  
+  // Goal pose for each set of two joints
   for (int i=0; i<3; i++){
-    target_x[i] = target_pose.position(0) + cos(PI*2.0f/3.0f*i)*0.020f;
-    target_y[i] = target_pose.position(1) + sin(PI*2.0f/3.0f*i)*0.020f;
+    target_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*i)*(-0.020f);
+    target_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*i)*(-0.020f);
     target_z[i] = target_pose.position(2);
   }
 
@@ -718,42 +757,87 @@ std::vector<float> Delta::geometricInverse(OM_MANAGER::Manipulator *manipulator,
   }
 
   // Length of Position Difference and Target Angle
+  // for (int i=0; i<3; i++){
+  //   temp[i] = diff_x[i]*cos(PI*2.0/3.0*i)+diff_y[i]*sin(PI*2.0/3.0*i);
+  //   temp2[i] = sqrt(temp[i]*temp[i] + diff_z[i]*diff_z[i]);
+  //   temp_angle[i] = acos((link[1]*link[1] - link[0]*link[0] - diff_x[i]*diff_x[i] - diff_y[i]*diff_y[i] - diff_z[i]*diff_z[i])
+  //                   / (2.0*link[0]*temp2[i]));
+  //   temp_angle2[i] = asin(diff_z[i] / temp2[i]);
+  //   target_angle[i] = temp_angle[i] + temp_angle2[i];  
+  // }
+
   for (int i=0; i<3; i++){
     temp[i] = diff_x[i]*cos(PI*2.0/3.0*i)+diff_y[i]*sin(PI*2.0/3.0*i);
     temp2[i] = sqrt(temp[i]*temp[i] + diff_z[i]*diff_z[i]);
-    temp_angle[i] = asin((link[1]*link[1] - link[0]*link[0] - diff_x[i]*diff_x[i] - diff_y[i]*diff_y[i] - diff_z[i]*diff_z[i])
-                    / (-2*link[0]*temp2[i]));
-    temp_angle2[i] = asin(diff_z[i] / temp2[i]);
-    target_angle[i] = temp_angle[i] - temp_angle2[i] - PI/2;
+    temp_angle[i] = acos((link[1]*link[1] - link[0]*link[0] - diff_x[i]*diff_x[i] - diff_y[i]*diff_y[i] - diff_z[i]*diff_z[i])
+                    / (2.0*link[0]*temp2[i]));
+    temp_angle2[i] = acos(temp[i] / temp2[i]);
+    target_angle[i] = +temp_angle[i] - temp_angle2[i];  
   }
 
   // Set Joint Angle 
-  Serial.println(start_x[0],4);
-  Serial.println(start_y[0],4);
-  Serial.println(start_z[0],4);
-  Serial.println(target_x[0],4);
-  Serial.println(target_y[0],4);
-  Serial.println(target_z[0],4);
-  Serial.println(diff_x[0],4);
-  Serial.println(diff_y[0],4);
-  Serial.println(diff_z[0],4);
   Serial.println(temp[0],4);
   Serial.println(temp2[0],4);
+  Serial.println(diff_z[0],4);
+  Serial.println(link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0], 4);
+  Serial.println((link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0])/(-2.0*link[0]*temp2[0]),4);
   Serial.println(temp_angle[0],4);
   Serial.println(temp_angle2[0],4);
-  
-  // Serial.println(diff_x[1],4);
-  // Serial.println(diff_y[1],4);
-  // Serial.println(diff_z[1],4);
-  // Serial.println(diff_x[2],4);
-  // Serial.println(diff_y[2],4);
-  // Serial.println(diff_z[2],4);
   Serial.println(target_angle[0],4);
   Serial.println(target_angle[1],4);
   Serial.println(target_angle[2],4);
+  Serial.println(target_angle2[0],4);
+  Serial.println(target_angle2[1],4);
+  Serial.println(target_angle2[2],4);
   target_angle_vector.push_back(target_angle[0]);
   target_angle_vector.push_back(target_angle[1]);
   target_angle_vector.push_back(target_angle[2]);
+
+
+
+  // float felbow_x[3];       
+  // float felbow_y[3];
+  // float felbow_z[3];
+
+  // float error = 1000000;
+  // float ferroreach[3];
+  // float temp_error;
+  // float result[3];
+  // for (int j=-70; j<70; j++){
+  //   for (int k=-70; k<70; k++){
+  //     for (int l=-30; l<30; l++){
+  //       for (int i=0; i<3; i++){
+  //         felbow_x[i] = cos(PI*2.0/3.0*i)*(0.033f) + link[0]*cos(target_angle2[i])*cos(PI*2.0/3.0*i);
+  //         felbow_y[i] = sin(PI*2.0/3.0*i)*(0.033f) + link[0]*cos(target_angle2[i])*sin(PI*2.0/3.0*i);
+  //         felbow_z[i] = -0.169894 + link[0]*sin(target_angle2[i]);
+          
+  //         ferroreach[i] = abs((felbow_x[i]+j/1000.0f)*(felbow_x[i]+j/1000.0f)
+  //                      + (felbow_y[i]+k/1000.0f)*(felbow_y[i]+k/1000.0f) 
+  //                      + (felbow_z[i]+l/1000.0f)*(felbow_z[i]+l/1000.0f) 
+  //                      - link[1]*link[1]);
+                       
+  //       }
+  //       temp_error = ferroreach[0] + ferroreach[1] + ferroreach[2];
+  //       // Serial.println(temp_error);
+        
+  //       if (temp_error < error){
+  //         error = temp_error;
+  //         // Serial.println(error);
+  //         // Serial.println(j);
+  //         // Serial.println(k);
+  //         // Serial.println(l);
+  //         result[0] = j;
+  //         result[1] = k;
+  //         result[2] = l;
+  //       }
+  //     }
+  //   }
+  // }
+
+  // Serial.println(result[0]);
+  // Serial.println(result[1]);
+  // Serial.println(result[2]);
+
 
   return target_angle_vector;
 }

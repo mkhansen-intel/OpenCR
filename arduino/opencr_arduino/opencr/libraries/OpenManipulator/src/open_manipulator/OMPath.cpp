@@ -169,6 +169,12 @@ void Line::init(Pose start, Pose end, float move_time, float control_time)
   start_to_end(1) = end_.position(1) - start_.position(1);
   start_to_end(2) = end_.position(2) - start_.position(2);
 
+  // Serial.println(end_.position(0));
+  // Serial.println(end_.position(1));
+  // Serial.println(start_.position(0));
+  // Serial.println(start_.position(1));
+
+
   vel_max(0) = start_to_end(0)/(move_time_ - acc_dec_time);
   vel_max(1) = start_to_end(1)/(move_time_ - acc_dec_time);
   vel_max(2) = start_to_end(2)/(move_time_ - acc_dec_time);
