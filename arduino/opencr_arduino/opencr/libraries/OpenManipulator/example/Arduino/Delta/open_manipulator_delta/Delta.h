@@ -63,6 +63,8 @@
 #define HEART2 16
 #define SPIRAL 20
 #define SPIRAL2 21
+#define CIRCLEEDGE 22
+#define CIRCLEEDGE2 23
 
 #define PLATFORM
 
@@ -73,18 +75,27 @@ OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Delta();
 
 
 //////////////Suction Pin Num///////////////
-// #define RELAY_PIN 8
+#define RELAY_PIN 8
 // ////////////////////////////////////////////
-// bool suction = true;
+bool suction = true;
 
 //-- Actuator Init --//
 #ifdef PLATFORM 
 OPEN_MANIPULATOR::Actuator *actuator = new OM_DYNAMIXEL::Dynamixel();
 #endif 
 
+OPEN_MANIPULATOR::Draw *circle = new OM_PATH::Circle();
+OPEN_MANIPULATOR::Draw *rhombus = new OM_PATH::Rhombus();
 OPEN_MANIPULATOR::Draw *heart = new OM_PATH::Heart();
+OPEN_MANIPULATOR::Draw *bottleshake = new OM_PATH::BottleShake();
+OPEN_MANIPULATOR::Draw *bottleshakeY = new OM_PATH::BottleShakeY();
+OPEN_MANIPULATOR::Draw *bottleshakeX = new OM_PATH::BottleShakeX();
+OPEN_MANIPULATOR::Draw *bottleshake3 = new OM_PATH::BottleShake3();
+
 OPEN_MANIPULATOR::Draw *spiral = new OM_PATH::Spiral();
 OPEN_MANIPULATOR::Draw *spiral2 = new OM_PATH::Spiral2();
+OPEN_MANIPULATOR::Draw *circleedge = new OM_PATH::CircleEdge();
+OPEN_MANIPULATOR::Draw *circleedge2 = new OM_PATH::CircleEdge2();
 
 void initManipulator()
 {
@@ -156,24 +167,14 @@ void initManipulator()
 
   delta.initKinematics(kinematics);
 #ifdef PLATFORM ////////////////////////////////////Actuator init
-  Serial.println("hahaha1??");
-  Serial.flush();;
   delta.initActuator(actuator);
   uint32_t baud_rate = BAUD_RATE;
   void *p_baud_rate = &baud_rate;
-  Serial.println("hahaha2??");
-  Serial.flush();;
   delta.actuatorInit(p_baud_rate);
-  Serial.println("hahaha3??");
-  Serial.flush();;
   delta.actuatorEnable();
-  Serial.println("hahaha31??");
-  Serial.flush();;
 #endif /////////////////////////////////////////////
   delta.initJointTrajectory();
   delta.setControlTime(ACTUATOR_CONTROL_TIME);
-  Serial.println("hahaha4??");
-  Serial.flush();;
 
 #ifdef PLATFORM ////////////////////////////////////Actuator init    
   std::vector<float> goal_position_;   // rename this var name
@@ -181,8 +182,6 @@ void initManipulator()
   goal_position_.push_back(0.0f);
   goal_position_.push_back(0.0f);
   delta.jointMove(goal_position_, 1.0f);
-  Serial.println("hahaha5??");
-  Serial.flush();;
 
   delta.setAllActiveJointAngle(delta.receiveAllActuatorAngle());
 #endif /////////////////////////////////////////////

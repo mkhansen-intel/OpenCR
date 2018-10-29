@@ -35,18 +35,24 @@ void setup()
 {
   Serial.begin(57600);
   DEBUG.begin(57600);
-  while (!Serial);
+  // while (!Serial);
 
 
+
+  delta.addDraw(CIRCLE, circle);
+  delta.addDraw(RHOMBUS, rhombus);
+  delta.addDraw(HEART, heart);
   delta.addDraw(HEART, heart);
   delta.addDraw(SPIRAL, spiral);
   delta.addDraw(SPIRAL2, spiral2);
+  delta.addDraw(CIRCLEEDGE, circleedge);
+  delta.addDraw(CIRCLEEDGE2, circleedge2);
 
   connectProcessing();
   // connectRC100();
   
   initManipulator();
-  // suctionInit();
+  suctionInit();
   Serial.println("Setup");
 }
 
@@ -58,7 +64,7 @@ void loop()
 
   if(present_time-previous_time[0] >= LOOP_TIME)
   {
-    // test2();
+    test4();
     previous_time[0] = (float)(millis()/1000.0f);
   }
 

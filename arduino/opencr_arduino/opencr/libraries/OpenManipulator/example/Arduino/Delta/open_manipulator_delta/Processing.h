@@ -20,6 +20,8 @@
 #define PROCESSING_H_
 
 #include "Delta.h"
+#include "Suction.h"
+
 // #include "Suction.h"
 
 void connectProcessing()
