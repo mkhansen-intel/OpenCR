@@ -22,23 +22,9 @@
 #include "Chain.h"
 #include <unistd.h>
 
-#define CIRCLE 11
-#define RHOMBUS 13
-#define HEART 15
-#define BOTTLESHAKE 17
-#define BOTTLESHAKEY 18
-#define BOTTLESHAKEX 19
-#define BOTTLESHAKE3 20
 
 using namespace OPEN_MANIPULATOR;
 
-OPEN_MANIPULATOR::Draw *circle = new OM_PATH::Circle();
-OPEN_MANIPULATOR::Draw *rhombus = new OM_PATH::Rhombus();
-OPEN_MANIPULATOR::Draw *heart = new OM_PATH::Heart();
-OPEN_MANIPULATOR::Draw *bottleshake = new OM_PATH::BottleShake();
-OPEN_MANIPULATOR::Draw *bottleshakeY = new OM_PATH::BottleShakeY();
-OPEN_MANIPULATOR::Draw *bottleshakeX = new OM_PATH::BottleShakeX();
-OPEN_MANIPULATOR::Draw *bottleshake3 = new OM_PATH::BottleShake3();
 
 bool motion[2]    = {false, false};
 bool continue_flag = false;
@@ -108,6 +94,23 @@ bool motion7(OpenManipulator* manipulator, int index)
   }
   return 0;
 }
+bool motion8(OpenManipulator* manipulator, int index)
+{
+  switch(sub_motion_cnt[index])
+  {
+  case 0: moveJS(manipulator, 0.0, -1.5,  -0.0,   1.5, 2.0); break;
+  case 1: moveJS(manipulator,0.8,-1.00,  1.00, -1.00, 2.0); break;
+  case 2: moveJS(manipulator, 0.0, -1.5,  -0.0,   1.5, 2.0); break;
+  case 3: moveJS(manipulator,-0.8,-1.00, 1.00, -1.00, 2.0); break;
+  case 4: moveJS(manipulator, 0.0, -1.5,  -0.0,   1.5, 2.0); break;
+  case 5: moveJS(manipulator,0.8,-1.00,  1.00, -1.00, 2.0); break;
+  case 6: moveJS(manipulator, 0.0, -1.5,  -0.0,   1.5, 2.0); break;
+  case 7: moveJS(manipulator,-0.8,-1.00, 1.00, -1.00, 2.0); break;
+  case 8: moveJS(manipulator, 0.0, -1.5,  -0.0,   1.5, 2.0); break;
+  // case 2: manipulator->drawLine(TOOL, OM_MATH::makeVector3(0.100, 0.0, 0.0f), 0.5f); return 1; 
+  }
+  return 0;
+}
 
 
 // --------------- Set Motion for OM1 --------------- //
@@ -125,7 +128,7 @@ void setMotion1()
     {
     ////////// O X O 
     case 0:
-      if(motion7(&chain, 0))
+      if(motion8(&chain, 0))
       { sub_motion_cnt[0] = 0;  }
 // motion_cnt[0] ++;
       else 

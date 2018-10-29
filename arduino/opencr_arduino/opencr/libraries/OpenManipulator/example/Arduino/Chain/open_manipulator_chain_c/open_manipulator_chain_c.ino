@@ -18,6 +18,7 @@
 
 #include "Chain.h"
 #include "Processing.h"
+#include "Demo.h"
 #include "Motion.h"
 #include "RemoteController.h"
 
@@ -50,6 +51,8 @@ void setup()
   chain.addDraw(BOTTLESHAKEY, bottleshakeY);
   chain.addDraw(BOTTLESHAKEX, bottleshakeX);
   chain.addDraw(BOTTLESHAKE3, bottleshake3);
+  chain.addDraw(CIRCLEEDGE, circleedge);
+  chain.addDraw(CIRCLEEDGE2, circleedge2);
 
   // initThread();
   // startThread();
@@ -64,6 +67,7 @@ void loop()
   {
     switchRead();
     setMotion1();
+    // test();
     previous_time[0] = (float)(millis()/1000.0f);
   }
 

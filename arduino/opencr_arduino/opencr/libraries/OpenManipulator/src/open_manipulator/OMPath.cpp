@@ -226,6 +226,8 @@ Pose Line::getPose(float tick)
   return line(tick);
 }
 
+//-------------------- Circle --------------------//
+
 Circle::Circle() {}
 
 Circle::~Circle() {}
@@ -271,8 +273,8 @@ Pose Circle::circle(float time_var)
   Pose pose;
   double diff_pose[2];
 
-  diff_pose[0] = (cos(time_var)-1)*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
-  diff_pose[1] = (cos(time_var)-1)*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
+  diff_pose[0] = (cos(time_var))*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
+  diff_pose[1] = (cos(time_var))*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
 
   pose.position(0) = start_position_(0) + radius_ * diff_pose[0];
   pose.position(1) = start_position_(1) + radius_ * diff_pose[1];
@@ -296,6 +298,164 @@ Pose Circle::getPose(float tick)
 }
 
 void Circle::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
+
+//-------------------- CircleEdge --------------------//
+
+CircleEdge::CircleEdge() {}
+
+CircleEdge::~CircleEdge() {}
+
+void CircleEdge::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 0.0;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 4 * M_PI;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void CircleEdge::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void CircleEdge::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void CircleEdge::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose CircleEdge::circleedge(float time_var)
+{
+  Pose pose;
+  double diff_pose[2];
+
+  diff_pose[0] = (cos(time_var)-1)*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
+  diff_pose[1] = (cos(time_var)-1)*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
+
+  pose.position(0) = start_position_(0) + radius_ * diff_pose[0];
+  pose.position(1) = start_position_(1) + radius_ * diff_pose[1];
+  pose.position(2) = start_position_(2);
+
+  return pose;
+}
+
+Pose CircleEdge::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return circleedge(get_time_var);
+}
+
+void CircleEdge::initDraw(const void *arg)
+{
+  get_arg_ = (float *)arg;
+
+  init(get_arg_[0], get_arg_[1]);
+}
+
+
+//-------------------- CircleEdge --------------------//
+
+CircleEdge2::CircleEdge2() {}
+
+CircleEdge2::~CircleEdge2() {}
+
+void CircleEdge2::init(float move_time, float control_time)
+{
+  Trajectory start;
+  Trajectory goal;
+
+  start.position = 4 * M_PI;
+  start.velocity = 0.0;
+  start.acceleration = 0.0;
+
+  goal.position = 0.0;
+  goal.velocity = 0.0;
+  goal.acceleration = 0.0;
+
+  path_generator_.calcCoefficient(start,
+                                  goal,
+                                  move_time,
+                                  control_time);
+
+  coefficient_ = path_generator_.getCoefficient();
+}
+
+void CircleEdge2::setStartPosition(Vector3f start_position)
+{
+  start_position_ = start_position;
+}
+
+void CircleEdge2::setAngularStartPosition(float start_angular_position)
+{
+  start_angular_position_ = start_angular_position;
+}
+
+void CircleEdge2::setRadius(float radius)
+{
+  radius_ = radius;
+}
+
+Pose CircleEdge2::circleedge2(float time_var)
+{
+  Pose pose;
+  double diff_pose[2];
+
+  diff_pose[0] = (cos(time_var)-1)*cos(start_angular_position_) - sin(time_var)*sin(start_angular_position_);
+  diff_pose[1] = (cos(time_var)-1)*sin(start_angular_position_) + sin(time_var)*cos(start_angular_position_);
+
+  pose.position(0) = start_position_(0) + radius_ * diff_pose[0];
+  pose.position(1) = start_position_(1) + radius_ * diff_pose[1];
+  pose.position(2) = start_position_(2);
+
+  return pose;
+}
+
+Pose CircleEdge2::getPose(float tick)
+{
+  float get_time_var = 0.0;
+
+  get_time_var = coefficient_(0) +
+                 coefficient_(1) * pow(tick, 1) +
+                 coefficient_(2) * pow(tick, 2) +
+                 coefficient_(3) * pow(tick, 3) +
+                 coefficient_(4) * pow(tick, 4) +
+                 coefficient_(5) * pow(tick, 5);
+
+  return circleedge2(get_time_var);
+}
+
+void CircleEdge2::initDraw(const void *arg)
 {
   get_arg_ = (float *)arg;
 

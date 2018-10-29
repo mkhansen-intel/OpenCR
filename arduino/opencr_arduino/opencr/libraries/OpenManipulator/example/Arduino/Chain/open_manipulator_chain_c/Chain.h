@@ -40,6 +40,23 @@
 
 #define NONE -1
 
+
+#define CIRCLE 11
+#define RHOMBUS 13
+#define HEART 15
+#define CIRCLE2 12
+#define RHOMBUS2 14
+#define HEART2 16
+#define SPIRAL 20
+#define BOTTLESHAKE 17
+#define BOTTLESHAKEY 18
+#define BOTTLESHAKEX 19
+#define BOTTLESHAKE3 20
+#define SPIRAL2 21
+#define CIRCLEEDGE 22
+#define CIRCLEEDGE2 23
+
+
 #define X_AXIS OM_MATH::makeVector3(1.0, 0.0, 0.0)
 #define Y_AXIS OM_MATH::makeVector3(0.0, 1.0, 0.0)
 #define Z_AXIS OM_MATH::makeVector3(0.0, 0.0, 1.0)
@@ -58,6 +75,22 @@ OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Chain();
 OPEN_MANIPULATOR::Actuator *actuator = new OM_DYNAMIXEL::Dynamixel();
 #endif /////////////////////////////////////////////
 //  OPEN_MANIPULATOR::Path *path = new MY_PATH::Circle();
+
+
+OPEN_MANIPULATOR::Draw *circle = new OM_PATH::Circle();
+OPEN_MANIPULATOR::Draw *rhombus = new OM_PATH::Rhombus();
+OPEN_MANIPULATOR::Draw *heart = new OM_PATH::Heart();
+OPEN_MANIPULATOR::Draw *bottleshake = new OM_PATH::BottleShake();
+OPEN_MANIPULATOR::Draw *bottleshakeY = new OM_PATH::BottleShakeY();
+OPEN_MANIPULATOR::Draw *bottleshakeX = new OM_PATH::BottleShakeX();
+OPEN_MANIPULATOR::Draw *bottleshake3 = new OM_PATH::BottleShake3();
+
+OPEN_MANIPULATOR::Draw *spiral = new OM_PATH::Spiral();
+OPEN_MANIPULATOR::Draw *spiral2 = new OM_PATH::Spiral2();
+OPEN_MANIPULATOR::Draw *circleedge = new OM_PATH::CircleEdge();
+OPEN_MANIPULATOR::Draw *circleedge2 = new OM_PATH::CircleEdge2();
+
+
 
 void initManipulator()
 {
