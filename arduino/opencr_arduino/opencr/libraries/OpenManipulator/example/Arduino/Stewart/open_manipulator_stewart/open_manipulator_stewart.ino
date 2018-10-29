@@ -16,7 +16,7 @@
 
 /* Authors: Darby Lim */
 
-#include "Planar.h"
+#include "Stewart.h"
 #include "Processing.h"
 #include "RemoteController.h"
 #include "demo.h"
@@ -33,9 +33,9 @@ void setup()
   DEBUG.begin(57600);
   // while (!Serial);
 
-  planar.addDraw(HEART, heart);
-  planar.addDraw(SPIRAL, spiral);
-  planar.addDraw(SPIRAL2, spiral2);
+  stewart.addDraw(HEART, heart);
+  stewart.addDraw(SPIRAL, spiral);
+  stewart.addDraw(SPIRAL2, spiral2);
 
   connectProcessing();
   // connectRC100();
@@ -53,7 +53,7 @@ void loop()
 
   if(present_time-previous_time[0] >= LOOP_TIME)
   {
-    // test3();
+    // test2();
     previous_time[0] = (float)(millis()/1000.0f);
 
   }
@@ -70,9 +70,9 @@ void loop()
   //Joint Control
   if(present_time-previous_time[2] >= ACTUATOR_CONTROL_TIME)
   {    
-    planar.setPresentTime((float)(millis()/1000.0f));
-    planar.jointControl();
-    planar.jointControlForDrawing(TOOL);    
+    stewart.setPresentTime((float)(millis()/1000.0f));
+    stewart.jointControl();
+    stewart.jointControlForDrawing(TOOL);    
     previous_time[2] = (float)(millis()/1000.0f);
   }
 }

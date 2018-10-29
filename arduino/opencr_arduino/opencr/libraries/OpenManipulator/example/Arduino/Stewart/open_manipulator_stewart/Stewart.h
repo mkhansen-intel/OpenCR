@@ -16,8 +16,8 @@
 
 /* Authors: Darby Lim */
 
-#ifndef OPEN_MANIPULATOR_PLANAR_H_
-#define OPEN_MANIPULATOR_PLANAR_H_
+#ifndef OPEN_MANIPULATOR_STEWART_H_
+#define OPEN_MANIPULATOR_STEWART_H_
 
 // Necessary Library
 #include <OpenManipulator.h>
@@ -42,7 +42,13 @@
 #define COMP7 7
 #define COMP8 8
 #define COMP9 9
-#define TOOL 10
+#define COMP10 10
+#define COMP11 11
+#define COMP12 12
+#define COMP13 13
+#define COMP14 14
+#define COMP15 15
+#define TOOL 16
 
 #define NONE -1
 
@@ -52,9 +58,9 @@
 
 //-- Dynamixel --/
 #define BAUD_RATE 1000000
-#define DXL_SIZE 3
+#define DXL_SIZE 6
 
-#define ACTIVE_JOINT_SIZE 3
+#define ACTIVE_JOINT_SIZE 6
 
 #define CIRCLE 11
 #define RHOMBUS 13
@@ -67,10 +73,10 @@
 
 #define PLATFORM
 
-OPEN_MANIPULATOR::OpenManipulator planar;
+OPEN_MANIPULATOR::OpenManipulator stewart;
 
 //-- Kinematics Init --//
-OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Planar();
+OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Stewart();
 
 //-- Actuator Init --//
 #ifdef PLATFORM 
@@ -82,9 +88,9 @@ OPEN_MANIPULATOR::Draw *spiral2 = new OM_PATH::Spiral2();
 
 void initManipulator()
 {
-  planar.addWorld(WORLD,
+  stewart.addWorld(WORLD,
                  COMP1);
-  planar.addComponent(COMP1,
+  stewart.addComponent(COMP1,
                      WORLD,
                      COMP4,
                      OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0),
@@ -92,7 +98,7 @@ void initManipulator()
                      Z_AXIS,
                      1);
 
- planar.addComponent(COMP2,
+ stewart.addComponent(COMP2,
                      WORLD,
                      COMP5,
                      OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0),
@@ -100,7 +106,7 @@ void initManipulator()
                      Z_AXIS,
                      2);
 
-  planar.addComponent(COMP3,
+  stewart.addComponent(COMP3,
                      WORLD,
                      COMP6,
                      OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0),
@@ -108,8 +114,32 @@ void initManipulator()
                      Z_AXIS,
                      3);
 
-  planar.addComponent(COMP4,
+  stewart.addComponent(COMP4,
+                     WORLD,
                      COMP7,
+                     OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0),
+                     Eigen::Matrix3f::Identity(3, 3),
+                     Z_AXIS,
+                     4);
+
+  stewart.addComponent(COMP5,
+                     WORLD,
+                     COMP8,
+                     OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0),
+                     Eigen::Matrix3f::Identity(3, 3),
+                     Z_AXIS,
+                     5);
+
+  stewart.addComponent(COMP6,
+                     WORLD,
+                     COMP9,
+                     OM_MATH::makeVector3(0.0849f, -0.0849f, 0.0),
+                     Eigen::Matrix3f::Identity(3, 3),
+                     Z_AXIS,
+                     6);
+
+  stewart.addComponent(COMP7,
+                     COMP10,
                      TOOL,
                      OM_MATH::makeVector3(0.049f, 0.0849f, 0.0),
                      Eigen::Matrix3f::Identity(3, 3));
@@ -119,56 +149,46 @@ void initManipulator()
   //                    OM_MATH::makeVector3(-0.0849f, 0.049f, 0.0),
   //                    Eigen::Matrix3f::Identity(3, 3));
 
-  planar.addTool(TOOL,    // why defined like this???
+  stewart.addTool(TOOL,    // why defined like this???
                 COMP7,
                 OM_MATH::makeVector3(0.0366, 0.0, 0.0),
                 Eigen::Matrix3f::Identity(3, 3));
 
-  planar.initKinematics(kinematics);
+  stewart.initKinematics(kinematics);
 #ifdef PLATFORM ////////////////////////////////////Actuator init
   Serial.println("hahaha11??");
-  planar.initActuator(actuator);
+  stewart.initActuator(actuator);
   uint32_t baud_rate = BAUD_RATE;
   void *p_baud_rate = &baud_rate;
   Serial.println("hahaha12??");
-  planar.actuatorInit(p_baud_rate);
+  stewart.actuatorInit(p_baud_rate);
   Serial.println("hahaha13??");
-  planar.actuatorEnable();
+  stewart.actuatorEnable();
   Serial.println("hahaha14??");
 #endif /////////////////////////////////////////////
-  planar.initJointTrajectory();
-  planar.setControlTime(ACTUATOR_CONTROL_TIME);
+  stewart.initJointTrajectory();
+  stewart.setControlTime(ACTUATOR_CONTROL_TIME);
 
 #ifdef PLATFORM ////////////////////////////////////Actuator init    
   std::vector<float> goal_position_;   // rename this var name
   goal_position_.push_back(0.0f);
   goal_position_.push_back(0.0f);
   goal_position_.push_back(0.0f);
-  planar.jointMove(goal_position_, 1.0f);
+  goal_position_.push_back(0.0f);
+  goal_position_.push_back(0.0f);
+  goal_position_.push_back(0.0f);
+  stewart.jointMove(goal_position_, 1.0f);
 
-  planar.setAllActiveJointAngle(planar.receiveAllActuatorAngle());
+  stewart.setAllActiveJointAngle(stewart.receiveAllActuatorAngle());
 #endif /////////////////////////////////////////////
   // planar.forward(COMP1);
-}
-
-//-- Compute Passive Angles --//
-void setPassiveJointAngle()
-{
-  float joint_angle[3];
-  joint_angle[0] = planar.getComponentJointAngle(COMP1);
-  joint_angle[1] = planar.getComponentJointAngle(COMP2);
-  joint_angle[2] = planar.getComponentJointAngle(COMP3);
-
-  planar.setComponentJointAngle(COMP4, (joint_angle[1] - joint_angle[2]));
-  planar.setComponentJointAngle(COMP5, -M_PI - (joint_angle[1] - joint_angle[2]));
-  planar.setComponentJointAngle(COMP6, -M_PI - (joint_angle[1] - joint_angle[2]));
 }
 
 
 void updateAllJointAngle()
 {
 #ifdef PLATFORM
-  planar.setAllActiveJointAngle(planar.receiveAllActuatorAngle());
+  stewart.setAllActiveJointAngle(stewart.receiveAllActuatorAngle());
 #endif
 }
 
