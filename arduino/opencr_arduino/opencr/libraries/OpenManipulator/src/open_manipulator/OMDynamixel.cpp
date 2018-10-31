@@ -230,6 +230,14 @@ void Dynamixel::setActuatorControlMode()
   //enableAllDynamixel();
 }
 
+void Dynamixel::setActuatorControlMode2()
+{
+  setMode(1, 4); 
+  setMode(2, 4); 
+  setMode(3, 4); 
+}
+
+
 void Dynamixel::Enable()
 {
   enableAllDynamixel();

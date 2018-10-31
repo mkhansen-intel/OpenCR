@@ -18,12 +18,12 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include "Stewart.h"
+#include "Linear.h"
 #include "demo.h"
 
 void connectProcessing()
 {
-  stewart.connectProcessing(DXL_SIZE);
+  linear.connectProcessing(DXL_SIZE);
 }
 
 int availableProcessing()
@@ -38,22 +38,22 @@ String readProcessingData()
 
 void fromProcessing(String data)
 {
-  String *cmd = stewart.parseDataFromProcessing(data);
+  String *cmd = linear.parseDataFromProcessing(data);
 
   if (cmd[0] == "om")
   {
     if (cmd[1] == "ready")
     {
 #ifdef PLATFORM
-      stewart.actuatorEnable();
-      stewart.sendAngleToProcessing(stewart.receiveAllActuatorAngle());  
-      stewart.sendToolData2Processing(stewart.getComponentToolValue(TOOL));
+      linear.actuatorEnable();
+      linear.sendAngleToProcessing(linear.receiveAllActuatorAngle());  
+      linear.sendToolData2Processing(linear.getComponentToolValue(TOOL));
 #endif
     }
     else if (cmd[1] == "end")
     {
 #ifdef PLATFORM
-      stewart.actuatorDisable();
+      linear.actuatorDisable();
 #endif
     }
   }
@@ -66,29 +66,29 @@ void fromProcessing(String data)
       goal_position.push_back(cmd[index+1].toFloat());
     }
 
-    stewart.jointMove(goal_position, 1.0f); // FIX TIME PARAM
+    linear.jointMove(goal_position, 1.0f); // FIX TIME PARAM
   }
   else if (cmd[0] == "task")
   {
     if (cmd[1] == "f")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.010f, 0.000f, 0.0), 1.0);
+      linear.setMove(TOOL, OM_MATH::makeVector3(0.010f, 0.000f, 0.0), 1.0);
     else if (cmd[1] == "b")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(-0.010f, 0.000f, 0.0), 1.0);
+      linear.setMove(TOOL, OM_MATH::makeVector3(-0.010f, 0.000f, 0.0), 1.0);
     else if (cmd[1] == "l")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.010f, 0.0), 1.0);
+      linear.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.010f, 0.0), 1.0);
     else if (cmd[1] == "r")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.010f, 0.0), 1.0);
+      linear.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.010f, 0.0), 1.0);
     else if (cmd[1] == "u")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, 0.010f), 1.0);
+      linear.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, 0.010f), 1.0);
     else if (cmd[1] == "d")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, -0.010f), 1.0);
+      linear.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, -0.010f), 1.0);
     else if (cmd[1] == "roti"){
       Pose target_pose;
       target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
       target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/6.0),  -sin(PI/6.0),   0.0f,
                                                      sin(PI/6.0),   cos(PI/6.0),   0.0f,
                                                      0.0f,          0.0f,          1.0f);
-      stewart.setPose(TOOL, target_pose, 1.0);
+      linear.setPose(TOOL, target_pose, 1.0);
     }
     else if (cmd[1] == "rot"){
       Pose target_pose;
@@ -96,10 +96,10 @@ void fromProcessing(String data)
       target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/4.0),  -sin(-PI/4.0),  0.0f,
                                                      sin(-PI/4.0),  cos(PI/4.0),   0.0f,
                                                      0.0f,          0.0f,          1.0f);
-      stewart.setPose(TOOL, target_pose, 1.0);
+      linear.setPose(TOOL, target_pose, 1.0);
     }
     else
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.000f, 0.0), 1.0f);
+      linear.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.000f, 0.0), 1.0f);
   }
   else if (cmd[0] == "pos")
   {
@@ -110,7 +110,7 @@ void fromProcessing(String data)
     // goal_pose.orientation = Eigen::Matrix3f::Identity(3,3);
     // planar.setPose(TOOL, goal_pose, 5.0f);
     
-    if (~stewart.moving() && ~stewart.drawing())
+    if (~linear.moving() && ~linear.drawing())
     {
       // Serial.println(planar.moving());
       // Serial.println(planar.drawing());
@@ -118,16 +118,16 @@ void fromProcessing(String data)
       pos(0) = cmd[1].toFloat();
       pos(1) = cmd[2].toFloat();
       pos(2) = 0.0;
-      stewart.drawLine2(TOOL, pos, 1.5); 
+      linear.drawLine2(TOOL, pos, 1.5); 
     }
   }
   else if (cmd[0] == "torque")
   {
 #ifdef PLATFORM
     if (cmd[1] == "on")
-      stewart.actuatorEnable();
+      linear.actuatorEnable();
     else if (cmd[1] == "off")
-      stewart.actuatorDisable();
+      linear.actuatorDisable();
 #endif
   }
   // else if (cmd[0] == "motion")

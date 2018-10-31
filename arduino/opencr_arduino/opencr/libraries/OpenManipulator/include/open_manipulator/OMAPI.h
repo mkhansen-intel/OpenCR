@@ -163,6 +163,7 @@ public:
 
   virtual void initActuator(const void *arg) = 0;
   virtual void setActuatorControlMode() = 0;
+  virtual void setActuatorControlMode2() = 0;
 
   virtual void Enable() = 0;
   virtual void Disable() = 0;

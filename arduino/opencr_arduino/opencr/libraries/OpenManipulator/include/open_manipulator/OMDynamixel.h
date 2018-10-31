@@ -94,6 +94,7 @@ public:
 
   virtual void initActuator(const void *arg);
   virtual void setActuatorControlMode();
+  virtual void setActuatorControlMode2();
   virtual void Enable();
   virtual void Disable();
   virtual bool sendMultipleActuatorAngle(std::vector<uint8_t> actuator_id, std::vector<float> radian_vector);

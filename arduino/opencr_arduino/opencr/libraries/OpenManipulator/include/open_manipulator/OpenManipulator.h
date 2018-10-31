@@ -215,6 +215,7 @@ public:
   // ACTUATOR (INCLUDES VIRTUAL)
   void actuatorInit(const void *arg);
   void setActuatorControlMode();
+  void setActuatorControlMode2();
   void actuatorEnable();
   void actuatorDisable();
   bool sendAllActuatorAngle(std::vector<float> radian_vector);
