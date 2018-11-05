@@ -525,7 +525,58 @@ MatrixXf Planar::jacobian(OM_MANAGER::Manipulator *manipulator, Name tool_name)
 }
 
 void Planar::forward(OM_MANAGER::Manipulator *manipulator)
-{
+{  
+  float theta2[3] = {45,45,45}; 
+  float temp_x; 
+  float temp_y; 
+  float start_x[3]; 
+  float start_y[3]; 
+  float centre_x, centre_y;
+  float link[3];
+
+
+  float error= 10000;
+  float temp_error;
+  float result;
+  // Length of Position Difference and Target Angle
+  for (int i=-300; i<=-300; i++){  
+    double theta=(double)i/10;
+
+    // Link Lengths
+    link[0] = 0.120f;
+    link[1] = 0.098f;
+    link[2] = 0.0366f;
+
+    // Start Pose for each set of two joints
+    for (int i=0; i<3; i++){
+      start_x[i] = cos(PI*2.0f/3.0f*i) * (-0.1705f + link[0]*sin(theta2[i]*PI/180));
+      start_y[i] = sin(PI*2.0f/3.0f*i) * (-0.1705f - link[0]*cos(theta2[i]*PI/180));
+    }
+    
+    Matrix2f alpha = Matrix2f::Zero();
+    Vector2f beta = Vector2f::Zero();
+    alpha << start_y[2]-start_y[1], start_y[1]-start_y[2],
+             start_x[2]-start_x[3], start_x[2]-start_x[1];
+    beta  << start_x[2]*start_x[2]-start_x[1]*start_x[1]+start_y[2]*start_y[2]-start_y[1]*start_y[1],
+             start_x[3]*start_x[3]-start_x[2]*start_x[2]+start_y[3]*start_y[3]-start_y[2]*start_y[2];
+             
+    Matrix2f centre = Matrix2f::Zero();
+
+    // centre = alpha * beta / 
+            //  (2*((start_x[2]-start_x[1])*(start_y[3]*start_y[2])
+                // -(start_y[2]-start_y[1])*(start_x[3]*start_x[2])));
+
+
+    // temp_error = abs(sqrt((centre(0)-start_x[0])^(centre(0)-start_x[0])
+    //                +(centre(1)-start_y[0])^(centre(1)-start_y[0])) - link[1]);
+
+    if (error < temp_error){  
+      result = theta;
+      centre_x = centre(0);
+      centre_y = centre(1);
+      error = temp_error;
+    }
+  }
 }
 
 void Planar::forward(OM_MANAGER::Manipulator *manipulator, Name component_name)
@@ -701,6 +752,83 @@ void Delta::forward(OM_MANAGER::Manipulator *manipulator, Name component_name)
 
 void Delta::forward(OM_MANAGER::Manipulator *manipulator)
 {
+
+  Pose pose_to_wolrd;
+  Pose link_relative_pose;
+  Matrix3f rodrigues_rotation_matrix;
+  Pose result_pose;
+
+  // getComponentJointAngle(manipulator, getWorldChildName(manipulator)
+  float theta[3] = {0,0,0}; 
+
+  // Link Lengths
+  float link[2];
+  link[0] = 0.100f;
+  link[1] = 0.217f;
+
+  float start_x[3];       
+  float start_y[3];
+  float start_z[3];
+  // Start pose for each set of two joints
+  for (int i=0; i<3; i++){
+    start_x[i] = cos(PI*2.0/3.0*i)*(-0.055f);
+    start_y[i] = sin(PI*2.0/3.0*i)*(-0.055f);
+    // start_z[i] = 0.169894;
+    start_z[i] = 0;
+  }
+
+  float x_elb[3];       
+  float y_elb[3];
+  float z_elb[3];  // not elbow but moved elbows 
+  for (int i=0; i<3; i++){
+    x_elb[i] = start_x[i] + cos(PI*2.0/3.0*i) * (-link[0]*cos(theta[i]) + 0.020f);
+    y_elb[i] = start_y[i] + sin(PI*2.0/3.0*i) * (-link[0]*cos(theta[i]) + 0.020f);
+    z_elb[i] = start_z[i] + (-link[0] * sin(theta[i]));
+  }
+  
+  float x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3;
+
+  x1 = x_elb[0];
+  x2 = x_elb[1];
+  x3 = x_elb[2];
+  y1 = y_elb[0];
+  y2 = y_elb[1];
+  y3 = y_elb[2];
+  z1 = z_elb[0];
+  z2 = z_elb[1];
+  z3 = z_elb[2];
+
+  float dnm = (x1-x3)*(y1-y2)+(x1-x2)*(y1-y3);
+ 
+  float w1 = y1*y1 + z1*z1;
+  float w2 = x2*x2 + y2*y2 + z2*z2;
+  float w3 = x3*x3 + y3*y3 + z3*z3;
+
+  // x = (a1*z + b1)/dnm
+  float a1 = (z2-z1)*(y3-y1)-(z3-z1)*(y2-y1);
+  float b1 = -((w2-w1)*(y3-y1)-(w3-w1)*(y2-y1))/2.0;
+ 
+  // y = (a2*z + b2)/dnm;
+  float a2 = -(z2-z1)*x3+(z3-z1)*x2;
+  float b2 = ((w2-w1)*x3 - (w3-w1)*x2)/2.0;
+  
+  // a*z^2 + b*z + c = 0
+  float a = a1*a1 + a2*a2 + dnm*dnm;
+  float b = 2*(a1*b1 + a2*(b2-y1*dnm) - z1*dnm*dnm);
+  float c = (b2-y1*dnm)*(b2-y1*dnm) + b1*b1 + dnm*dnm*(z1*z1 - link[1]*link[1]);
+  
+  // discriminant
+  float d = b*b - (float)4.0*a*c;
+  // if (d < 0) return -1; // non-existing point
+  if (d < 0) Serial.println("not existing"); // non-existing point
+ 
+  z0 = -(float)0.5*(b+sqrt(d))/a;
+  x0 = (a1*z0 + b1)/dnm;
+  y0 = (a2*z0 + b2)/dnm;
+
+  result_pose.position(0) = x0; 
+  result_pose.position(1) = y0; 
+  result_pose.position(2) = z0 + 0.169894; 
 }
 
 std::vector<float> Delta::inverse(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose)
@@ -878,6 +1006,9 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
   float start_x[6];       
   float start_y[6];
   float start_z[6];
+  float temp_x[6];       
+  float temp_y[6];
+  float temp_z[6];
   float target_x[6];       
   float target_y[6];
   float target_z[6];
@@ -887,6 +1018,7 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
   float temp[6];
   float temp2[6];
   float target_pose_length[6];
+  Matrix3f goal_orientation;
 
   // Link Lengths
   link[0] = 0.030f;    // modified the values
@@ -903,19 +1035,35 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
       start_y[i] = sin(PI*2.0/3.0*(i/2) + 0.436)*(-0.080f); // modified the values
     }
     start_z[i] = -0.100; // modified the values
-  }
-  
+  }  
+
   // Goal pose for each set of two joints
   for (int i=0; i<6; i++){
     if (i%2 == 0) {
-      target_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) - 0.136)*(-0.07825f);
-      target_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) - 0.136)*(-0.07825f);
+      temp_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) - 0.136)*(-0.07825f);
+      temp_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) - 0.136)*(-0.07825f);
     } 
     else {
-      target_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) + 0.136)*(-0.07825f);
-      target_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) + 0.136)*(-0.07825f);
+      temp_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) + 0.136)*(-0.07825f);
+      temp_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) + 0.136)*(-0.07825f);
     }
-    target_z[i] = target_pose.position(2);
+    temp_z[i] = target_pose.position(2);
+  }
+
+  // Goal Pose for each set of two joints after tool rotation
+  goal_orientation = target_pose.orientation;
+  if (goal_orientation(0,0) || goal_orientation(0,1) || goal_orientation(0,2)
+   || goal_orientation(1,1) || goal_orientation(1,1) || goal_orientation(1,1)
+   || goal_orientation(2,1) || goal_orientation(2,1) || goal_orientation(2,1))
+  {
+    goal_orientation(0,0) = 1;
+    goal_orientation(1,1) = 1;
+    goal_orientation(2,2) = 1;
+  }
+  for (int i=0; i<6; i++){
+    target_x[i] = goal_orientation(0,0)*temp_x[i] + goal_orientation(0,1)*temp_y[i] + goal_orientation(0,2)*temp_z[i];
+    target_y[i] = goal_orientation(1,0)*temp_x[i] + goal_orientation(1,1)*temp_y[i] + goal_orientation(1,2)*temp_z[i];
+    target_z[i] = goal_orientation(2,0)*temp_x[i] + goal_orientation(1,1)*temp_y[i] + goal_orientation(2,2)*temp_z[i];
   }
 
   // Pose difference for each set of two joints
@@ -995,6 +1143,7 @@ std::vector<float> Linear::inverse(OM_MANAGER::Manipulator *manipulator, Name to
 std::vector<float> Linear::geometricInverse(OM_MANAGER::Manipulator *manipulator, Name tool_name, Pose target_pose)
 {
   std::vector<float> target_angle_vector;
+  float target_angle[3];       
 
   float radius = 0.010;
   float x_length = 0.300;
@@ -1007,8 +1156,6 @@ std::vector<float> Linear::geometricInverse(OM_MANAGER::Manipulator *manipulator
   target_angle[1] = (x_length - target_pose.position(0)) / (2*radius);
   target_angle[2] = target_pose.position(1) / (2*radius);
 
-  target_z[i] = target_pose.position(2);
-  
   // Set Joint Angle 
   target_angle_vector.push_back(target_angle[0]);
   target_angle_vector.push_back(target_angle[1]);
