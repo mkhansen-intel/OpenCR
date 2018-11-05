@@ -601,6 +601,12 @@ void OpenManipulator::setActuatorControlMode()
   actuator_->setActuatorControlMode();
 }
 
+void OpenManipulator::setActuatorControlMode2()
+{
+  actuator_->setActuatorControlMode2();
+}
+
+
 void OpenManipulator::actuatorEnable()
 {
   return actuator_->Enable();
@@ -830,9 +836,16 @@ void OpenManipulator::jointControlForDrawing(Name tool_name)
       tick_time = control_time_ * draw_cnt_;
 
       if (object_ == LINE)
+      {
         goal_position = kinematics_->inverse(&manipulator_, tool_name, line_.getPose(tick_time));
+        previous_goal_.pose = line_.getPose(tick_time);
+      }
       else
+      {
         goal_position = kinematics_->inverse(&manipulator_, tool_name, getPoseForDrawing(object_, tick_time));
+        previous_goal_.pose = getPoseForDrawing(object_, tick_time);
+      }
+        
 
       if (platform_)
       {
@@ -847,8 +860,8 @@ void OpenManipulator::jointControlForDrawing(Name tool_name)
         sendAngleToProcessing(goal_position);
       }
 
-      previous_goal_.position = goal_position;
-
+      // previous_goal_.position = goal_position;
+      
       draw_cnt_++;
     }
     else
@@ -1022,6 +1035,7 @@ bool OpenManipulator::toolMove(Name tool_name, float tool_value)
 void OpenManipulator::setPose(Name tool_name, Pose goal_pose, float move_time)
 {
   std::vector<float> goal_position = kinematics_->inverse(&manipulator_, tool_name, goal_pose);
+
   jointMove(goal_position, move_time);
 }
 
@@ -1084,6 +1098,39 @@ void OpenManipulator::drawLine(Name tool_name, Vector3f meter, float move_time)
   draw(LINE);
 }
 
+
+void OpenManipulator::drawLine2(Name tool_name, Vector3f meter, float move_time)
+{
+  drawing_time_ = move_time;
+
+  // setAllActiveJointAngle(previous_goal_.position);
+  // forward(manipulator_.getWorldChildName());
+// 
+  // previous_goal_.pose = manipulator_.getComponentPoseToWorld(tool_name);
+
+  if (platform_)
+  {
+    setAllActiveJointAngle(receiveAllActuatorAngle());
+    forward(manipulator_.getWorldChildName());
+  }
+
+  Vector3f present_position_to_world = previous_goal_.pose.position;
+  Matrix3f present_orientation_to_world = previous_goal_.pose.orientation;
+
+  Vector3f goal_position_to_world = meter;
+
+  Pose start, end;
+  start.position = present_position_to_world;
+  start.orientation = present_orientation_to_world;
+
+  end.position = goal_position_to_world;
+  end.orientation = present_orientation_to_world;
+  
+  line_.init(start, end, move_time, control_time_);
+  setMoveTime(move_time);
+
+  draw(LINE);
+}
 
 void OpenManipulator::wait(float wait_time)
 {
