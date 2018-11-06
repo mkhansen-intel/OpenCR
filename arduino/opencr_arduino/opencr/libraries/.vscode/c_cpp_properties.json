@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/user/catkin_ws/devel/include",
+                "/opt/ros/kinetic/include",
+                "/home/user/catkin_ws/src/ros_astra_camera/include",
+                "/home/user/catkin_ws/src/DynamixelSDK/ros/include",
+                "/home/user/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include",
+                "/home/user/catkin_ws/src/open_manipulator/open_manipulator_control_gui/include",
+                "/home/user/catkin_ws/src/open_manipulator/open_manipulator_controller/include",
+                "/home/user/catkin_ws/src/open_manipulator/open_manipulator_libs/include",
+                "/home/user/catkin_ws/src/robotis_manipulator/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
