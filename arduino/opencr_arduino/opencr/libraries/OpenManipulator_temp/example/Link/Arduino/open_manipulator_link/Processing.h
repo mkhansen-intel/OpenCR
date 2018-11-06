@@ -19,8 +19,7 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include "Link.h"
-#include "Suction.h"
+#include "om_link.h"
 #include "Motion.h"
 
 void connectProcessing()

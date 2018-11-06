@@ -16,21 +16,16 @@
 
 /* Authors: Hye-Jong KIM */
 
-#ifndef OMLINK_H_
-#define OMLINK_H_
+#ifndef OM_LINK_H_
+#define OM_LINK_H_
 
 // Necessary library
-#include <OpenManipulator.h>
-
+#include <robotis_manipulator.h>
+#include <om_link_lib.h>
 // User-defined library
-#include <OMKinematics.h>
-#include <OMDynamixel.h>
-#include <OMDebug.h>
 
 /////////////control time set////////////////
-#define ROBOT_STATE_UPDATE_TIME 0.010f
-#define ACTUATOR_CONTROL_TIME 0.010f
-#define LOOP_TIME 0.010f
+#define ACTUATOR_CONTROL_TIME 0.010
 ////////////////////////////////////////////
 
 /////////////////////NAME/////////////////////
@@ -49,15 +44,6 @@
 #define SUCTION   12
 ////////////////////////////////////////////
 
-//////////////////Dynamixel/////////////////
-#define BAUD_RATE 1000000
-#define PLATFORM
-////////////////////////////////////////////
-
-//////////////////Debug/////////////////
-// #define DEBUGING
-////////////////////////////////////////////
-
 //////////////////Move step/////////////////
 #define MOVESTEP 0.01
 ////////////////////////////////////////////
@@ -66,175 +52,49 @@
 #define MOVETIME 1.0
 ////////////////////////////////////////////
 
+//////////////////Actuator//////////////////
+#define JOINT_DYNAMIXEL 0
+#define SUCTION_MODULE 1
+////////////////////////////////////////////
+
 //////////////Suction Pin Num///////////////
 #define RELAY_PIN 8
 ////////////////////////////////////////////
 
-//////////////motion //////////////
-bool IK_motion = true;
+//////////////////Drawing///////////////////
+#define DRAWING_LINE 0
+#define DRAWING_CIRCLE 1
+#define DRAWING_RHOMBUS 2
+#define DRAWING_HEART 3
 ////////////////////////////////////////////
 
-//////////////suction //////////////
-bool suction = true;
+////////////////////////////////////////////
+#define X_AXIS RM_MATH::makeVector3(1.0, 0.0, 0.0)
+#define Y_AXIS RM_MATH::makeVector3(0.0, 1.0, 0.0)
+#define Z_AXIS RM_MATH::makeVector3(0.0, 0.0, 1.0)
 ////////////////////////////////////////////
 
-////////////////using class/////////////////
-OPEN_MANIPULATOR::OpenManipulator omlink;
-
-OPEN_MANIPULATOR::Kinematics *kinematics = new OM_KINEMATICS::Link();
-#ifdef PLATFORM ////////////////////////////////////Actuator init
-OPEN_MANIPULATOR::Actuator *actuator = new OM_DYNAMIXEL::Dynamixel();
-#endif /////////////////////////////////////////////
-////////////////////////////////////////////
-
-void setPassiveJointAngle()
+class OM_LINK : public ROBOTIS_MANIPULATOR::RobotisManipulator
 {
-  float joint_angle[3];
-  joint_angle[0] = omlink.getComponentJointAngle(JOINT0);
-  joint_angle[1] = omlink.getComponentJointAngle(JOINT1);
-  joint_angle[2] = omlink.getComponentJointAngle(JOINT2);
+ private:
+  ROBOTIS_MANIPULATOR::Kinematics *kinematics_;
+  ROBOTIS_MANIPULATOR::JointActuator *actuator_;
+  ROBOTIS_MANIPULATOR::ToolActuator *tool_;
 
-  omlink.setComponentJointAngle(JOINT3, (joint_angle[1] - joint_angle[2]));
-  omlink.setComponentJointAngle(JOINT4, -M_PI - (joint_angle[1] - joint_angle[2]));
-  omlink.setComponentJointAngle(JOINT5, -M_PI - (joint_angle[1] - joint_angle[2]));
-  omlink.setComponentJointAngle(JOINT6, -M_PI - joint_angle[2]);
-  omlink.setComponentJointAngle(JOINT7, joint_angle[1]);
-  omlink.setComponentJointAngle(JOINT8, -(15 * DEG2RAD) - joint_angle[1]);
-  omlink.setComponentJointAngle(JOINT9, joint_angle[2] - (195 * DEG2RAD));
-  omlink.setComponentJointAngle(JOINT10, (90 * DEG2RAD) - joint_angle[2]);
-}
+  OM_DRAWING::Line line_;
+  OM_DRAWING::Circle circle_;
+  OM_DRAWING::Rhombus rhombus_;
+  OM_DRAWING::Heart heart_;
 
-void updateAllJointAngle()
-{
-#ifdef PLATFORM
-  omlink.setAllActiveJointAngle(omlink.receiveAllActuatorAngle());
-#endif
-  setPassiveJointAngle();
-  // Add passive joint function
-}
+  bool platform_;
+  bool processing_;
 
-void initOMLink()
-{
-  //init omlink
-  omlink.addWorld(WORLD, JOINT0);
-  omlink.addComponent(JOINT0, WORLD, JOINT1,
-                           OM_MATH::makeVector3(-0.23867882, 0, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,0,1),
-                           1,
-                           1);
-  omlink.addComponentChild(JOINT0, JOINT2);
-  omlink.addComponentChild(JOINT0, JOINT7);
-  omlink.addComponent(JOINT1, JOINT0, JOINT5, 
-                           OM_MATH::makeVector3(0, 0.022, 0.052),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0),
-                           2,
-                           -1);
-  omlink.addComponent(JOINT2, JOINT0, JOINT3,
-                           OM_MATH::makeVector3(0, -0.022, 0.052),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0),
-                           3,
-                           1);
-  omlink.addComponent(JOINT3, JOINT2, JOINT4,
-                           OM_MATH::makeVector3(0.050, 0.007, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT4, JOINT3, JOINT5,
-                           OM_MATH::makeVector3(0.200, 0.006, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT5, JOINT1, JOINT6,
-                           OM_MATH::makeVector3(0.200, -0.016, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT6, JOINT5, SUCTION,
-                           OM_MATH::makeVector3(0.200, -0.009, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT7, JOINT0, JOINT8,
-                           OM_MATH::makeVector3(-0.04531539, 0.006, 0.07313091),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT8, JOINT7, JOINT9,
-                           OM_MATH::makeVector3(0.200, 0.009, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT9, JOINT8, JOINT10,
-                           OM_MATH::makeVector3(0.07660444, -0.006, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addComponent(JOINT10, JOINT9, SUCTION,
-                           OM_MATH::makeVector3(0.200, -0.006, 0),
-                           Matrix3f::Identity(3,3),
-                           OM_MATH::makeVector3(0,1,0));
-  omlink.addTool(SUCTION, JOINT6,
-                      OM_MATH::makeVector3(0.03867882, 0.003, -0.01337315-0.01),
-                      Matrix3f::Identity(3,3),
-                      4,
-                      1);
+ public:
+  OM_LINK();
+  virtual ~OM_LINK();
 
-  omlink.initKinematics(kinematics);
-#ifdef PLATFORM ////////////////////////////////////Actuator init
-  omlink.initActuator(actuator);
-  uint32_t baud_rate = BAUD_RATE;
-  void *p_baud_rate = &baud_rate;
-  omlink.actuatorInit(p_baud_rate);
+  void initManipulator();
+  void Process(double present_time);
+};
 
-  omlink.actuatorEnable();
-#endif /////////////////////////////////////////////
-  omlink.initJointTrajectory();
-  omlink.setControlTime(ACTUATOR_CONTROL_TIME);
-
-#ifdef PLATFORM ////////////////////////////////////Actuator init
-  updateAllJointAngle();
-#endif /////////////////////////////////////////////
-  omlink.forward(); 
-  omlink.setPresentTime((float)(millis()/1000.0f));
-}
-
-// void THREAD::Robot_State(void const *argument)
-// {
-//   (void)argument;
-
-//   for (;;)
-//   {
-//     MUTEX::wait();
-
-//     updateAllJointAngle();
-//     omlink.forward();
-
-// #ifdef DEBUGING
-//     for(int i =0; i < 3; i++)
-//     {
-//       DEBUG.print(omlink.receiveAllActuatorAngle().at(i));
-//       DEBUG.print(", ");
-//     }
-//     DEBUG.println();
-// #endif
-
-//     MUTEX::release();
-
-//     osDelay(ROBOT_STATE_UPDATE_TIME * 1000);
-//   }
-// }
-
-// void THREAD::Actuator_Control(void const *argument)
-// {
-//   (void)argument;
-
-//   for (;;)
-//   {
-//     MUTEX::wait();
-
-//     omlink.setPresentTime((float)(millis()/1000.0f));
-//     omlink.jointControl();
-
-//     MUTEX::release();
-
-//     osDelay(ACTUATOR_CONTROL_TIME * 1000);
-//   }
-// }
-
-#endif //OMLINK_H_
+#endif //OM_LINK_H_

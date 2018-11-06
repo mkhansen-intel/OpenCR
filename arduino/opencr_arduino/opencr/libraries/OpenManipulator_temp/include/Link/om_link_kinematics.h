@@ -48,7 +48,7 @@ public:
   virtual std::vector<double> inverse(Manipulator *manipulator, Name tool_name, Pose target_pose);
 
   void solveKinematicsSinglePoint(Manipulator *manipulator, Name component_name);
-  std::vector<float> geometricInverse(Manipulator *manipulator, Name tool_name, Pose target_pose); //for basic model);
+  std::vector<double> geometricInverse(Manipulator *manipulator, Name tool_name, Pose target_pose); //for basic model);
 };
 
 } // namespace OM_CHAIN_KINEMATICS

@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "open_manipulator_libs/om_dynamixel.h"
+#include "../../include/Link/om_link_dynamixel.h"
 
 using namespace OM_DYNAMIXEL;
 
