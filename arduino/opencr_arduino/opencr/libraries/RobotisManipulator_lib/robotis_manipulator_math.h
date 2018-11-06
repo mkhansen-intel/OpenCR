@@ -21,8 +21,10 @@
 
 #include <unistd.h>
 
-#include <Eigen>
+#include <Eigen.h>
 #include <Eigen/LU>
+#include <Eigen/Geometry>
+
 #include <math.h>
 
 #define DEG2RAD 0.01745329252f //(M_PI / 180.0)
