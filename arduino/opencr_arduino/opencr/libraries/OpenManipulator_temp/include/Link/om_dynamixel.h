@@ -21,8 +21,8 @@
 #include <robotis_manipulator.h>
 #include <robotis_manipulator_common.h>
 
-#define DEVICE_NAME ""
-
+// #include <iostream>
+#include <cstdio>
 
 namespace OM_DYNAMIXEL
 {
@@ -33,7 +33,7 @@ namespace OM_DYNAMIXEL
 #define ADDR_PRESENT_CURRENT_2 126
 #define ADDR_PRESENT_VELOCITY_2 128
 #define ADDR_PRESENT_POSITION_2 132
- 
+
 #define LENGTH_PRESENT_CURRENT_2 2
 #define LENGTH_PRESENT_VELOCITY_2 4
 #define LENGTH_PRESENT_POSITION_2 4
@@ -56,7 +56,6 @@ class JointDynamixel : public ROBOTIS_MANIPULATOR::JointActuator
 {
  private:
   DynamixelWorkbench *dynamixel_workbench_;
-  DynamixelWorkbench dxl_wb_;
   Joint dynamixel_;
 
  public:
@@ -75,7 +74,7 @@ class JointDynamixel : public ROBOTIS_MANIPULATOR::JointActuator
 
 ////////////////////////////////////////////////////////////////
 
-  bool initialize(std::vector<uint8_t> actuator_id, std::string dxl_baud_rate);
+  bool initialize(std::vector<uint8_t> actuator_id, std::string dxl_device_name, std::string dxl_baud_rate);
   bool setOperatingMode(std::vector<uint8_t> actuator_id, std::string dynamixel_mode = "position_mode");
   bool setSDKHandler(uint8_t actuator_id);
   bool writeProfileValue(std::vector<uint8_t> actuator_id, std::string profile_mode, uint32_t value);
@@ -105,7 +104,7 @@ class GripperDynamixel : public ROBOTIS_MANIPULATOR::ToolActuator
 
 ////////////////////////////////////////////////////////////////
 
-  bool initialize(uint8_t actuator_id, std::string dxl_baud_rate);
+  bool initialize(uint8_t actuator_id, std::string dxl_device_name, std::string dxl_baud_rate);
   bool setOperatingMode(std::string dynamixel_mode = "position_mode");
   bool writeProfileValue(std::string profile_mode, uint32_t value);
   bool setSDKHandler();

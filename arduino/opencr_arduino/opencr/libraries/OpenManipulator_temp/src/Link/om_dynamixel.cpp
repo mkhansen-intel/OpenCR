@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "../../include/Chain/om_dynamixel.h"
+#include "open_manipulator_libs/om_dynamixel.h"
 
 using namespace OM_DYNAMIXEL;
 
@@ -22,9 +22,9 @@ void JointDynamixel::init(std::vector<uint8_t> actuator_id, const void *arg)
 {
   std::string *get_arg_ = (std::string *)arg;
 
-  bool result = JointDynamixel::initialize(actuator_id ,get_arg_[0]);
+  bool result = JointDynamixel::initialize(actuator_id ,get_arg_[0], get_arg_[1]);
 
-  if (result == false)   
+  if (result == false)
     return;
 }
 
@@ -114,7 +114,7 @@ std::vector<ROBOTIS_MANIPULATOR::Actuator> JointDynamixel::receiveJointActuatorV
 
 //////////////////////////////////////////////////////////////////////////
 
-bool JointDynamixel::initialize(std::vector<uint8_t> actuator_id, std::string dxl_baud_rate)
+bool JointDynamixel::initialize(std::vector<uint8_t> actuator_id, std::string dxl_device_name, std::string dxl_baud_rate)
 {
   bool result = false;
   const char* log = NULL;
@@ -122,13 +122,9 @@ bool JointDynamixel::initialize(std::vector<uint8_t> actuator_id, std::string dx
   dynamixel_.id = actuator_id;
   dynamixel_.num = actuator_id.size();
 
-  dxl_wb_.begin(DEVICE_NAME, std::stoi(dxl_baud_rate));
-
- 
   dynamixel_workbench_ = new DynamixelWorkbench;
-  
-  /*result = dynamixel_workbench_->init(DEVICE_NAME, std::stoi(dxl_baud_rate), &log);
-  //result = dynamixel_workbench_->begin("", std::stoi(dxl_baud_rate), &log);
+
+  result = dynamixel_workbench_->init(dxl_device_name.c_str(), std::stoi(dxl_baud_rate), &log);
   if (result == false)
   {
     printf("%s\n", log);
@@ -151,7 +147,7 @@ bool JointDynamixel::initialize(std::vector<uint8_t> actuator_id, std::string dx
       printf("ID : %d, Model Name : %s\n", id, dynamixel_workbench_->getModelName(id));
     }
   }
-*/
+
   return true;
 }
 
@@ -330,7 +326,7 @@ void GripperDynamixel::init(uint8_t actuator_id, const void *arg)
 {
   std::string *get_arg_ = (std::string *)arg;
 
-  bool result = GripperDynamixel::initialize(actuator_id ,get_arg_[0]);
+  bool result = GripperDynamixel::initialize(actuator_id ,get_arg_[0], get_arg_[1]);
 
   if (result == false)
     return;
@@ -404,7 +400,7 @@ double GripperDynamixel::receiveToolActuatorValue()
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GripperDynamixel::initialize(uint8_t actuator_id, std::string dxl_baud_rate)
+bool GripperDynamixel::initialize(uint8_t actuator_id, std::string dxl_device_name, std::string dxl_baud_rate)
 {
   const char* log = NULL;
   bool result = false;
@@ -414,7 +410,7 @@ bool GripperDynamixel::initialize(uint8_t actuator_id, std::string dxl_baud_rate
 
   dynamixel_workbench_ = new DynamixelWorkbench;
 
-  result = dynamixel_workbench_->init("", std::stoi(dxl_baud_rate), &log);
+  result = dynamixel_workbench_->init(dxl_device_name.c_str(), std::stoi(dxl_baud_rate), &log);
   if (result == false)
   {
     printf("%s\n", log);
