@@ -19,10 +19,13 @@
 #ifndef REMOTE_CONTROLLER_H_
 #define REMOTE_CONTROLLER_H_
 
-#include "om_chain.h"
+#define DEG2RAD 0.01745329252 //(M_PI / 180.0)
+
+#include <om_chain_lib.h>
 #include <RC100.h>
 
 RC100 rc100;
+double grip_value = 0.0;
 
 void connectRC100()
 {
@@ -39,87 +42,57 @@ uint16_t readRC100Data()
   return rc100.readData();
 }
 
-void fromRC100(uint16_t data)
-{/*
+void fromRC100(OM_CHAIN* chain_, uint16_t data)
+{
   if (data & RC100_BTN_U)
-    chain.setMove(TOOL, OM_MATH::makeVector3(0.007f, 0.0, 0.0), 0.16f);
+    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.007, 0.0, 0.0), 0.16);
   else if (data & RC100_BTN_D)
-    chain.setMove(TOOL, OM_MATH::makeVector3(-0.007f, 0.0, 0.0), 0.16f);
+    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(-0.007, 0.0, 0.0), 0.16);
   else if (data & RC100_BTN_L)
-    chain.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.007f, 0.0), 0.16f);
+    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.007, 0.0), 0.16);
   else if (data & RC100_BTN_R)
-    chain.setMove(TOOL, OM_MATH::makeVector3(0.0, -0.007f, 0.0), 0.16f);
+    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, -0.007, 0.0), 0.16);
   else if (data & RC100_BTN_1)
-    chain.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, 0.007f), 0.16f);
+    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.0, 0.007), 0.16);
   else if (data & RC100_BTN_3)
-    chain.setMove(TOOL, OM_MATH::makeVector3(0.0, 0.0, -0.007f), 0.16f);
+    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.0, -0.007), 0.16);
   else if (data & RC100_BTN_2)
   {
-    float grip_value = chain.getComponentToolValue(TOOL) + 0.030f;
+    grip_value += 0.030;
     if (grip_value >= 0.907f)
       grip_value = 0.907f;
 
-    chain.toolMove(TOOL, grip_value);
+    chain_->toolMove(TOOL, grip_value);
   }
   else if (data & RC100_BTN_4)
   {
-    float grip_value = chain.getComponentToolValue(TOOL) - 0.030f;
+    grip_value -= 0.030;
     if (grip_value <= -1.130f)
       grip_value = -1.130f;
 
-    chain.toolMove(TOOL, grip_value);
+    chain_->toolMove(TOOL, grip_value);
   }
   else if (data & RC100_BTN_5)
   {
-    std::vector<float> goal_position;
+    std::vector<double> goal_position;
 
-    goal_position.push_back(0.0f);
-    goal_position.push_back(-60.0f * DEG2RAD);
-    goal_position.push_back(20.0f * DEG2RAD);
-    goal_position.push_back(40.0f * DEG2RAD);
+    goal_position.push_back(0.0);
+    goal_position.push_back(-60.0 * DEG2RAD);
+    goal_position.push_back(20.0 * DEG2RAD);
+    goal_position.push_back(40.0 * DEG2RAD);
 
-    chain.jointMove(goal_position, 1.0f);
+    chain_->jointTrajectoryMove(goal_position, 1.5);
   }
   else if (data & RC100_BTN_6)
   {
-    std::vector<float> goal_position;
+    std::vector<double> goal_position;
 
-    goal_position.push_back(0.0f);
-    goal_position.push_back(0.0f);
-    goal_position.push_back(0.0f);
-    goal_position.push_back(0.0f);
+    goal_position.push_back(0.0);
+    goal_position.push_back(0.0);
+    goal_position.push_back(0.0);
+    goal_position.push_back(0.0);
 
-    chain.jointMove(goal_position, 1.0f);
+    chain_->jointTrajectoryMove(goal_position, 1.0);
   }
-
-  // else if (receive_data & RC100_BTN_6)
-  // {
-  //   // target_pos[1] = 0.0;
-  //   // target_pos[2] = 0.0;
-  //   // target_pos[3] = 0.0;
-  //   // target_pos[4] = 0.0;
-
-  //   // setJointAngle(target_pos);
-  //   // move();
-
-  //   if (DYNAMIXEL)
-  //       sendAngle2Processing(getAngle());
-
-  //   if (PROCESSING)
-  //     sendAngle2Processing(getState());
-
-  //   for (int i = 0; i < MOTION_NUM; i++)
-  //   {
-  //     for (int j = 0; j < 6; j++)
-  //     {
-  //       motion_storage[i][j] = motion_set[i][j];
-  //     }
-  //   }
-
-  //   motion_num = MOTION_NUM;
-  //   motion_cnt = 0;
-  //   motion = true;
-  //   repeat = true;
-  // }*/
 }
 #endif
