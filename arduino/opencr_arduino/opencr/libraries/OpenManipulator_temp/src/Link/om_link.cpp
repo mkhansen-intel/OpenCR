@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "om_chain.h"
+#include "../../include/Link/om_link.h"
 
 OM_LINK::OM_LINK()
 {}

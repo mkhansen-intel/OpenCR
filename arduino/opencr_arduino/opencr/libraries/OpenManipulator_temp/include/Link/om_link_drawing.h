@@ -57,8 +57,8 @@ private:
   std::vector<double> vel_max_;
 
 public:
-  Line();
-  virtual ~Line();
+  Line() {}
+  virtual ~Line() {}
 
   void initLine(double move_time, double control_time, std::vector<WayPoint> start, std::vector<WayPoint> goal);
   std::vector<WayPoint> drawLine(double time_var);
@@ -86,8 +86,8 @@ private:
   double revolution_;
 
 public:
-  Circle();
-  virtual ~Circle();
+  Circle() {}
+  virtual ~Circle() {}
 
   void initCircle(double move_time, double control_time, std::vector<WayPoint> start, double radius, double revolution, double start_angular_position);
   std::vector<WayPoint> drawCircle(double time_var);
@@ -115,8 +115,8 @@ private:
   double revolution_;
 
 public:
-  Rhombus();
-  virtual ~Rhombus();
+  Rhombus() {}
+  virtual ~Rhombus() {}
 
   void initRhombus(double move_time, double control_time, std::vector<WayPoint> start, double radius, double revolution, double start_angular_position);
   std::vector<WayPoint> drawRhombus(double time_var);
@@ -144,8 +144,8 @@ private:
   double revolution_;
 
 public:
-  Heart();
-  virtual ~Heart();
+  Heart() {}
+  virtual ~Heart() {}
 
   void initHeart(double move_time, double control_time, std::vector<WayPoint> start, double radius, double revolution, double start_angular_position);
   std::vector<WayPoint> drawHeart(double tick);

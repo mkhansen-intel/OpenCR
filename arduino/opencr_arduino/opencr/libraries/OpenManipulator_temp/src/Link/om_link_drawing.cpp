@@ -21,9 +21,6 @@ using namespace Eigen;
 
 //-------------------- Line --------------------//
 
-Line::Line() {}
-Line::~Line() {}
-
 void Line::initLine(double move_time, double control_time, std::vector<WayPoint> start, std::vector<WayPoint> goal)
 {
   output_way_point_type_ = TASK;
@@ -102,9 +99,6 @@ void Line::init(double move_time, double control_time, std::vector<WayPoint> sta
 
 //-------------------- Circle --------------------//
 
-Circle::Circle() {}
-Circle::~Circle() {}
-
 void Circle::initCircle(double move_time, double control_time, std::vector<WayPoint> start, double radius, double revolution, double start_angular_position)
 {
   output_way_point_type_ = TASK;
@@ -121,7 +115,7 @@ void Circle::initCircle(double move_time, double control_time, std::vector<WayPo
   drawingStart.velocity = 0.0;
   drawingStart.effort = 0.0;
 
-  drawingGoal.value = revolution_ * M_PI;
+  drawingGoal.value = revolution_ * 2*M_PI;
   drawingGoal.velocity = 0.0;
   drawingGoal.effort = 0.0;
 
@@ -176,9 +170,6 @@ void Circle::init(double move_time, double control_time, std::vector<WayPoint> s
 }
 
 //-------------------- Rhombus --------------------//
-
-Rhombus::Rhombus() {}
-Rhombus::~Rhombus() {}  
 
 void Rhombus::initRhombus(double move_time, double control_time, std::vector<WayPoint> start, double radius, double revolution, double start_angular_position)
 {
@@ -267,9 +258,6 @@ std::vector<WayPoint> Rhombus::getTaskWayPoint(double tick)
   return drawRhombus(tick);
 }
 //-------------------- Heart --------------------//
-
-Heart::Heart() {}
-Heart::~Heart() {}
 
 void Heart::initHeart(double move_time, double control_time, std::vector<WayPoint> start, double radius, double revolution, double start_angular_position)
 {
