@@ -1,3 +1,5 @@
-#include "../include/Link/om_drawing.h"
+#include "../include/Link/om_link_drawing.h"
 #include "../include/Link/om_link_kinematics.h"
-#include "../include/Link/om_dynamixel.h"
+#include "../include/Link/om_link_dynamixel.h"
+#include "../include/Link/om_link.h"
+#include "../include/Link/om_link_suction.h"
