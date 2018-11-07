@@ -109,6 +109,12 @@ void sendToolData2Processing(double value)
   Serial.print("\n");
 }
 
+void sendValueToProcessing(OM_CHAIN *chain_)
+{
+  sendAngle2Processing(chain_->getManipulator()->getAllActiveJointValue());
+  sendToolData2Processing(chain_->getManipulator()->getToolGoalValue(TOOL));
+}
+
 
 void fromProcessing(OM_CHAIN *chain_, String data)
 {
@@ -121,8 +127,7 @@ void fromProcessing(OM_CHAIN *chain_, String data)
       if(chain_->getPlatformFlag())
       {
         chain_->allActuatorEnable();
-        sendAngle2Processing(chain_->getManipulator()->getAllActiveJointValue());
-        sendToolData2Processing(chain_->getManipulator()->getToolValue(TOOL));
+        sendValueToProcessing(chain_);
       }
     }
     else if (cmd[1] == "end")

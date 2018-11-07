@@ -38,7 +38,7 @@ void setup()
   connectProcessing();
   connectRC100();
   
-  chain.initManipulator(true);
+  chain.initManipulator(false);
 }
 
 void loop()
@@ -50,7 +50,7 @@ void loop()
 if(present_time-previous_time >= CONTROL_TIME)
   {
     chain.chainProcess(millis()/1000.0);
-    sendAngle2Processing(chain.getManipulator()->getAllActiveJointValue());
+    sendValueToProcessing(&chain);
     previous_time = (float)(millis()/1000.0f);
   }
 }
