@@ -101,6 +101,7 @@ void Manipulator::addTool(Name my_name,
   temp_component.tool.coefficient = coefficient;
 
   temp_component.tool.value = 0.0;
+  temp_component.tool.goal_value = 0.0;
   temp_component.inertia.mass = mass;
   temp_component.inertia.inertia_tensor = inertia_tensor;
   temp_component.inertia.center_of_mass = center_of_mass;
@@ -424,6 +425,26 @@ void Manipulator::setToolValue(Name name, double tool_value)
   }
 }
 
+
+void Manipulator::setToolGoalValue(Name name, double tool_goal_value)
+{
+  if (component_.at(name).tool.id > 0)
+  {
+    if (component_.find(name) != component_.end())
+    {
+      component_.at(name).tool.goal_value = tool_goal_value;
+    }
+    else
+    {
+      //error
+    }
+  }
+  else
+  {
+    //error
+  }
+}
+
 //void Manipulator::setToolValueFromId(int8_t tool_id, double tool_value)
 //{
 //  for (it_component_ = component_.begin(); it_component_ != component_.end(); it_component_++)
@@ -647,6 +668,11 @@ double Manipulator::getToolValue(Name name)
 {
   return component_.at(name).tool.value;
 }
+double Manipulator::getToolGoalValue(Name name)
+{
+  return component_.at(name).tool.goal_value;
+}
+
 
 //double Manipulator::getToolActuatorValue(Name name)
 //{

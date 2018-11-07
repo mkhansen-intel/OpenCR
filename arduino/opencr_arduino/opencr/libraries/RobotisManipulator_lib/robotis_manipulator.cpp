@@ -555,6 +555,7 @@ std::vector<WayPoint> RobotisManipulator::receiveAllJointActuatorValue()
 
 bool RobotisManipulator::sendToolActuatorValue(Name tool_component_name, double value)
 {
+  manipulator_.setToolGoalValue(tool_component_name, value / manipulator_.getToolCoefficient(tool_component_name));
   if(using_platform_)
   {
     return tool_actuator_.at(manipulator_.getComponentActuatorName(tool_component_name))
@@ -577,6 +578,9 @@ double RobotisManipulator::receiveToolActuatorValue(Name tool_component_name)
 
 bool RobotisManipulator::sendAllToolActuatorValue(std::vector<Name> tool_component_name, std::vector<double> value_vector)
 {
+  for (int index = 0; index < tool_component_name.size(); index++)
+    manipulator_.setToolGoalValue(tool_component_name.at(index), value_vector.at(index) / manipulator_.getToolCoefficient(tool_component_name.at(index)));
+
   if(using_platform_)
   {
     for (int index = 0; index < tool_component_name.size(); index++)
@@ -596,6 +600,7 @@ std::vector<double> RobotisManipulator::receiveAllToolActuatorValue(std::vector<
     for (int index = 0; index < tool_component_name.size(); index++)
     {
       result = tool_actuator_.at(manipulator_.getComponentActuatorName(tool_component_name.at(index)))->receiveToolActuatorValue() * manipulator_.getToolCoefficient(tool_component_name.at(index));
+      manipulator_.setToolValue(tool_component_name.at(index), result);
       result_vector.push_back(result);
     }
     return result_vector;
@@ -1175,9 +1180,11 @@ std::vector<WayPoint> RobotisManipulator::trajectoryControllerLoop(double presen
 
 void RobotisManipulator::toolMove(Name tool_name, double tool_value)
 {
+  manipulator_.setToolGoalValue(tool_name, tool_value);
   if(using_platform_)
   {
-    tool_actuator_.at(manipulator_.getComponentActuatorName(tool_name))->sendToolActuatorValue(tool_value);
+    tool_actuator_.at(manipulator_.getComponentActuatorName(tool_name))
+        ->sendToolActuatorValue(tool_value );
   }
 }
 
