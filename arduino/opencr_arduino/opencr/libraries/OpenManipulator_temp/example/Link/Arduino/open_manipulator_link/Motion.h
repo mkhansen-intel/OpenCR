@@ -19,7 +19,7 @@
 #ifndef MOTION_H_
 #define MOTION_H_
 
-#include "Link.h"
+#include <om_link_lib.h>
 
 //////////////////Motion num////////////////
 #define MAX_MOTION_NUM 102
@@ -28,11 +28,12 @@
 //////////////////////fleg///////////////////
 bool motion    = false;
 bool repeat    = true;
+bool IK_motion = true;
 ////////////////////////////////////////////
 
 ///////////////////storage//////////////////
-float motion_storage[MAX_MOTION_NUM][5] = {0.0, };
-const float initial_motion_set[56][5] = { // time, joint1, joint2, joint3, grip
+double motion_storage[MAX_MOTION_NUM][5] = {0.0, };
+const double initial_motion_set[56][5] = { // time, joint1, joint2, joint3, grip
 ////////////////////////////////////STEP1///////////////////////////////////////////
                                                 { 2.0,  1.04, -1.99, -2.87,  0.0},    //move
                                                 { 1.0,  1.04, -1.74, -2.39,  0.0},    //down
@@ -104,7 +105,7 @@ const float initial_motion_set[56][5] = { // time, joint1, joint2, joint3, grip
                                                 { 1.0, -0.15, -1.71, -2.80,  0.0}  
 /////////////////////////////////////////////////////////////////////////////////////
                                                 };
-const float initial_IKmotion_set[MAX_MOTION_NUM][5] = { // time, x, y, z, suction
+const double initial_IKmotion_set[MAX_MOTION_NUM][5] = { // time, x, y, z, suction
 ////////////////////////////////////STEP1///////////////////////////////////////////
                                                 { 1.0, -0.165,  0.125,  0.180,  0.000},    //move
                                                 { 1.0, -0.165,  0.125,  0.090,  0.000},    //down
@@ -241,11 +242,11 @@ uint8_t motion_cnt = 0;
 uint8_t filled_motion_num = MAX_MOTION_NUM;
 ////////////////////////////////////////////
 
-void setMotion()
+void setMotion(OM_LINK* omlink)
 {
   if (motion)
   {
-    if (omlink.moving())///////////////////////////
+    if (omlink->isMoving())///////////////////////////
     {
       return;
     }
@@ -266,18 +267,16 @@ void setMotion()
         }
       }
       
-      static std::vector <float> target_angle;
+      static std::vector<double> target_angle;
       if (motion_storage[motion_cnt][4] == 1.0)
       {
-        digitalWrite(RELAY_PIN, HIGH);      //suction on
-        omlink.jointMove(target_angle, motion_storage[motion_cnt][0]);         
-        motion_cnt++;
+        omlink->toolMove(SUCTION, 1.0);   //suction on
+        omlink->jointTrajectoryMove(target_angle, motion_storage[motion_cnt][0]);         
       }
       else if (motion_storage[motion_cnt][4] == -1.0)
       {
-        digitalWrite(RELAY_PIN, LOW);      //suction off
-        omlink.jointMove(target_angle, motion_storage[motion_cnt][0]);   
-        motion_cnt++;
+        omlink->toolMove(SUCTION, -1.0);     //suction off
+        omlink->jointTrajectoryMove(target_angle, motion_storage[motion_cnt][0]);   
       }
       else
       {
@@ -286,9 +285,9 @@ void setMotion()
         {
           target_angle.push_back(motion_storage[motion_cnt][i]);
         }
-        omlink.jointMove(target_angle, motion_storage[motion_cnt][0]);   
-        motion_cnt++;
+        omlink->jointTrajectoryMove(target_angle, motion_storage[motion_cnt][0]);   
       }
+      motion_cnt++;
 ////////////////////////MOTION SETTING////////////////////////////// 
     }
   }
@@ -298,12 +297,12 @@ void setMotion()
   }
 }
 
-void motionStart()
+void motionStart(OM_LINK* omlink)
 {
   if(IK_motion)
   {
     Pose target_pose;
-    std::vector <float> target_motion_angle;
+    std::vector <double> target_motion_angle;
 
     for (uint8_t i = 0; i < MAX_MOTION_NUM; i++)
     {
@@ -313,19 +312,12 @@ void motionStart()
       for(uint8_t j = 0; j < 3; j++)
         target_pose.position(j) = initial_IKmotion_set[i][j+1];
 
-      target_motion_angle = omlink.inverse(SUCTION, target_pose);
+      target_motion_angle = omlink->inverse(SUCTION, target_pose);
 
       for(uint8_t j = 0; j < 3; j++)
       {
         motion_storage[i][j+1] = target_motion_angle.at(j);
-#ifdef DEBUGING
-        DEBUG.print(motion_storage[i][j+1]);
-        DEBUG.print(", ");
-#endif
       }
-#ifdef DEBUGING
-      DEBUG.println();
-#endif
     }
     filled_motion_num = MAX_MOTION_NUM;  
     motion_cnt = 0;          

@@ -28,8 +28,6 @@
 
 #include "robotis_manipulator_manager.h"
 
-#define PI 3.141592
-
 namespace ROBOTIS_MANIPULATOR
 {
 class MinimumJerk

@@ -19,12 +19,62 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include "om_link.h"
+#include <om_link_lib.h>
 #include "Motion.h"
+
+//////////////////Move step/////////////////
+#define MOVESTEP 0.01
+////////////////////////////////////////////
+//////////////////Move time/////////////////
+#define MOVETIME 1.0
+////////////////////////////////////////////
+//////////////////cmd param/////////////////
+String global_cmd[50];
+////////////////////////////////////////////
+
+
+////////////////////////////send////////////////////////////////////
+void sendAngle2Processing(std::vector<double> joint_angle_vector)
+{
+  Serial.print("angle");
+
+  for (int i = 0; i < joint_angle_vector.size(); i++)
+  {
+    Serial.print(",");
+    Serial.print(joint_angle_vector.at(i));
+  }
+  Serial.print("\n");
+}
+
+void sendToolData2Processing(bool onoff)
+{
+  Serial.print("tool");
+  Serial.print(",");
+  Serial.print(onoff);
+  Serial.print("\n");
+}
+
+void sendToolData2Processing(double value)
+{
+  Serial.print("tool");
+  Serial.print(",");
+  Serial.print(value);
+  Serial.print("\n");
+}
+////////////////////////////////////////////////////////////////////
 
 void connectProcessing()
 {
-  omlink.connectProcessing(12);
+  for (int i = 0; i < 5; i++)
+  {
+    Serial.print(0.0);
+    Serial.print(",");
+  }
+
+  Serial.println(0.0);
+  delay(300);
+
+  Serial.println("Init Processing");
 }
 
 int availableProcessing()
@@ -37,301 +87,155 @@ String readProcessingData()
   return Serial.readStringUntil('\n');
 }
 
-void fromProcessing(String data)
+void split(String data, char separator, String* temp)
 {
-  String *cmd = omlink.parseDataFromProcessing(data);
+  int cnt = 0;
+  int get_index = 0;
+
+  String copy = data;
+  
+  while(true)
+  {
+    get_index = copy.indexOf(separator);
+
+	if(-1 != get_index)
+	{
+	  temp[cnt] = copy.substring(0, get_index);
+  	  copy = copy.substring(get_index + 1);
+	}
+	else
+	{
+      temp[cnt] = copy.substring(0, copy.length());
+	  break;
+	}
+	  ++cnt;
+  }
+}
+
+String* parseDataFromProcessing(String get)
+{
+  get.trim();
+  split(get, ',', global_cmd);
+  
+  return global_cmd;
+}
+
+void fromProcessing(OM_LINK *omlink, String data)
+{
+  String *cmd = parseDataFromProcessing(data);
 
 ////////////////////////Manipulator OnOff//////////////////////////
   if (cmd[0] == "om")
   {
-#ifdef DEBUGING
-    DEBUG.print("om-");
-#endif
     if (cmd[1] == "ready")
     {
-#ifdef PLATFORM
-      omlink.actuatorEnable();
-      omlink.sendAngleToProcessing(omlink.getAllActiveJointAngle());  
-#endif
-#ifdef DEBUGING
-    DEBUG.print("ready");
-#endif
+      if(omlink->getPlatformFlag())
+      {
+        omlink->allActuatorEnable();
+        sendAngle2Processing(omlink->getManipulator()->getAllActiveJointValue());
+        sendToolData2Processing(omlink->getManipulator()->getToolValue(SUCTION));
+      }
     }
     else if (cmd[1] == "end")
     {
-#ifdef PLATFORM
-      omlink.actuatorDisable();  
-#endif
-#ifdef DEBUGING
-    DEBUG.print("end");
-#endif
+      if(omlink->getPlatformFlag())
+      {
+        omlink->allActuatorDisable();
+      }
     }
-#ifdef DEBUGING
-    DEBUG.println();
-#endif
   }
 ////////////////////////////////////////////////////////////////////
 /////////////////////////////Joint Move/////////////////////////////
   else if (cmd[0] == "joint")
   {
-#ifdef DEBUGING
-    DEBUG.print("joint-");
-#endif
-    std::vector<float> target_angle;
+    std::vector<double> goal_position;
 
-    for (uint8_t i = 0; i < 3; i++)
+    for (int8_t index = 0; index < omlink->getManipulator()->getDOF(); index++)
     {
-      target_angle.push_back(cmd[i+1].toFloat());
+      goal_position.push_back((double)cmd[index + 1].toFloat());
     }
 
-#ifdef DEBUGING
-    for (uint8_t i = 0; i < 3; i++)
-    {
-      DEBUG.print(target_angle.at(i));
-      DEBUG.print(" , ");
-    }
-#endif
-    omlink.jointMove(target_angle, MOVETIME);
-    target_angle.clear();
-#ifdef DEBUGING
-    DEBUG.println(" ");
-#endif
+    omlink->jointTrajectoryMove(goal_position, MOVETIME); // FIX TIME PARAM
   }
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////Suction OnOff///////////////////////////
   else if (cmd[0] == "suction")
   {
-#ifdef DEBUGING
-    DEBUG.print("suction-");
-#endif
     if (cmd[1] == "on")
     {
-      suctionOn();
-#ifdef DEBUGING
-      DEBUG.print("on");
-      DEBUG.println();
-#endif
+      omlink->toolMove(SUCTION, 1.0);
     }
     else if (cmd[1] == "off")
     {
-      suctionOff();
-#ifdef DEBUGING
-      DEBUG.print("off");
-      DEBUG.println();
-#endif
+      omlink->toolMove(SUCTION, -1.0);
     }
   }
 ////////////////////////////////////////////////////////////////////
 /////////////////////////////Task move//////////////////////////////
   else if (cmd[0] == "task")
   {
-#ifdef DEBUGING
-    DEBUG.print("task-");
-#endif
     Pose target_pose;
-    std::vector<float> target_angle;
+    std::vector<double> target_angle;
 
     if (cmd[1] == "forward")
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(MOVESTEP, 0.0, 0.0), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(MOVESTEP, 0.0, 0.0), MOVETIME);
     }  
     else if (cmd[1] == "back")
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(-MOVESTEP, 0.0, 0.0), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(-MOVESTEP, 0.0, 0.0), MOVETIME);
     }
     else if (cmd[1] == "left")
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, MOVESTEP, 0.0), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, MOVESTEP, 0.0), MOVETIME);
     }
     else if (cmd[1] == "right")
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, -MOVESTEP, 0.0), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, -MOVESTEP, 0.0), MOVETIME);
     }
     else if (cmd[1] == "up")
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, 0.0, MOVESTEP), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, 0.0, MOVESTEP), MOVETIME);
     }
     else if (cmd[1] == "down")
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, 0.0, -MOVESTEP), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, 0.0, -MOVESTEP), MOVETIME);
     }
     else
     {
-      omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, 0.0, 0.0), MOVETIME);
+      omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, 0.0, 0.0), MOVETIME);
     }
-    
-#ifdef DEBUGING
-    DEBUG.print(cmd[1]);
-    DEBUG.println(" ");
-#endif
-#ifdef DEBUGING
-    DEBUG.print(cmd[1]);
-    DEBUG.println(" ");
-#endif
   }
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////Motor onOff/////////////////////////////
   else if (cmd[0] == "motor")
   {
-#ifdef DEBUGING
-    DEBUG.print("motor-");
-#endif
-#ifdef PLATFORM
-    if (cmd[1] == "enable")
+    if(omlink->getPlatformFlag())
+    {
+      if (cmd[1] == "enable")
       {
-        omlink.actuatorEnable();
-#ifdef DEBUGING
-        DEBUG.print("enable");
-#endif
+        omlink->allActuatorEnable();
       }
       else if (cmd[1] == "disable")
       {
-        omlink.actuatorDisable();
-#ifdef DEBUGING
-        DEBUG.print("disable");
-#endif
+        omlink->allActuatorEnable();
       }
-#endif
-    DEBUG.println(" ");
+    }
   }
-////////////////////////////////////////////////////////////////////
-/////////////////////////////teaching///////////////////////////////
-  // else if (cmd[0] == "get")
-  // {
-  //   DEBUG.print("get-");
-  //   if (cmd[1] == "on")
-  //   {
-  //     DEBUG.print("suction on");
-  //     DEBUG.println(" ");
-  //     motion_storage[filled_motion_num][0] = MOVE_TIME;  //mov_time
-  //     motion_storage[filled_motion_num][4] = -1.0;
-  //     for (uint8_t j = 1; j < 4; j++)
-  //     {
-  //       motion_storage[filled_motion_num][j] = 0.0;
-  //     }
-  //     filled_motion_num++;
-  //   }
-  //   else if (cmd[1] == "off")
-  //   {
-  //     DEBUG.print("suction off");
-  //     DEBUG.println(" ");
-  //     motion_storage[filled_motion_num][0] = MOVE_TIME;  //mov_time
-  //     motion_storage[filled_motion_num][4] = 1.0;
-  //     for (uint8_t j = 1; j < 4; j++)
-  //     {
-  //       motion_storage[filled_motion_num][j] = 0.0;
-  //     }
-  //     filled_motion_num++;
-  //   }
-  //   else if (cmd[1] == "clear")
-  //   {
-  //     DEBUG.print("clear");
-  //     DEBUG.println(" ");
-  //     for (uint8_t i = 0; i < MAX_MOTION_NUM; i++)
-  //     {
-  //       for (uint8_t j = 0; j < 5; j++)
-  //       {
-  //         motion_storage[i][j] = 0.0;
-  //       }
-  //     }
-      
-  //     filled_motion_num = 0;
-  //     motion_cnt = 0;
-  //     motion     = false;
-  //     repeat     = false;
-  //   }
-  //   else if (cmd[1] == "pose")
-  //   {
-  //     DEBUG.print("pose");
-  //     DEBUG.println(" ");
-  //     if (cmd[2].toInt() < MAX_MOTION_NUM)
-  //     {
-  //       std::vector<float> target_angle = manipulator.getAllActiveJointAngle(OMLINK);
-
-  //       motion_storage[filled_motion_num][0]   = MOVE_TIME;  //mov_time
-  //       for (uint8_t i = 0; i < 3; i++)
-  //       {
-  //         motion_storage[filled_motion_num][i+1] = target_angle.at(i);
-  //       }
-  //       motion_storage[filled_motion_num][4] = 0.0;
-  //       filled_motion_num++;
-  //     }
-  //   }
-  // }
-////////////////////////////////////////////////////////////////////
-//////////////////////////teaching move/////////////////////////////
-  // else if (cmd[0] == "hand")
-  // {
-  //   DEBUG.print("hand-");
-  //   if (cmd[1] == "once")
-  //   {
-  //     DEBUG.print("once");
-  //     DEBUG.println(" ");
-  //     if (DYNAMIXEL)
-  //     {
-  //       manipulator.actuatorEnable();
-  //       //PROCESSING::sendAngle2Processing(manipulator.getAllJointAngle(OMLINK)); 
-  //     }
-
-  //     motion_cnt = 0;
-  //     motion = true;
-  //     repeat = false;
-  //   }
-  //   else if (cmd[1] == "repeat")
-  //   {
-  //     DEBUG.print("repeat");
-  //     DEBUG.println(" ");
-  //     if (DYNAMIXEL)
-  //     {
-  //       manipulator.actuatorEnable();
-  //       //PROCESSING::sendAngle2Processing(manipulator.getAllJointAngle(OMLINK)); 
-  //     }
-
-  //     motion_cnt = 0;
-  //     motion = true;
-  //     repeat = true;
-  //   }
-  //   else if (cmd[1] == "stop")
-  //   {
-  //     DEBUG.print("stop");
-  //     DEBUG.println(" ");
-  //     for (uint8_t i = 0; i < MAX_MOTION_NUM; i++)
-  //     {
-  //       for (uint8_t j = 0; j < 5; j++)
-  //       {
-  //         motion_storage[i][j] = 0.0;
-  //       }
-  //     }
-  //     motion_cnt = 0;
-  //     motion     = false;
-  //     repeat     = false;
-  //   }
-  // }
 ////////////////////////////////////////////////////////////////////
 ///////////////////////////motion move//////////////////////////////
   else if (cmd[0] == "motion")
   {
-#ifdef DEBUGING
-    DEBUG.print("motion-");
-#endif  
     if (cmd[1] == "start")
     {
-#ifdef DEBUGING
-      DEBUG.print("start");
-#endif
-      motionStart();
+      motionStart(omlink);
     }
     else if (cmd[1] == "stop")
     {
-#ifdef DEBUGING
-      DEBUG.print("stop");
-#endif  
       motionStop();
     }
-#ifdef DEBUGING
-    DEBUG.println(" ");
-#endif   
   }
-}
 ////////////////////////////////////////////////////////////////////
+}
+
 #endif

@@ -21,8 +21,11 @@ OM_LINK::OM_LINK()
 OM_LINK::~OM_LINK()
 {}
 
-void OM_LINK::initManipulator()
+void OM_LINK::initManipulator(bool using_platform, bool using_processing)
 {
+  platform_ = using_platform;
+  processing_ = using_processing;
+
   ////////// manipulator parameter initialization
   addWorld(WORLD, JOINT0);
   addComponent(JOINT0, WORLD, JOINT1,
@@ -91,16 +94,16 @@ void OM_LINK::initManipulator()
   actuator_ = new OM_DYNAMIXEL::JointDynamixel();
   String dxl_comm_arg = "1000000";
   void *p_dxl_comm_arg = &dxl_comm_arg;
-  addJointActuator(JOINT_DYNAMIXEL, actuator_, getAllActiveJointID(), p_dxl_comm_arg);
+  addJointActuator(JOINT_DYNAMIXEL, actuator_, getManipulator()->getAllActiveJointID(), p_dxl_comm_arg);
   String joint_dxl_mode_arg = "position_mode";
   void *p_joint_dxl_mode_arg = &joint_dxl_mode_arg;
-  jointActuatorSetMode(JOINT_DYNAMIXEL, getAllActiveJointID(), p_joint_dxl_mode_arg);
+  jointActuatorSetMode(JOINT_DYNAMIXEL, getManipulator()->getAllActiveJointID(), p_joint_dxl_mode_arg);
 
   ////////// tool actuator init.
   tool_ = new SuctionModule();
   uint8_t suc_pin_arg = RELAY_PIN;
   void *p_suc_pin_arg = &suc_pin_arg;
-  addToolActuator(SUCTION_MODULE, tool_, getToolId(SUCTION), p_suc_pin_arg);
+  addToolActuator(SUCTION_MODULE, tool_, getManipulator()->getToolId(SUCTION), p_suc_pin_arg);
 
   ////////// drawing path init
   addDrawingTrajectory(DRAWING_LINE, &line_);
@@ -108,9 +111,8 @@ void OM_LINK::initManipulator()
   addDrawingTrajectory(DRAWING_RHOMBUS, &rhombus_);
   addDrawingTrajectory(DRAWING_HEART, &heart_);
 
-
   // all actuator enable
-  allActuatorEnable();
+  //allActuatorEnable();
 
   ////////// manipulator trajectory & control time initialization
   receiveAllJointActuatorValue();
@@ -122,9 +124,27 @@ void OM_LINK::initManipulator()
 
 void OM_LINK::Process(double present_time)
 {
-  receiveAllJointActuatorValue();
-  forward();
-  trajectoryControllerLoop(present_time);
+  std::vector<WayPoint> goal_value = trajectoryControllerLoop(present_time);
+
+  if(platform_)
+  {
+    receiveAllJointActuatorValue();
+    if(goal_value.size() != 0)  sendAllJointActuatorValue(goal_value);
+    forward();
+  }
+  else
+  {
+    if(goal_value.size() != 0) setAllActiveJointValue(goal_value); // visualization
+    forward();
+  } 
 }
 
+bool getPlatformFlag()
+{
+  return platform_;
+}
 
+bool getProcessingFlag()
+{
+  return processing_;
+}

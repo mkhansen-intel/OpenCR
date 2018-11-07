@@ -19,8 +19,9 @@
 #ifndef REMOTE_CONTROLLER_H_
 #define REMOTE_CONTROLLER_H_
 
-#include "Link.h"
+#include <om_link_lib.h>
 #include <RC100.h>
+#include "Motion.h"
 
 RC100 rc100;
 
@@ -39,31 +40,31 @@ uint16_t readRC100Data()
   return rc100.readData();
 }
 
-void fromRC100(uint16_t data)
+void fromRC100(OM_LINK* omlink, int16_t data)
 {
   if (data & RC100_BTN_U)
-    omlink.setMove(SUCTION, OM_MATH::makeVector3(MOVESTEP, 0.0, 0.0), MOVETIME);
+    omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(MOVESTEP, 0.0, 0.0), MOVETIME);
   else if (data & RC100_BTN_D)
-    omlink.setMove(SUCTION, OM_MATH::makeVector3(-MOVESTEP, 0.0, 0.0), MOVETIME);
+    omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(-MOVESTEP, 0.0, 0.0), MOVETIME);
   else if (data & RC100_BTN_L)
-    omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, MOVESTEP, 0.0), MOVETIME);
+    omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, MOVESTEP, 0.0), MOVETIME);
   else if (data & RC100_BTN_R)
-    omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, -MOVESTEP, 0.0), MOVETIME);
+    omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, -MOVESTEP, 0.0), MOVETIME);
   else if (data & RC100_BTN_1)
-    omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, 0.0, MOVESTEP), MOVETIME);
+    omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, 0.0, MOVESTEP), MOVETIME);
   else if (data & RC100_BTN_3)
-    omlink.setMove(SUCTION, OM_MATH::makeVector3(0.0, 0.0, -MOVESTEP), MOVETIME);
+    omlink->taskTrajectoryMoveToPresentPosition(SUCTION, RM_MATH::makeVector3(0.0, 0.0, -MOVESTEP), MOVETIME);
   else if (data & RC100_BTN_2)
   {
-    suctionOn();
+    omlink->toolMove(SUCTION, 1.0);
   }
   else if (data & RC100_BTN_4)
   {
-    suctionOff();
+    omlink->toolMove(SUCTION, -1.0);
   }
   else if (data & RC100_BTN_5)
   {
-    motionStart();
+    motionStart(omlink);
   }
   else if (data & RC100_BTN_6)
   {

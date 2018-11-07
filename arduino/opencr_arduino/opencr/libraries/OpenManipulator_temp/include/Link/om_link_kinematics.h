@@ -28,7 +28,6 @@
 #include <robotis_manipulator_manager.h>
 #include <robotis_manipulator.h>
 
-#define PI 3.141592
 
 using namespace ROBOTIS_MANIPULATOR;
 

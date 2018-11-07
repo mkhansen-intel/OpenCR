@@ -44,14 +44,6 @@
 #define SUCTION   12
 ////////////////////////////////////////////
 
-//////////////////Move step/////////////////
-#define MOVESTEP 0.01
-////////////////////////////////////////////
-
-//////////////////Move time/////////////////
-#define MOVETIME 1.0
-////////////////////////////////////////////
-
 //////////////////Actuator//////////////////
 #define JOINT_DYNAMIXEL 0
 #define SUCTION_MODULE 1
@@ -93,8 +85,10 @@ class OM_LINK : public ROBOTIS_MANIPULATOR::RobotisManipulator
   OM_LINK();
   virtual ~OM_LINK();
 
-  void initManipulator();
+  void initManipulator(bool using_platform, bool using_processing);
   void Process(double present_time);
+  bool getPlatformFlag();
+  bool getProcessingFlag();  
 };
 
 #endif //OM_LINK_H_
