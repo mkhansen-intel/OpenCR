@@ -22,7 +22,7 @@ void SuctionModule::init(uint8_t actuator_id, const void *arg)
   id_ = actuator_id;
    
   uint8_t *get_arg = (uint8_t *)arg;
-  relay_pin_ = &get_arg;
+  relay_pin_ = get_arg[0];
 
   suctionInit();
 }

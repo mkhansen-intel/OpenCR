@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef OM_CHAIN_KINEMATICS_H_
-#define OM_CHAIN_KINEMATICS_H_
+#ifndef OM_LINK_KINEMATICS_H_
+#define OM_LINK_KINEMATICS_H_
 
 #include <Eigen.h>
 #include <Eigen/LU>

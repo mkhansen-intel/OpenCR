@@ -139,12 +139,12 @@ void OM_LINK::Process(double present_time)
   } 
 }
 
-bool getPlatformFlag()
+bool OM_LINK::getPlatformFlag()
 {
   return platform_;
 }
 
-bool getProcessingFlag()
+bool OM_LINK::getProcessingFlag()
 {
   return processing_;
 }

@@ -20,8 +20,9 @@
 #define OM_LINK_H_
 
 // Necessary library
-#include <robotis_manipulator.h>
+// #include <robotis_manipulator.h>
 #include <om_link_lib.h>
+#include <RTOS.h>
 // User-defined library
 
 /////////////control time set////////////////

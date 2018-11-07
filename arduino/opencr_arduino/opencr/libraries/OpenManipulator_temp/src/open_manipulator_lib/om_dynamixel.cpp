@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "../../include/Link/om_link_dynamixel.h"
+#include "../../include/open_manipulator_lib/om_dynamixel.h"
 
 using namespace OM_DYNAMIXEL;
 
@@ -36,6 +36,7 @@ void JointDynamixel::setMode(std::vector<uint8_t> actuator_id, const void *arg)
   if (get_arg_[0] == "position_mode" || get_arg_[0] == "current_based_position_mode")
   {
     result = JointDynamixel::setOperatingMode(actuator_id, get_arg_[0]);
+    result = JointDynamixel::setSDKHandler(actuator_id.at(0));
     if (result == false)
       return;
   }
@@ -45,10 +46,6 @@ void JointDynamixel::setMode(std::vector<uint8_t> actuator_id, const void *arg)
     if (result == false)
       return;
   }
-
-  result = JointDynamixel::setSDKHandler(actuator_id.at(0));
-  if (result == false)
-    return;
 }
 
 std::vector<uint8_t> JointDynamixel::getId()
@@ -276,6 +273,7 @@ void GripperDynamixel::setMode(const void *arg)
   if (get_arg_[0] == "position_mode" || get_arg_[0] == "current_based_position_mode")
   {
     result = GripperDynamixel::setOperatingMode(get_arg_[0]);
+    result = GripperDynamixel::setSDKHandler();
     if (result == false)
       return;
   }
@@ -285,10 +283,6 @@ void GripperDynamixel::setMode(const void *arg)
     if (result == false)
       return;
   }
-
-  result = GripperDynamixel::setSDKHandler();
-  if (result == false)
-    return;
 }
 
 uint8_t GripperDynamixel::getId()

@@ -86,7 +86,7 @@ void Link::solveKinematicsSinglePoint(Manipulator *manipulator, Name component_n
 
   parent_pose = manipulator->getComponentPoseToWorld(manipulator->getComponentParentName(component_name));
   link_relative_pose = manipulator->getComponentRelativePoseToParent(component_name);
-  rodrigues_rotation_matrix = RM_MATH::rodriguesRotationMatrix(manipulator->getComponentJointAxis(component_name), manipulator->getComponentJointAngle(component_name));
+  rodrigues_rotation_matrix = RM_MATH::rodriguesRotationMatrix(manipulator->getJointAxis(component_name), manipulator->getJointValue(component_name));
 
   result_pose.position = parent_pose.position + parent_pose.orientation * link_relative_pose.position;
   result_pose.orientation = parent_pose.orientation * link_relative_pose.orientation * rodrigues_rotation_matrix;

@@ -14,10 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "../../include/Chain/om_chain_drawing.h"
+#include "../../include/open_manipulator_lib/om_drawing.h"
 
 using namespace OM_DRAWING;
 using namespace Eigen;
+
+#define PI 3.141592
 
 //-------------------- Line --------------------//
 

@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef OM_CHAIN_HPP_
-#define OM_CHAIN_HPP_
+#ifndef OM_CHAIN_H_
+#define OM_CHAIN_H_
 
 #include <om_chain_lib.h>
 #include <RTOS.h>

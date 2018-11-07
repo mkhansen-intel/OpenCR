@@ -21,9 +21,9 @@
 
 #include <robotis_manipulator.h>
 #include <robotis_manipulator_common.h>
-
+#include "Arduino.h"
 // #include <iostream>
-#include <cstdio>
+// #include <cstdio>
 
 class SuctionModule : public ROBOTIS_MANIPULATOR::ToolActuator
 {

@@ -16,8 +16,8 @@
 
 /* Authors: Darby Lim, Hye-Jong KIM */
 
-#ifndef OM_CHAIN_DEBUG_H_
-#define OM_CHAIN_DEBUG_H_
+#ifndef OM_DEBUG_H_
+#define OM_DEBUG_H_
 
 #include <Eigen.h>
 #include <WString.h>

@@ -53,7 +53,7 @@ void loop()
   setMotion(&omlink);
 
   //Control
-  if(present_time-previous_time[20] >= ACTUATOR_CONTROL_TIME)
+  if(present_time-previous_time[0] >= ACTUATOR_CONTROL_TIME)
   {
     omlink.Process((double)(millis()/1000.0));
     sendAngle2Processing(omlink.getManipulator()->getAllActiveJointValue());
