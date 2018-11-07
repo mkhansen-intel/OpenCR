@@ -71,18 +71,50 @@ void fromProcessing(String data)
   else if (cmd[0] == "task")
   {
     if (cmd[1] == "f")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.010f, 0.000f, 0.0), 1.0);
+      stewart.setMove(TOOL, OM_MATH::makeVector3(0.020f, 0.000f, 0.0), 1.0);
     else if (cmd[1] == "b")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(-0.010f, 0.000f, 0.0), 1.0);
+      stewart.setMove(TOOL, OM_MATH::makeVector3(-0.020f, 0.000f, 0.0), 1.0);
     else if (cmd[1] == "l")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.010f, 0.0), 1.0);
+      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.020f, 0.0), 1.0);
     else if (cmd[1] == "r")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.010f, 0.0), 1.0);
+      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, -0.020f, 0.0), 1.0);
     else if (cmd[1] == "u")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, 0.010f), 1.0);
+      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, 0.020f), 1.0);
     else if (cmd[1] == "d")
-      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, -0.010f), 1.0);
-    else if (cmd[1] == "roti"){
+      stewart.setMove(TOOL, OM_MATH::makeVector3(0.000f, 0.0, -0.020f), 1.0);
+    else if (cmd[1] == "rotx"){
+      Pose target_pose;
+      target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
+      target_pose.orientation = OM_MATH::makeMatrix3(1.0f,         0.0f,           0.0f,
+                                                     0.0f,  cos(PI/12.0),   -sin(PI/12.0),
+                                                     0.0f,  sin(PI/12.0),    cos(PI/12.0));
+      stewart.setPose(TOOL, target_pose, 1.0);
+    }
+    else if (cmd[1] == "rotxi"){
+      Pose target_pose;
+      target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
+      target_pose.orientation = OM_MATH::makeMatrix3(1.0f,         0.0f,           0.0f,
+                                                     0.0f, cos(-PI/12.0),  -sin(-PI/12.0),
+                                                     0.0f, sin(-PI/12.0),   cos(-PI/12.0));
+      stewart.setPose(TOOL, target_pose, 1.0);
+    }
+    else if (cmd[1] == "roty"){
+      Pose target_pose;
+      target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
+      target_pose.orientation = OM_MATH::makeMatrix3( cos(PI/18.0),   0.0f,   sin(PI/18.0),
+                                                             0.0f,    1.0f,           0.0f,
+                                                     -sin(PI/18.0),   0.0f,   cos(PI/18.0));
+      stewart.setPose(TOOL, target_pose, 1.0);
+    }
+    else if (cmd[1] == "rotyi"){
+      Pose target_pose;
+      target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
+      target_pose.orientation = OM_MATH::makeMatrix3( cos(-PI/18.0),  0.0f,  sin(-PI/18.0),
+                                                               0.0f,  1.0f,           0.0f,
+                                                     -sin(-PI/18.0),  0.0f,  cos(-PI/18.0));
+      stewart.setPose(TOOL, target_pose, 1.0);
+    }
+    else if (cmd[1] == "rotz"){
       Pose target_pose;
       target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
       target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/6.0),  -sin(PI/6.0),   0.0f,
@@ -90,11 +122,11 @@ void fromProcessing(String data)
                                                      0.0f,          0.0f,          1.0f);
       stewart.setPose(TOOL, target_pose, 1.0);
     }
-    else if (cmd[1] == "rot"){
+    else if (cmd[1] == "rotzi"){
       Pose target_pose;
       target_pose.position = OM_MATH::makeVector3(0.000f, 0.0, 0.000f);
-      target_pose.orientation = OM_MATH::makeMatrix3(cos(PI/4.0),  -sin(-PI/4.0),  0.0f,
-                                                     sin(-PI/4.0),  cos(PI/4.0),   0.0f,
+      target_pose.orientation = OM_MATH::makeMatrix3(cos(-PI/6.0), -sin(-PI/6.0),  0.0f,
+                                                     sin(-PI/6.0),  cos(-PI/6.0),  0.0f,
                                                      0.0f,          0.0f,          1.0f);
       stewart.setPose(TOOL, target_pose, 1.0);
     }

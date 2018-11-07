@@ -1021,40 +1021,40 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
   Matrix3f goal_orientation;
 
   // Link Lengths
-  link[0] = 0.030f;    // modified the values
-  link[1] = 0.110f;   // modified the values
+  link[0] = 0.025f;    // modified the values
+  link[1] = 0.121f;   // modified the values
 
   // Start pose for each set of two joints
   for (int i=0; i<6; i++){
     if (i%2 == 0) {
       start_x[i] = cos(PI*2.0/3.0*(i/2) - 0.436)*(-0.080f);  // modified the values
-      start_y[i] = sin(PI*2.0/3.0*(i/2) - 0.436)*(-0.080f); // modified the values
+      start_y[i] = sin(PI*2.0/3.0*(i/2) - 0.436)*(-0.080f);  // modified the values
     } 
     else {
       start_x[i] = cos(PI*2.0/3.0*(i/2) + 0.436)*(-0.080f);  // modified the values
-      start_y[i] = sin(PI*2.0/3.0*(i/2) + 0.436)*(-0.080f); // modified the values
+      start_y[i] = sin(PI*2.0/3.0*(i/2) + 0.436)*(-0.080f);  // modified the values
     }
-    start_z[i] = -0.100; // modified the values
+    start_z[i] = -0.110; // modified the values
   }  
 
   // Goal pose for each set of two joints
   for (int i=0; i<6; i++){
     if (i%2 == 0) {
-      temp_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) - 0.136)*(-0.07825f);
-      temp_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) - 0.136)*(-0.07825f);
+      temp_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) - 0.911)*(-0.078f);
+      temp_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) - 0.911)*(-0.078f);
     } 
     else {
-      temp_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) + 0.136)*(-0.07825f);
-      temp_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) + 0.136)*(-0.07825f);
+      temp_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*(i/2) + 0.911)*(-0.078f);
+      temp_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*(i/2) + 0.911)*(-0.078f);
     }
     temp_z[i] = target_pose.position(2);
   }
 
   // Goal Pose for each set of two joints after tool rotation
   goal_orientation = target_pose.orientation;
-  if (goal_orientation(0,0) || goal_orientation(0,1) || goal_orientation(0,2)
-   || goal_orientation(1,1) || goal_orientation(1,1) || goal_orientation(1,1)
-   || goal_orientation(2,1) || goal_orientation(2,1) || goal_orientation(2,1))
+  if (goal_orientation(0,0) && goal_orientation(0,1) && goal_orientation(0,2)
+   && goal_orientation(1,0) && goal_orientation(1,1) && goal_orientation(1,2)
+   && goal_orientation(2,0) && goal_orientation(2,1) && goal_orientation(2,2))
   {
     goal_orientation(0,0) = 1;
     goal_orientation(1,1) = 1;
@@ -1063,7 +1063,8 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
   for (int i=0; i<6; i++){
     target_x[i] = goal_orientation(0,0)*temp_x[i] + goal_orientation(0,1)*temp_y[i] + goal_orientation(0,2)*temp_z[i];
     target_y[i] = goal_orientation(1,0)*temp_x[i] + goal_orientation(1,1)*temp_y[i] + goal_orientation(1,2)*temp_z[i];
-    target_z[i] = goal_orientation(2,0)*temp_x[i] + goal_orientation(1,1)*temp_y[i] + goal_orientation(2,2)*temp_z[i];
+    target_z[i] = goal_orientation(2,0)*temp_x[i] + goal_orientation(2,1)*temp_y[i] + goal_orientation(2,2)*temp_z[i];
+
   }
 
   // Pose difference for each set of two joints
@@ -1072,6 +1073,16 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
     diff_y[i] = target_y[i] - start_y[i];
     diff_z[i] = target_z[i] - start_z[i];
   }
+  
+  for (int i=0; i<3; i++){
+    temp[i] = diff_x[i]*cos(PI*2.0/3.0*i)+diff_y[i]*sin(PI*2.0/3.0*i);
+    temp2[i] = sqrt(temp[i]*temp[i] + diff_z[i]*diff_z[i]);
+    temp_angle[i] = acos((link[1]*link[1] - link[0]*link[0] - diff_x[i]*diff_x[i] - diff_y[i]*diff_y[i] - diff_z[i]*diff_z[i])
+                    / (2.0*link[0]*temp2[i]));
+    temp_angle2[i] = acos(temp[i] / temp2[i]);
+    target_angle[i] = +temp_angle[i] - temp_angle2[i];  
+  }
+
   for (int i=0; i<6; i++){
     if (i%2 == 0) {
       temp[i] = diff_x[i]*cos(PI*2.0/3.0*(i/2) - 0.436)+diff_y[i]*sin(PI*2.0/3.0*(i/2) - 0.436);  
@@ -1087,13 +1098,6 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
   }
 
   // Set Joint Angle 
-  Serial.println(temp[0],4);
-  Serial.println(temp2[0],4);
-  Serial.println(diff_z[0],4);
-  Serial.println(link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0], 4);
-  Serial.println((link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0])/(-2.0*link[0]*temp2[0]),4);
-  Serial.println(temp_angle[0],4);
-  Serial.println(temp_angle2[0],4);
   Serial.println(target_angle[0],4);
   Serial.println(-target_angle[1],4);
   Serial.println(target_angle[2],4);
@@ -1115,11 +1119,6 @@ std::vector<float> Stewart::geometricInverse(OM_MANAGER::Manipulator *manipulato
 
   return target_angle_vector;
 }
-
-
-
-
-
 
 // --------------- Linear below --------------- //
 
