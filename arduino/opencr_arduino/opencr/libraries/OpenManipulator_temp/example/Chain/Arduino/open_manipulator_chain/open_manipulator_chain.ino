@@ -50,7 +50,7 @@ void loop()
 if(present_time-previous_time >= CONTROL_TIME)
   {
     chain.chainProcess(millis()/1000.0);
-    //sendAngle2Processing(chain.getManipulator()->getAllActiveJointValue());
+    sendAngle2Processing(chain.getManipulator()->getAllActiveJointValue());
     previous_time = (float)(millis()/1000.0f);
   }
 }

@@ -96,7 +96,7 @@ void OM_CHAIN::initManipulator(bool using_platform)
     addJointActuator(JOINT_DYNAMIXEL, actuator_, jointDxlId, p_dxl_comm_arg);
 
     // set joint actuator control mode
-    std::string joint_dxl_mode_arg = "position_mode";
+    String joint_dxl_mode_arg = "position_mode";
     void *p_joint_dxl_mode_arg = &joint_dxl_mode_arg;
     jointActuatorSetMode(JOINT_DYNAMIXEL, jointDxlId, p_joint_dxl_mode_arg);
 
@@ -107,11 +107,11 @@ void OM_CHAIN::initManipulator(bool using_platform)
     addToolActuator(TOOL_DYNAMIXEL, tool_, gripperDxlId, p_dxl_comm_arg);
 
     // set gripper actuator control mode
-    std::string gripper_dxl_mode_arg = "current_based_position_mode";
+    String gripper_dxl_mode_arg = "current_based_position_mode";
     void *p_gripper_dxl_mode_arg = &gripper_dxl_mode_arg;
     toolActuatorSetMode(TOOL_DYNAMIXEL, p_gripper_dxl_mode_arg);
 
-    std::string gripper_dxl_opt_arg[2] = {"Profile_Velocity", "200"};
+    String gripper_dxl_opt_arg[2] = {"Profile_Velocity", "200"};
     void *p_gripper_dxl_opt_arg = &gripper_dxl_opt_arg;
     toolActuatorSetMode(TOOL_DYNAMIXEL, p_gripper_dxl_opt_arg);
 
