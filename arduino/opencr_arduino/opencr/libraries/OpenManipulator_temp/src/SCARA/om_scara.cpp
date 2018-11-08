@@ -61,16 +61,18 @@ void OM_SCARA::initManipulator(bool using_platform)
   kinematics_ = new OM_KINEMATICS::SCARA();
   addKinematics(kinematics_);
 
+  Serial.println("here??0.1");
   ////////// drawing path init
   addDrawingTrajectory(DRAWING_LINE, &line_);
   addDrawingTrajectory(DRAWING_CIRCLE, &circle_);
   addDrawingTrajectory(DRAWING_RHOMBUS, &rhombus_);
   addDrawingTrajectory(DRAWING_HEART, &heart_);
+  Serial.println("here??0.111");
 
   if(platform_)
   {
     ////////// joint actuator init.
-    actuator_ = new OM_SCARA_DYNAMIXEL::JointDynamixel();
+    actuator_ = new OM_DYNAMIXEL::JointDynamixel();
     // communication setting argument
     String dxl_comm_arg = "1000000";
     void *p_dxl_comm_arg = &dxl_comm_arg;
@@ -80,24 +82,31 @@ void OM_SCARA::initManipulator(bool using_platform)
     jointDxlId.push_back(3);
     addJointActuator(JOINT_DYNAMIXEL, actuator_, jointDxlId, p_dxl_comm_arg);
 
+  Serial.println("here??0.2");
     // set joint actuator control mode
     String joint_dxl_mode_arg = "position_mode";
     void *p_joint_dxl_mode_arg = &joint_dxl_mode_arg;
     jointActuatorSetMode(JOINT_DYNAMIXEL, jointDxlId, p_joint_dxl_mode_arg);
 
+  Serial.println("here??0.3");
     //----- tool actuator init -----//
-    tool_ = new OM_SCARA_DYNAMIXEL::GripperDynamixel();
+    tool_ = new OM_DYNAMIXEL::GripperDynamixel();
 
     uint8_t gripperDxlId = 15;
     addToolActuator(TOOL_DYNAMIXEL, tool_, gripperDxlId, p_dxl_comm_arg);
 
+    // set gripper actuator control mode
+    String gripper_dxl_mode_arg = "position_mode";
+    void *p_gripper_dxl_mode_arg = &gripper_dxl_mode_arg;
+    toolActuatorSetMode(TOOL_DYNAMIXEL, p_gripper_dxl_mode_arg);
+
+  Serial.println("here??0.4");
     //----- all actuator enable -----//
     allActuatorEnable();
 
     //----- manipulator trajectory & control time initialization -----//
     receiveAllJointActuatorValue();
 
-  Serial.println("here?7");
     initTrajectoryWayPoint();
     setControlTime(CONTROL_TIME);
   }

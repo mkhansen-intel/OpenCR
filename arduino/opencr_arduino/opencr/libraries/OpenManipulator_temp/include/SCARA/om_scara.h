@@ -32,7 +32,7 @@
 #define COMP1 1
 #define COMP2 2
 #define COMP3 3
-#define TOOL 4
+#define TOOL 15
 
 //////////////////Move step/////////////////
 #define MOVESTEP 0.01
@@ -60,6 +60,9 @@
 #define DRAWING_CIRCLE 1
 #define DRAWING_RHOMBUS 2
 #define DRAWING_HEART 3
+
+#define DRAWING_CIRCLE2 11
+#define DRAWING_RHOMBUS2 12
 ////////////////////////////////////////////
 
 ////////////////////////////////////////////
@@ -75,10 +78,10 @@ class OM_SCARA : public ROBOTIS_MANIPULATOR::RobotisManipulator
   ROBOTIS_MANIPULATOR::JointActuator *actuator_;
   ROBOTIS_MANIPULATOR::ToolActuator *tool_;
 
-  OM_SCARA_DRAWING::Line line_;
-  OM_SCARA_DRAWING::Circle circle_;
-  OM_SCARA_DRAWING::Rhombus rhombus_;
-  OM_SCARA_DRAWING::Heart heart_;
+  OM_DRAWING::Line line_;
+  OM_DRAWING::Circle circle_;
+  OM_DRAWING::Rhombus rhombus_;
+  OM_DRAWING::Heart heart_;
 
   bool platform_;
   bool processing_;

@@ -38,7 +38,9 @@ void setup()
   connectProcessing();
   connectRC100();
   
+  Serial.println("here??0");
   SCARA.initManipulator(true);
+  Serial.println("here??0.1");
 }
 
 void loop()
@@ -49,7 +51,11 @@ void loop()
 
 if(present_time-previous_time >= CONTROL_TIME)
   {
+    Serial.println("here??1");
+    Serial.flush();
     test(&SCARA);
+    Serial.println("here??2");
+    Serial.flush();
     SCARA.SCARAProcess(millis()/1000.0);
     sendAngle2Processing(SCARA.getManipulator()->getAllActiveJointValue());
     previous_time = (float)(millis()/1000.0f);
