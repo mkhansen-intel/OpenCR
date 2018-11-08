@@ -71,9 +71,7 @@ void initManipulator()
   SCARA.addWorld(WORLD,
                  COMP1);
 
-  SCARA.addComponent(COMP1,
-                     WORLD,
-                     COMP2,
+  SCARA.addComponent(COMP1, WORLD, COMP2,
                      OM_MATH::makeVector3(-0.241, 0.0, 0.057),
                      Eigen::Matrix3f::Identity(3, 3),
                      Z_AXIS,

@@ -16,89 +16,49 @@
 
 /* Authors: Darby Lim */
 
-#include "om_chain.h"
+#include <om_scara_lib.h>
 #include "Processing.h"
 #include "RemoteController.h"
+#include "Demo.h"
 
-OM_CHAIN chain;
+osMutexDef(om_mutex);
+osMutexId(om_mutex_id);
+
+OM_SCARA SCARA;
+double present_time = 0.0;
+double previous_time = 0.0;
+
 
 void setup()
 {
   Serial.begin(57600);
  // DEBUG.begin(57600);
-   //while (!Serial)
-   //  ;
+  while (!Serial);
 
   connectProcessing();
-  //connectRC100();
+  connectRC100();
   
-  chain.initManipulator();
-
-  // goal_position.push_back(0.0);
-  // goal_position.push_back(0.0);
-  // goal_position.push_back(0.0);
-  // goal_position.push_back(0.0);
-
-  // goal_pose.position = OM_MATH::makeVector3(-0.050, 0.0, 0.203);
-  // goal_pose.orientation = Eigen::Matrix3f::Identity();
-
-//  initThread();
-//  startThread();
+  SCARA.initManipulator(true);
 }
 
 void loop()
 {
+  present_time = (float)(millis()/1000.0f);
+
   getData(100);
 
-  // LOG::INFO("LOOP");
-  //osDelay(LOOP_TIME * 1000);
-}
-
-/// DON'T TOUCH BELOW CODE///
-/*
-namespace THREAD
-{
-osThreadId loop;
-osThreadId robot_state;
-osThreadId actuator_control;
-} // namespace THREAD
-
-void initThread()
-{
-  MUTEX::create();
-
-  // define thread
-  osThreadDef(THREAD_NAME_LOOP, Loop, osPriorityNormal, 0, 1024 * 10);
-  osThreadDef(THREAD_NAME_ROBOT_STATE, THREAD::Robot_State, osPriorityNormal, 0, 1024 * 10);
-  osThreadDef(THREAD_NAME_ACTUATOR_CONTROL, THREAD::Actuator_Control, osPriorityNormal, 0, 1024 * 10);
-
-  // create thread
-  THREAD::loop = osThreadCreate(osThread(THREAD_NAME_LOOP), NULL);
-  THREAD::robot_state = osThreadCreate(osThread(THREAD_NAME_ROBOT_STATE), NULL);
-  THREAD::actuator_control = osThreadCreate(osThread(THREAD_NAME_ACTUATOR_CONTROL), NULL);
-}
-
-void startThread()
-{
-  // start kernel
-  Serial.println("Thread Start");
-  osKernelStart();
-}
-*/
-static void Loop(void const *argument)
-{
-  (void)argument;
-
-  for (;;)
+if(present_time-previous_time >= CONTROL_TIME)
   {
-    //loop();
-    //showLedStatus();
+    test(&SCARA);
+    SCARA.SCARAProcess(millis()/1000.0);
+    sendAngle2Processing(SCARA.getManipulator()->getAllActiveJointValue());
+    previous_time = (float)(millis()/1000.0f);
   }
 }
 
 void getData(uint32_t wait_time)
 {
-/*  static uint8_t state = 0;
+  static uint8_t state = 0;
   static uint32_t tick = 0;
 
   bool rc100_flag = false;
@@ -124,19 +84,13 @@ void getData(uint32_t wait_time)
     case 0:
       if (rc100_flag)
       {
-        MUTEX::wait();
-        fromRC100(get_rc100_data);
-        MUTEX::release();
-
+        fromRC100(&SCARA, get_rc100_data);
         tick = millis();
         state = 1;
       }
       else if (processing_flag)
       {
-        MUTEX::wait();
-        fromProcessing(get_processing_data);
-        MUTEX::release();
-
+        fromProcessing(&SCARA, get_processing_data);
         tick = millis();
         state = 1;
       }
@@ -152,5 +106,6 @@ void getData(uint32_t wait_time)
     default:
       state = 0;
      break;
-  }*/
+  }
 }
+
