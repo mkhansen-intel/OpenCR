@@ -25,8 +25,8 @@
 #endif  
 
 #define BAUDRATE    57600
-#define DXL_ID      1
-#define NEW_DXL_ID  2
+
+#define NEW_ID  3
 
 DynamixelWorkbench dxl_wb;
 
@@ -35,31 +35,82 @@ void setup()
   Serial.begin(57600);
   while(!Serial); // If this line is activated, you need to open Serial Terminal.
 
-  dxl_wb.begin(DEVICE_NAME, BAUDRATE);
-  dxl_wb.ping(DXL_ID);
+  const char *log;
+  bool result = false;
 
-  if (dxl_wb.setID(DXL_ID, NEW_DXL_ID))
+  uint8_t scanned_id[16];
+  uint8_t dxl_cnt = 0;
+  uint8_t range = 100;
+
+  uint8_t get_new_id = 0;
+
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE);
+  if (result == false)
   {
-    dxl_wb.ping(NEW_DXL_ID);
-
-    Serial.println("Succeed to change ID");
-    Serial.print("Dynamixel NEW ID : " + String(NEW_DXL_ID));
-
-    dxl_wb.jointMode(NEW_DXL_ID);
+    Serial.println(log);
+    Serial.println("Failed to init");
   }
   else
   {
-    Serial.println("Failed to change ID");
+    Serial.print("Succeed to init : ");
+    Serial.println(BAUDRATE);  
+  }
+
+  result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to scan");
+  }
+  else
+  {
+    Serial.print("Find ");
+    Serial.print(dxl_cnt);
+    Serial.println(" Dynamixels");
+
+    for (int cnt = 0; cnt < dxl_cnt; cnt++)
+    {
+      Serial.print("id : ");
+      Serial.print(scanned_id[cnt]);
+      Serial.print(" model name : ");
+      Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
+    }
+  }  
+
+  result = dxl_wb.changeID(scanned_id[0], NEW_ID, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    return;
+  }
+  else
+  {
+    Serial.println(log);
+  }
+
+  result = dxl_wb.scan(scanned_id, &dxl_cnt, range, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to scan");
+  }
+  else
+  {
+    Serial.print("Find ");
+    Serial.print(dxl_cnt);
+    Serial.println(" Dynamixels");
+
+    for (int cnt = 0; cnt < dxl_cnt; cnt++)
+    {
+      Serial.print("id : ");
+      Serial.print(scanned_id[cnt]);
+      Serial.print(" model name : ");
+      Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
+    }
   }
 }
 
 void loop() 
 {
-  dxl_wb.goalPosition(NEW_DXL_ID, 0);
-  
-  delay(2000);
 
-  dxl_wb.goalPosition(NEW_DXL_ID, 2000);
-
-  delay(2000);
 }

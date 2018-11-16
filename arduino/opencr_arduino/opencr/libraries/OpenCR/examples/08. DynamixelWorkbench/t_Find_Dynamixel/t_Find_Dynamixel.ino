@@ -33,27 +33,57 @@ void setup()
   Serial.begin(57600);
   while(!Serial); // Open a Serial Monitor 
 
-  uint8_t scanned_id[16] = {0, };
+  const char *log;
+  bool result = false;
+
+  uint8_t scanned_id[100];
   uint8_t dxl_cnt = 0;
-  uint32_t baud[BAUDRATE_NUM] = {9600, 57600, 1000000};
+
+  uint32_t baudrate[BAUDRATE_NUM] = {9600, 57600, 1000000};
+  uint8_t range = 253;
+
   uint8_t index = 0;
-  uint8_t range = 100;
 
   while (index < BAUDRATE_NUM)
   {
-    Serial.println(String(baud[index]) + " bps");
-
-    dxl_wb.begin(DEVICE_NAME, baud[index]);
-    dxl_wb.scan(&scanned_id[0], &dxl_cnt, range);
-
-    for (int i = 0; i < dxl_cnt; i++)
+    result = dxl_wb.init(DEVICE_NAME, baudrate[index]);
+    if (result == false)
     {
-      Serial.println("   id : " + String(scanned_id[i]) + "   Model Name : " + String(dxl_wb.getModelName(scanned_id[i])));
+      Serial.println(log);
+      Serial.println("Failed to init");
+    }
+    else
+    {
+      Serial.print("Succeed to init : ");
+      Serial.println(baudrate[index]);  
     }
 
-    index++;    
+    dxl_cnt = 0;
+    for (uint8_t num = 0; num < 100; num++) scanned_id[num] = 0;
+
+    result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+    if (result == false)
+    {
+      Serial.println(log);
+      Serial.println("Failed to scan");
+    }
+    else
+    {
+      Serial.print("Find ");
+      Serial.print(dxl_cnt);
+      Serial.println(" Dynamixels");
+
+      for (int cnt = 0; cnt < dxl_cnt; cnt++)
+      {
+        Serial.print("id : ");
+        Serial.print(scanned_id[cnt]);
+        Serial.print(" model name : ");
+        Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
+      }
+    } 
+
+    index++;
   }
-  Serial.println("End");
 }
 
 void loop() 

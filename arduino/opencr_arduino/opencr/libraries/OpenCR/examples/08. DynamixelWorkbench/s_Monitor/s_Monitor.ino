@@ -46,6 +46,9 @@ void setup()
 
 void loop() 
 {
+  const char *log = NULL;
+  bool result = false;
+
   if (Serial.available())
   {
     String read_string = Serial.readStringUntil('\n');
@@ -65,10 +68,21 @@ void loop()
         cmd[1] = String("57600");
 
       uint32_t baud = cmd[1].toInt();
-      if (dxl_wb.begin(DEVICE_NAME, baud))
-        Serial.println("Succeed to begin(" + String(baud) + ")");
+      result = dxl_wb.init(DEVICE_NAME, baud);
+      if (result == false)
+      {
+        Serial.println(log);
+        Serial.println("Failed to init");
+      }
       else
-        Serial.println("Failed to begin");
+      {
+        Serial.print("Succeed to init : ");
+        Serial.println(baud);  
+      }
+    }
+    else if (cmd[0] == "end")
+    {        
+      return;
     }
     else if (cmd[0] == "scan")
     { 
@@ -76,16 +90,26 @@ void loop()
         cmd[1] = String("100");
 
       uint8_t range = cmd[1].toInt();
-      dxl_wb.scan(get_id, &scan_cnt, range);
-
-      if (scan_cnt == 0)
-        Serial.println("Can't find Dynamixel");
+      result = dxl_wb.scan(get_id, &scan_cnt, range);
+      if (result == false)
+      {
+        Serial.println(log);
+        Serial.println("Failed to scan");
+      }
       else
       {
-        Serial.println("Find " + String(scan_cnt) + " Dynamixels");
+        Serial.print("Find ");
+        Serial.print(scan_cnt);
+        Serial.println(" Dynamixels");
+
         for (int cnt = 0; cnt < scan_cnt; cnt++)
-          Serial.println("ID : " + String(get_id[cnt]));
-      }
+        {
+          Serial.print("id : ");
+          Serial.print(get_id[cnt]);
+          Serial.print(" model name : ");
+          Serial.println(dxl_wb.getModelName(get_id[cnt]));
+        }
+      }  
     }
     else if (cmd[0] == "ping")
     {
@@ -95,109 +119,449 @@ void loop()
       get_id[ping_cnt] = cmd[1].toInt();
       uint16_t model_number = 0;
 
-      if (dxl_wb.ping(get_id[ping_cnt], &model_number))
+      result = dxl_wb.ping(get_id[ping_cnt], &model_number, &log);
+      if (result == false)
       {
-        Serial.println("id : " + String(get_id[ping_cnt]) + " model_number : " + String(model_number));
-        ping_cnt++;
+        Serial.println(log);
+        Serial.println("Failed to ping");
       }
       else
-        Serial.println("Failed to ping");
+      {
+        ping_cnt++;
+
+        Serial.println("Succeed to ping");
+        Serial.print("id : ");
+        Serial.print(get_id[ping_cnt]);
+        Serial.print(" model_number : ");
+        Serial.println(model_number);
+      }
     }
     else if (isAvailableID(cmd[1].toInt()))
     {
-      if (cmd[0] == "id")
+      if (cmd[0] == "info")
+      {
+        uint8_t id = cmd[1].toInt();
+
+        const ControlItem *control_item =  dxl_wb.getControlTable(id);
+        uint8_t the_number_of_control_item = dxl_wb.getTheNumberOfControlItem(id);
+
+        uint16_t last_register_addr = control_item[the_number_of_control_item-1].address;
+        uint16_t last_register_addr_length = control_item[the_number_of_control_item-1].data_length;
+
+        uint32_t getAllRegisteredData[last_register_addr+last_register_addr_length];
+
+        if (control_item != NULL)
+        {
+          result = dxl_wb.readRegister(id, (uint16_t)0, last_register_addr+last_register_addr_length, getAllRegisteredData, &log);
+          if (result == false)
+          {
+            Serial.println(log);
+            return;
+          }
+          else
+          {
+            for (int index = 0; index < the_number_of_control_item; index++)
+            {
+              uint32_t data = 0;
+
+              switch (control_item[index].data_length)
+              {
+                case BYTE:
+                  data = getAllRegisteredData[control_item[index].address];
+                  Serial.print("\t");
+                  Serial.print(control_item[index].item_name);
+                  Serial.print(" : ");
+                  Serial.println(data);
+                  break;
+
+                case WORD:
+                  data = DXL_MAKEWORD(getAllRegisteredData[control_item[index].address], getAllRegisteredData[control_item[index].address+1]);
+                  Serial.print("\t");
+                  Serial.print(control_item[index].item_name);
+                  Serial.print(" : ");
+                  Serial.println(data);
+                  break;
+
+                case DWORD:
+                  data = DXL_MAKEDWORD(DXL_MAKEWORD(getAllRegisteredData[control_item[index].address],   getAllRegisteredData[control_item[index].address+1]),
+                                        DXL_MAKEWORD(getAllRegisteredData[control_item[index].address+2], getAllRegisteredData[control_item[index].address+3]));
+                  Serial.print("\t");
+                  Serial.print(control_item[index].item_name);
+                  Serial.print(" : ");
+                  Serial.println(data);
+                  break;
+
+                default:
+                  data = getAllRegisteredData[control_item[index].address];
+                  break;
+              } 
+            }
+          }
+        }
+      }
+      else if (cmd[0] == "sync_write_handler")
+      {
+        uint8_t id = cmd[1].toInt();
+
+        result = dxl_wb.addSyncWriteHandler(id, cmd[2].c_str(), &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to add sync write handler\n");
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+          Serial.print("sync_write_handler_cnt = ");
+          Serial.println(dxl_wb.getTheNumberOfSyncWriteHandler());
+        }
+      }
+      else if (cmd[0] == "sync_read_handler")
+      {
+        uint8_t id = cmd[1].toInt();        
+
+        result = dxl_wb.addSyncReadHandler(id, cmd[2].c_str(), &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to add sync write handler\n");
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+          Serial.print("sync_read_handler_cnt = ");
+          Serial.println(dxl_wb.getTheNumberOfSyncReadHandler());
+        }
+      }
+      else if (cmd[0] == "bulk_write_handler")
+      {
+        result = dxl_wb.initBulkWrite(&log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to init bulk write handler\n");
+          return;
+        }
+        else
+          Serial.println(log);
+      }
+      else if (cmd[0] == "bulk_write_param")
+      {
+        uint8_t id = cmd[1].toInt();
+
+        result = dxl_wb.addBulkWriteParam(id, cmd[2].c_str(), cmd[3].toInt(), &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to add param for bulk write\n");
+          return;
+        }
+        else
+          Serial.println(log);
+      }
+      else if (cmd[0] == "bulk_write")
+      {
+        result = dxl_wb.bulkWrite(&log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to bulk write\n");
+          return;
+        }
+        else
+          Serial.println(log);
+      }
+      else if (cmd[0] == "bulk_read_handler")
+      {
+        result = dxl_wb.initBulkRead(&log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to init bulk read handler\n");
+          return;
+        }
+        else
+          Serial.println(log);
+      }
+      else if (cmd[0] == "bulk_read_param")
+      {
+        uint8_t id = cmd[1].toInt();
+        result = dxl_wb.addBulkReadParam(id, cmd[2].c_str(), &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to add param for bulk read\n");
+          return;
+        }
+        else
+          Serial.println(log);
+      }
+      else if (cmd[0] == "bulk_read")
+      {
+        uint32_t data[2] = {0, 0};
+
+        result = dxl_wb.getBulkReadData((int32_t *)data, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.print("Failed to bulk read\n");
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+          Serial.print("data[0] : ");
+          Serial.print(data[0]);
+          Serial.print(" data[1] : ");
+          Serial.println(data[1]);
+        }
+      }
+      else if (isAvailableID(cmd[1].toInt()) && isAvailableID(cmd[2].toInt()))
+      {
+        if (cmd[0] == "sync_write")
+        {
+          uint8_t id_1 = cmd[1].toInt();
+          uint8_t id_2 = cmd[2].toInt();
+
+          int32_t data[2] = {0, 0};
+          data[0] = cmd[4].toInt();
+          data[1] = cmd[5].toInt();
+
+          uint8_t handler_index = cmd[3].toInt();
+
+          result = dxl_wb.syncWrite(handler_index, (int32_t *)data, &log);
+          if (result == false)
+          {
+            Serial.println(log);
+            return;
+          }
+          else
+            Serial.println(log);
+        }
+        else if (cmd[0] == "sync_read")
+        {
+          uint8_t id_1 = cmd[1].toInt();
+          uint8_t id_2 = cmd[2].toInt();
+          uint8_t id[2] = {id_1, id_2};
+          uint8_t id_num = 2;
+
+          int32_t data[2] = {0, 0};
+          uint8_t handler_index = cmd[3].toInt();
+
+          result = dxl_wb.syncRead(handler_index, id, id_num, &log);
+          if (result == false)
+          {
+            Serial.println(log);
+            return;
+          }
+          else
+          {
+            Serial.println(log);
+          }
+
+          result = dxl_wb.getSyncReadData(handler_index, id, id_num, data, &log);
+          if (result == false)
+          {
+            Serial.println(log);
+            return;
+          }
+          else
+          {
+            Serial.println(log);
+            Serial.print("data[0] : ");
+            Serial.print(data[0]);
+            Serial.print(" data[1] : ");
+            Serial.println(data[1]);
+          }
+        }
+      }
+      else if (cmd[0] == "id")
       {
         uint8_t id     = cmd[1].toInt();
         uint8_t new_id = cmd[2].toInt();
 
-        if (dxl_wb.setID(id, new_id))
-          Serial.println("Succeed to change ID");
+        result = dxl_wb.changeID(id, new_id, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
         else
-          Serial.println("Failed");
-
+        {
+          Serial.println(log);
+        }
       }
       else if (cmd[0] == "baud")
       {
         uint8_t  id       = cmd[1].toInt();
         uint32_t  new_baud  = cmd[2].toInt();
 
-        if (dxl_wb.setBaud(id, new_baud))
-          Serial.println("Succeed to change BaudRate");
+        result = dxl_wb.changeBaudrate(id, new_baud, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return ;
+        }
         else
-          Serial.println("Failed");
-
+        {
+          result = dxl_wb.setBaudrate(new_baud, &log);
+          Serial.println(log);
+        }
       }
-      else if (cmd[0] == "torque")
+      else if (cmd[0] == "torque_on")
       {
         uint8_t id       = cmd[1].toInt();
-        uint8_t onoff    = cmd[2].toInt();
 
-        if (dxl_wb.itemWrite(id, "Torque_Enable", onoff))
-          Serial.println("Succeed to torque command!!");
+        result = dxl_wb.torqueOn(id, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
         else
-          Serial.println("Failed");
+        {
+          Serial.println(log);
+        }
+      }
+      else if (cmd[0] == "torque_off")
+      {
+        uint8_t id       = cmd[1].toInt();
 
+        result = dxl_wb.torqueOff(id, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+        }
       }
       else if (cmd[0] == "joint")
       {
         uint8_t id    = cmd[1].toInt();
         uint16_t goal = cmd[2].toInt();
 
-        dxl_wb.jointMode(id);
-        if (dxl_wb.goalPosition(id, goal))
-        Serial.println("Succeed to joint command!!");
+        result = dxl_wb.jointMode(id, 0, 0, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
         else
-          Serial.println("Failed");
+        {
+          Serial.println(log);
+        }
 
+        result = dxl_wb.goalPosition(id, (int32_t)goal, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+        }
       }
       else if (cmd[0] == "wheel")
       {
         uint8_t id    = cmd[1].toInt();
         int32_t goal  = cmd[2].toInt();
 
-        dxl_wb.wheelMode(id);
-        if (dxl_wb.goalSpeed(id, goal))
-          Serial.println("Succeed to wheel command!!");
+        result = dxl_wb.wheelMode(id, 0, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
         else
-          Serial.println("Failed");
+        {
+          Serial.println(log);
+        }
+
+        result = dxl_wb.goalVelocity(id, (int32_t)goal, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+        }
       }
       else if (cmd[0] == "write")
       {
         uint8_t id = cmd[1].toInt();      
-        int32_t value = cmd[3].toInt(); 
+        uint32_t value = cmd[3].toInt(); 
 
-        if (dxl_wb.itemWrite(id, cmd[2].c_str(), value))
-        {        
-          Serial.println("Succeed to write command!!");
+        result = dxl_wb.writeRegister(id, cmd[2].c_str(), value, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.println("Failed to write");
+          return;
         }
         else
-          Serial.println("Failed");
+        {
+          Serial.println(log);
+        }
       }
       else if (cmd[0] == "read")
       {
         uint8_t id = cmd[1].toInt();
-              
-        int32_t value = dxl_wb.itemRead(id, cmd[2].c_str());
 
-        Serial.println("read data : " + String(value));
+        uint32_t data = 0;
+        
+        result = dxl_wb.readRegister(id, cmd[2].c_str(), &data, &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.println("Failed to read");
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+          Serial.print("read data : ");
+          Serial.println(data);
+        }
       }
       else if (cmd[0] == "reboot")
       {
         uint8_t id = cmd[1].toInt();
 
-        if (dxl_wb.reboot(id))
-          Serial.println("Succeed to reboot");
-        else
+        result = dxl_wb.reboot(id, &log);
+        if (result == false)
+        {
+          Serial.println(log);
           Serial.println("Failed to reboot");
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+        }
       }
       else if (cmd[0] == "reset")
       {
         uint8_t id = cmd[1].toInt();
 
-        if (dxl_wb.reset(id))
-          Serial.println("Succeed to reset");
-        else
+        result = dxl_wb.reset(id, &log);
+        if (result == false)
+        {
+          Serial.println(log);
           Serial.println("Failed to reset");
+          return;
+        }
+        else
+        {
+          Serial.println(log);
+        }
       }
       else 
       {
@@ -250,21 +614,35 @@ bool isAvailableID(uint8_t id)
 
 void printInst(void)
 {
-  Serial.println("-------------------------------------");
-  Serial.println("Set portHandler Before scan or ping");
-  Serial.println("-------------------------------------");
-  Serial.println("help");
-  Serial.println("begin  (BAUD)");
-  Serial.println("scan   (RANGE)");
-  Serial.println("ping   (ID)");
-  Serial.println("id     (ID) (NEW_ID)");
-  Serial.println("baud   (ID) (NEW_BAUD)");
-  Serial.println("torque (ID) (VALUE)");
-  Serial.println("joint  (ID) (GOAL_POSITION)");
-  Serial.println("wheel  (ID) (GOAL_VELOCITY)");
-  Serial.println("write  (ID) (ADDRESS_NAME) (VALUE)");
-  Serial.println("read   (ID) (ADDRESS_NAME)");
-  Serial.println("reboot (ID) ");
-  Serial.println("reset  (ID) ");
-  Serial.println("-------------------------------------");
+  Serial.print("-------------------------------------\n");
+  Serial.print("Set begin before scan or ping\n");
+  Serial.print("-------------------------------------\n");
+  Serial.print("help\n");
+  Serial.print("begin  (BAUD)\n");
+  Serial.print("scan   (RANGE)\n");
+  Serial.print("ping   (ID)\n");
+  Serial.print("info   (ID)\n");
+  Serial.print("id     (ID) (NEW_ID)\n");
+  Serial.print("baud   (ID) (NEW_BAUD)\n");
+  Serial.print("torque_on (ID)\n");
+  Serial.print("torque_off (ID)\n");
+  Serial.print("joint  (ID) (GOAL_POSITION)\n");
+  Serial.print("wheel  (ID) (GOAL_VELOCITY)\n");
+  Serial.print("write  (ID) (ADDRESS_NAME) (DATA)\n");
+  Serial.print("read   (ID) (ADDRESS_NAME)\n");
+  Serial.print("sync_write_handler (ID) (ADDRESS_NAME)\n");
+  Serial.print("sync_write (ID_1) (ID_2) (HANDLER_INDEX) (PARAM_1) (PARAM_2)\n");
+  Serial.print("sync_read_handler (ID) (ADDRESS_NAME)\n");
+  Serial.print("sync_read (ID_1) (ID_2) (HANDLER_INDEX)\n");
+  Serial.print("bulk_write_handler\n");
+  Serial.print("bulk_write_param (ID) (ADDRESS_NAME) (PARAM)\n");
+  Serial.print("bulk_write\n");
+  Serial.print("bulk_read_handler\n");
+  Serial.print("bulk_read_param (ID) (ADDRESS_NAME)\n");
+  Serial.print("bulk_read\n");
+  Serial.print("reboot (ID) \n");
+  Serial.print("reset  (ID) \n");
+  Serial.print("end\n");
+  Serial.print("-------------------------------------\n");
+  Serial.print("Press Enter Key\n");
 }

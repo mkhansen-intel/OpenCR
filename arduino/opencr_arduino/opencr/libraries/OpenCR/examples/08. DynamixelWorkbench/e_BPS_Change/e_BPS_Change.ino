@@ -26,7 +26,6 @@
 
 #define BAUDRATE  57600
 #define NEW_BAUDRATE 1000000
-#define DXL_ID 1
 
 DynamixelWorkbench dxl_wb;
 
@@ -35,30 +34,61 @@ void setup()
   Serial.begin(57600);
   while(!Serial); // If this line is activated, you need to open Serial Terminal.
 
-  dxl_wb.begin(DEVICE_NAME, BAUDRATE);
-  dxl_wb.ping(DXL_ID);
+  const char *log;
+  bool result = false;
 
-  if (dxl_wb.setBaud(DXL_ID, NEW_BAUDRATE))
+  uint8_t scanned_id[16];
+  uint8_t dxl_cnt = 0;
+  uint8_t range = 100;
+
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE);
+  if (result == false)
   {
-    Serial.println("Succeed to change Baudrate");
-    Serial.print("Baud Rate: " + String(NEW_BAUDRATE));
-
-    dxl_wb.begin(DXL_BUS_SERIAL3, NEW_BAUDRATE);
-    dxl_wb.jointMode(DXL_ID);
+    Serial.println(log);
+    Serial.println("Failed to init");
   }
   else
   {
-    Serial.println("Failed to change Baudrate");
+    Serial.print("Succeed to init : ");
+    Serial.println(BAUDRATE);  
   }
+
+  result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to scan");
+  }
+  else
+  {
+    Serial.print("Find ");
+    Serial.print(dxl_cnt);
+    Serial.println(" Dynamixels");
+
+    for (int cnt = 0; cnt < dxl_cnt; cnt++)
+    {
+      Serial.print("id : ");
+      Serial.print(scanned_id[cnt]);
+      Serial.print(" model name : ");
+      Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
+    }
+  }  
+
+  result = dxl_wb.changeBaudrate(scanned_id[0], NEW_BAUDRATE, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    return;
+  }
+  else
+  {
+    Serial.println(log);
+  }
+
+  return;
 }
 
 void loop() 
 {
-  dxl_wb.goalPosition(DXL_ID, 0);
-  
-  delay(2000);
 
-  dxl_wb.goalPosition(DXL_ID, 2000);
-
-  delay(2000);
 }
