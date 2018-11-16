@@ -19,9 +19,7 @@
 #ifndef REMOTE_CONTROLLER_H_
 #define REMOTE_CONTROLLER_H_
 
-#define DEG2RAD 0.01745329252 //(M_PI / 180.0)
-
-#include <om_chain_lib.h>
+#include "Chain.h"
 #include <RC100.h>
 
 RC100 rc100;

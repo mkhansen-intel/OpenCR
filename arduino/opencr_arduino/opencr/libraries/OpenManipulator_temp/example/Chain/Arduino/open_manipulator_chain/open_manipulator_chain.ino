@@ -16,17 +16,13 @@
 
 /* Authors: Darby Lim */
 
-#include <om_chain_lib.h>
+#include "Chain.h"
 #include "Processing.h"
 #include "RemoteController.h"
-
-osMutexDef(om_mutex);
-osMutexId(om_mutex_id);
 
 OM_CHAIN chain;
 double present_time = 0.0;
 double previous_time = 0.0;
-
 
 void setup()
 {
@@ -38,14 +34,14 @@ void setup()
   connectProcessing();
   connectRC100();
   
-  chain.initManipulator(false);
+  chain.initManipulator(true);
 }
 
 void loop()
 {
   present_time = (float)(millis()/1000.0f);
-
   getData(100);
+  playProcessingMotion(&chain);
 
 if(present_time-previous_time >= CONTROL_TIME)
   {

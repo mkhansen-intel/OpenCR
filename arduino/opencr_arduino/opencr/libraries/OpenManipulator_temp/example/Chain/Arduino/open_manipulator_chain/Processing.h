@@ -19,7 +19,19 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include <om_chain_lib.h>
+#include "Chain.h"
+
+typedef struct _MotionWayPoint
+{
+  std::vector<double> angle;
+  double path_time;
+  double gripper_value;
+} MotionWayPoint;
+
+std::vector<MotionWayPoint> motion_way_point_buf;
+bool processing_motion_flag = false;
+char hand_motion_cnt = 0;
+bool hand_motion_repeat_flag = false;
 
 String global_cmd[50];
 
@@ -85,7 +97,7 @@ void sendAngle2Processing(std::vector<double> joint_angle_vector)
 {
   Serial.print("angle");
 
-  for (int i = 0; i < joint_angle_vector.size(); i++)
+  for (int i = 0; i < (int)joint_angle_vector.size(); i++)
   {
     Serial.print(",");
     Serial.print(joint_angle_vector.at(i));
@@ -112,7 +124,7 @@ void sendToolData2Processing(double value)
 void sendValueToProcessing(OM_CHAIN *chain_)
 {
   sendAngle2Processing(chain_->getManipulator()->getAllActiveJointValue());
-  sendToolData2Processing(chain_->getManipulator()->getToolGoalValue(TOOL));
+  sendToolData2Processing(chain_->getManipulator()->getToolValue(TOOL));
 }
 
 
@@ -138,6 +150,7 @@ void fromProcessing(OM_CHAIN *chain_, String data)
       }
     }
   }
+  ////////// joint space control tab
   else if (cmd[0] == "joint")
   {
     std::vector<double> goal_position;
@@ -160,6 +173,7 @@ void fromProcessing(OM_CHAIN *chain_, String data)
     else if (cmd[1] == "off")
       chain_->toolMove(TOOL, -1.0);
   }
+  ////////// task space control tab
   else if (cmd[0] == "task")
   {
     if (cmd[1] == "forward")
@@ -182,11 +196,58 @@ void fromProcessing(OM_CHAIN *chain_, String data)
     if(chain_->getPlatformFlag())
     {
       if (cmd[1] == "on")
-        chain_->allActuatorEnable();
+      {
+        chain_->allJointActuatorEnable();
+      }
       else if (cmd[1] == "off")
-        chain_->allActuatorDisable();
+        chain_->allJointActuatorDisable();
     }
   }
+  ////////// hand teaching tab
+  else if (cmd[0] == "get")
+  {
+    if (cmd[1] == "clear")  // motion clear
+    {
+      processing_motion_flag = false;
+      motion_way_point_buf.clear();
+      hand_motion_cnt = 0;
+    }
+    else if (cmd[1] == "pose")  // save pose
+    {
+      MotionWayPoint read_value;
+      read_value.angle = chain_->getManipulator()->getAllActiveJointValue();
+      read_value.path_time = 2.0;
+      read_value.gripper_value = chain_->getManipulator()->getToolGoalValue(TOOL);
+      motion_way_point_buf.push_back(read_value);  
+      hand_motion_cnt = 0;
+    }
+    else if (cmd[1] == "on")  // save gripper on
+    {
+      chain_->toolMove(TOOL, 0.0);
+    }
+    else if (cmd[1] == "off")  // save gripper off
+    {
+      chain_->toolMove(TOOL, -1.0);
+    }
+  }
+  else if (cmd[0] == "hand")
+  {
+    if (cmd[1] == "once") // play motion (once)
+    {
+      processing_motion_flag = true;//processing_motion_flag;
+    }
+    else if (cmd[1] == "repeat") // play motion (repeat)
+    {
+      hand_motion_repeat_flag = true;
+    }
+    else if (cmd[1] == "stop") // play motion (stop)
+    {
+      hand_motion_repeat_flag = false;
+      processing_motion_flag = false;
+      hand_motion_cnt = 0;
+    }
+  }
+  ////////// motion tab
   else if (cmd[0] == "motion")
   {
     if (cmd[1] == "start")
@@ -216,4 +277,26 @@ void fromProcessing(OM_CHAIN *chain_, String data)
     }
   }
 }
+
+void playProcessingMotion(OM_CHAIN *chain_)
+{
+  if(!chain_->isMoving() && processing_motion_flag)
+  {
+    if(motion_way_point_buf.size() == 0)
+      return;
+
+    chain_->toolMove(TOOL, motion_way_point_buf.at(hand_motion_cnt).gripper_value);
+    chain_->jointTrajectoryMove(motion_way_point_buf.at(hand_motion_cnt).angle, motion_way_point_buf.at(hand_motion_cnt).path_time); 
+    hand_motion_cnt ++;
+    if(hand_motion_cnt >= motion_way_point_buf.size())
+    {
+      hand_motion_cnt = 0;
+      if(!hand_motion_repeat_flag)
+        processing_motion_flag = false;
+    }
+
+  }
+}
+
+
 #endif

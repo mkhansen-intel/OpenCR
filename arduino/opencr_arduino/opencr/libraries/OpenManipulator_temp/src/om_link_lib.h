@@ -1,5 +1,0 @@
-#include "../include/open_manipulator_lib/om_drawing.h"
-#include "../include/Link/om_link_kinematics.h"
-#include "../include/open_manipulator_lib/om_dynamixel.h"
-#include "../include/Link/om_link.h"
-#include "../include/Link/om_link_suction.h"
