@@ -123,7 +123,7 @@ void serialEvent(Serial opencr_port)
   }
   else if (cmd[0].equals("tool"))
   {
-    float angle2pos = map(float(cmd[1]), 0.907, -1.13, 0.010*1000, 0.035*1000);
+    float angle2pos = map(float(cmd[1]), -0.015*10, 0.010*10, 0.010*1000, 0.035*1000);
 
     receive_gripper_pos[0] = ctrl_gripper_pos[0] = angle2pos;
     receive_gripper_pos[1] = ctrl_gripper_pos[1] = receive_gripper_pos[0] * (-2);

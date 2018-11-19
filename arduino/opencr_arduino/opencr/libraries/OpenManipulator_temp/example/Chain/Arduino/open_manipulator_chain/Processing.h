@@ -117,14 +117,17 @@ void sendToolData2Processing(double value)
 {
   Serial.print("tool");
   Serial.print(",");
-  Serial.print(value);
+  Serial.print(value*10);
   Serial.print("\n");
 }
 
 void sendValueToProcessing(CHAIN *chain_)
 {
   sendAngle2Processing(chain_->getManipulator()->getAllActiveJointValue());
-  sendToolData2Processing(chain_->getManipulator()->getToolValue(TOOL));
+  if(chain_->getPlatformFlag()) 
+    sendToolData2Processing(chain_->getManipulator()->getToolValue(TOOL));
+  else
+    sendToolData2Processing(chain_->getManipulator()->getToolGoalValue(TOOL));
 }
 
 
@@ -169,9 +172,9 @@ void fromProcessing(CHAIN *chain_, String data)
   else if (cmd[0] == "grip")
   {
     if (cmd[1] == "on")
-      chain_->toolMove(TOOL, 0.0);
+      chain_->toolMove(TOOL, -0.01);
     else if (cmd[1] == "off")
-      chain_->toolMove(TOOL, -1.0);
+      chain_->toolMove(TOOL, 0.01);
   }
   ////////// task space control tab
   else if (cmd[0] == "task")

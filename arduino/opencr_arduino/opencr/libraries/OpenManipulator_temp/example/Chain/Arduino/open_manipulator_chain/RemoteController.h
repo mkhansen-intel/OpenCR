@@ -56,17 +56,17 @@ void fromRC100(CHAIN* chain_, uint16_t data)
     chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.0, -0.007), 0.16);
   else if (data & RC100_BTN_2)
   {
-    grip_value += 0.030;
-    if (grip_value >= 0.907f)
-      grip_value = 0.907f;
+    grip_value += 0.0020;
+    if (grip_value >= 0.01f)
+      grip_value = 0.01f;
 
     chain_->toolMove(TOOL, grip_value);
   }
   else if (data & RC100_BTN_4)
   {
-    grip_value -= 0.030;
-    if (grip_value <= -1.130f)
-      grip_value = -1.130f;
+    grip_value -= 0.002;
+    if (grip_value <= -0.01f)
+      grip_value = -0.01f;
 
     chain_->toolMove(TOOL, grip_value);
   }
