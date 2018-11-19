@@ -16,11 +16,11 @@
 
 /* Authors: Darby Lim */
 
-#include "Chain.h"
+#include <Chain.h>
 #include "Processing.h"
 #include "RemoteController.h"
 
-OM_CHAIN chain;
+CHAIN chain;
 double present_time = 0.0;
 double previous_time = 0.0;
 
@@ -28,13 +28,13 @@ void setup()
 {
   Serial.begin(57600);
  // DEBUG.begin(57600);
-   while (!Serial)
-     ;
+  while (!Serial)
+  ;
 
   connectProcessing();
   connectRC100();
   
-  chain.initManipulator(true);
+  chain.initManipulator(false);
 }
 
 void loop()

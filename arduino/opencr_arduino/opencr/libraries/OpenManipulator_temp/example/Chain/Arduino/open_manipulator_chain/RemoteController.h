@@ -19,7 +19,7 @@
 #ifndef REMOTE_CONTROLLER_H_
 #define REMOTE_CONTROLLER_H_
 
-#include "Chain.h"
+#include <Chain.h>
 #include <RC100.h>
 
 RC100 rc100;
@@ -40,7 +40,7 @@ uint16_t readRC100Data()
   return rc100.readData();
 }
 
-void fromRC100(OM_CHAIN* chain_, uint16_t data)
+void fromRC100(CHAIN* chain_, uint16_t data)
 {
   if (data & RC100_BTN_U)
     chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.007, 0.0, 0.0), 0.16);

@@ -19,7 +19,7 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include "Chain.h"
+#include <Chain.h>
 
 typedef struct _MotionWayPoint
 {
@@ -121,14 +121,14 @@ void sendToolData2Processing(double value)
   Serial.print("\n");
 }
 
-void sendValueToProcessing(OM_CHAIN *chain_)
+void sendValueToProcessing(CHAIN *chain_)
 {
   sendAngle2Processing(chain_->getManipulator()->getAllActiveJointValue());
   sendToolData2Processing(chain_->getManipulator()->getToolValue(TOOL));
 }
 
 
-void fromProcessing(OM_CHAIN *chain_, String data)
+void fromProcessing(CHAIN *chain_, String data)
 {
   String *cmd = parseDataFromProcessing(data);
 
@@ -278,7 +278,7 @@ void fromProcessing(OM_CHAIN *chain_, String data)
   }
 }
 
-void playProcessingMotion(OM_CHAIN *chain_)
+void playProcessingMotion(CHAIN *chain_)
 {
   if(!chain_->isMoving() && processing_motion_flag)
   {

@@ -128,8 +128,8 @@ void serialEvent(Serial opencr_port)
     receive_gripper_pos[0] = ctrl_gripper_pos[0] = angle2pos;
     receive_gripper_pos[1] = ctrl_gripper_pos[1] = receive_gripper_pos[0] * (-2);
     
-    print("tool : " + cmd[1]);
-    println("");
+    //print("tool : " + cmd[1]);
+    //println("");
   }
   else
   {
@@ -189,7 +189,7 @@ void initShape()
   setCtrlJointAngle(0, 0, 0, 0);
   gripperOff();
 
-  receive_gripper_pos[0] = 0.030 * 1000;
+  receive_gripper_pos[0] = 0.030 * 1000 ;
   receive_gripper_pos[1] = receive_gripper_pos[0] * (-2);
 }
 
@@ -301,7 +301,7 @@ void drawManipulator()
   shape(goal_link5_shape);
   drawLocalFrame();
   
-  translate(0.130*1000, 0.007*1000, 0);
+  translate(0.130*1000, 0.014*1000, 0);
   drawSphere(0, -7, 0, 100, 100, 100, 10);
   saveSpherePose();
   translate(0, receive_gripper_pos[0], 0);
@@ -349,7 +349,7 @@ void drawManipulator()
     shape(ctrl_link5_shape);
     drawLocalFrame();
   
-    translate(0.130*1000, 0.007*1000, 0);
+    translate(0.130*1000, 0.014*1000, 0);
     drawSphere(0, -7, 0, 200, 200, 200, 10);
     translate(0, ctrl_gripper_pos[0], 0);
     shape(ctrl_right_palm_shape);
@@ -524,13 +524,13 @@ class ChildApplet extends PApplet
        .setColorLabel(color(255))
        .setColorActive(color(0,128,0))
        ;
-/*
+
     cp5.addTab("Hand Teaching")
        .setColorBackground(color(100, 160, 0))
        .setColorLabel(color(255))
        .setColorActive(color(0,0,255))
        ;
-*/
+
     cp5.addTab("Motion")
        .setColorBackground(color(0, 160, 100))
        .setColorLabel(color(255))
@@ -742,7 +742,7 @@ class ChildApplet extends PApplet
 /*******************************************************************************
 * Init Hand Teaching Controller
 *******************************************************************************/
- /*   cp5.addToggle("Torque_OnOff")
+    cp5.addToggle("Torque_OnOff", true)
        .setPosition(0,130)
        .setSize(400,40)
        .setMode(Toggle.SWITCH)
@@ -789,7 +789,7 @@ class ChildApplet extends PApplet
        .setColorActive(color(196, 196, 196))
        .setColorBackground(color(255, 255, 153))
        ;
-*/
+
 /*******************************************************************************
 * Init Motion
 *******************************************************************************/
@@ -821,14 +821,14 @@ class ChildApplet extends PApplet
     cp5.getController("Up").moveTo("Task Space Control");
     cp5.getController("Down").moveTo("Task Space Control");
     cp5.getController("Gripper_pos").moveTo("Task Space Control");
-/*
+
     cp5.getController("Torque_OnOff").moveTo("Hand Teaching");
     cp5.getController("Motion_Clear").moveTo("Hand Teaching");
     cp5.getController("Make_Joint_Pose").moveTo("Hand Teaching");
     cp5.getController("Make_Gripper_Pose").moveTo("Hand Teaching");
     cp5.getController("Motion_Start").moveTo("Hand Teaching");
     cp5.getController("Motion_Repeat").moveTo("Hand Teaching");
-*/
+
     cp5.getController("Start").moveTo("Motion");
     cp5.getController("Stop").moveTo("Motion");
   }
@@ -1126,12 +1126,12 @@ class ChildApplet extends PApplet
       if (flag)
       {
         opencr_port.write("torque"  + ',' +
-                          "off"     + '\n');
+                          "on"     + '\n');
       }
       else
       {
         opencr_port.write("torque"  + ',' +
-                          "on"      + '\n');
+                          "off"      + '\n');
       }
     }
     else
@@ -1252,7 +1252,7 @@ class ChildApplet extends PApplet
     {
       opencr_port.write("motion"  + ',' +
                         "stop"    + '\n');
-      println("Motion Stop!!!");
+      println("Motion Stop!12!!");
     }
     else
     {

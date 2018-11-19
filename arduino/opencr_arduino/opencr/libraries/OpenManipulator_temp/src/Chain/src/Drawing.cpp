@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "Drawing.h"
+#include "../include/open_manipulator_libs/Drawing.h"
 
-using namespace OM_DRAWING;
+using namespace DRAWING;
 using namespace Eigen;
 
 //-------------------- Line --------------------//

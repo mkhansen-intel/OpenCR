@@ -14,15 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef OM_DRAWING_H_
-#define OM_DRAWING_H_
+#ifndef DRAWING_H_
+#define DRAWING_H_
 
-#include <RobotisManipulator.h>
+#if defined(__OPENCR__)
+  #include <RobotisManipulator.h>
+#else
+  #include <robotis_manipulator/robotis_manipulator.h>
+#endif
+
+#define PI 3.141592
 
 using namespace ROBOTIS_MANIPULATOR;
 using namespace Eigen;
 
-namespace OM_DRAWING
+namespace DRAWING
 {
 
 enum AXIS{
@@ -151,8 +157,8 @@ public:
 };
 
 
-} // namespace OM_DRAWING
-#endif // OM_DRAWING_H_
+} // namespace DRAWING
+#endif // DRAWING_H_
 
 
 

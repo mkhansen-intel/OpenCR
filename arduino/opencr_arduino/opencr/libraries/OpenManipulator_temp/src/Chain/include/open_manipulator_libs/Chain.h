@@ -14,14 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef OM_CHAIN_HPP_
-#define OM_CHAIN_HPP_
+#ifndef CHAIN_H_
+#define CHAIN_H_
 
 #include "Dynamixel.h"
 #include "Drawing.h"
 #include "Kinematics.h"
 
-#define DXL_BAUD_RATE 1000000
+#if defined(__OPENCR__)
+  typedef String		  STRING;
+#else
+  typedef std::string STRING;
+#endif
 
 #define WORLD 0
 #define COMP1 1
@@ -47,17 +51,18 @@
 #define Y_AXIS RM_MATH::makeVector3(0.0, 1.0, 0.0)
 #define Z_AXIS RM_MATH::makeVector3(0.0, 0.0, 1.0)
 
-class OM_CHAIN : public ROBOTIS_MANIPULATOR::RobotisManipulator
+
+class CHAIN : public ROBOTIS_MANIPULATOR::RobotisManipulator
 {
 private:
   ROBOTIS_MANIPULATOR::Kinematics *kinematics_;
   ROBOTIS_MANIPULATOR::JointActuator *actuator_;
   ROBOTIS_MANIPULATOR::ToolActuator *tool_;
 
-  OM_DRAWING::Line line_;
-  OM_DRAWING::Circle circle_;
-  OM_DRAWING::Rhombus rhombus_;
-  OM_DRAWING::Heart heart_;
+  DRAWING::Line line_;
+  DRAWING::Circle circle_;
+  DRAWING::Rhombus rhombus_;
+  DRAWING::Heart heart_;
 
   bool platform_;
   bool processing_;
@@ -65,14 +70,15 @@ private:
   std::vector<uint8_t> jointDxlId;
 
  public:
-  OM_CHAIN();
-  virtual ~OM_CHAIN();
+  CHAIN();
+  virtual ~CHAIN();
 
-  void initManipulator(bool using_platform, std::string usb_port = "/dev/ttyUSB0", std::string baud_rate = "1000000");
+  void initManipulator(bool using_platform, STRING usb_port = "/dev/ttyUSB0", STRING baud_rate = "1000000");
   void chainProcess(double present_time);
   bool getPlatformFlag();
 };
-#endif // OM_CHAIN_HPP_
+
+#endif // CHAIN_H_
 
 
 
