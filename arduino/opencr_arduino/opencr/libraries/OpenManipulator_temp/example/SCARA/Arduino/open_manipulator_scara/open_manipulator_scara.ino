@@ -16,18 +16,14 @@
 
 /* Authors: Darby Lim */
 
-#include <om_scara_lib.h>
+#include <SCARA.h>
 #include "Processing.h"
 #include "RemoteController.h"
 #include "Demo.h"
 
-osMutexDef(om_mutex);
-osMutexId(om_mutex_id);
-
-OM_SCARA SCARA;
+SCARA SCARA;
 double present_time = 0.0;
 double previous_time = 0.0;
-
 
 void setup()
 {
@@ -38,26 +34,24 @@ void setup()
   connectProcessing();
   connectRC100();
   
-  Serial.println("here??0");
   SCARA.initManipulator(true);
-  Serial.println("here??0.1");
 }
 
 void loop()
 {
   present_time = (float)(millis()/1000.0f);
-
   getData(100);
+  // playProcessingMotion(&SCARA));
 
 if(present_time-previous_time >= CONTROL_TIME)
   {
     Serial.println("here??1");
     Serial.flush();
-    test(&SCARA);
+    // test(&SCARA);
     Serial.println("here??2");
     Serial.flush();
-    SCARA.SCARAProcess(millis()/1000.0);
-    sendAngle2Processing(SCARA.getManipulator()->getAllActiveJointValue());
+    SCARA.process(millis()/1000.0);
+    sendValueToProcessing(&SCARA);
     previous_time = (float)(millis()/1000.0f);
   }
 }
