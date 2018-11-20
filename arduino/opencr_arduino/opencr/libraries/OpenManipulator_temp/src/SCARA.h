@@ -1,0 +1,1 @@
+#include "SCARA/include/open_manipulator_libs/SCARA.h"

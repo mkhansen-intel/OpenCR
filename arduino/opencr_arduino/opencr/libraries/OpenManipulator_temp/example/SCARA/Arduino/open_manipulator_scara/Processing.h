@@ -19,7 +19,19 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include <om_scara_lib.h>
+#include <SCARA.h>
+
+typedef struct _MotionWayPoint
+{
+  std::vector<double> angle;
+  double path_time;
+  double gripper_value;
+} MotionWayPoint;
+
+std::vector<MotionWayPoint> motion_way_point_buf;
+bool processing_motion_flag = false;
+char hand_motion_cnt = 0;
+bool hand_motion_repeat_flag = false;
 
 String global_cmd[50];
 
@@ -109,8 +121,17 @@ void sendToolData2Processing(double value)
   Serial.print("\n");
 }
 
+void sendValueToProcessing(SCARA *SCARA_)
+{
+  sendAngle2Processing(SCARA_->getManipulator()->getAllActiveJointValue());
+  if(SCARA_->getPlatformFlag()) 
+    sendToolData2Processing(SCARA_->getManipulator()->getToolValue(TOOL));
+  else
+    sendToolData2Processing(SCARA_->getManipulator()->getToolGoalValue(TOOL));
+}
 
-void fromProcessing(OM_SCARA *SCARA_, String data)
+
+void fromProcessing(SCARA *SCARA_, String data)
 {
   String *cmd = parseDataFromProcessing(data);
 
@@ -121,8 +142,7 @@ void fromProcessing(OM_SCARA *SCARA_, String data)
       if(SCARA_->getPlatformFlag())
       {
         SCARA_->allActuatorEnable();
-        sendAngle2Processing(SCARA_->getManipulator()->getAllActiveJointValue());
-        sendToolData2Processing(SCARA_->getManipulator()->getToolValue(TOOL));
+        sendValueToProcessing(SCARA_);
       }
     }
     else if (cmd[1] == "end")
@@ -133,6 +153,7 @@ void fromProcessing(OM_SCARA *SCARA_, String data)
       }
     }
   }
+  ////////// joint space control tab
   else if (cmd[0] == "joint")
   {
     std::vector<double> goal_position;
@@ -210,4 +231,26 @@ void fromProcessing(OM_SCARA *SCARA_, String data)
     }
   }
 }
+
+void playProcessingMotion(SCARA *SCARA_)
+{
+  if(!SCARA_->isMoving() && processing_motion_flag)
+  {
+    if(motion_way_point_buf.size() == 0)
+      return;
+
+    SCARA_->toolMove(TOOL, motion_way_point_buf.at(hand_motion_cnt).gripper_value);
+    SCARA_->jointTrajectoryMove(motion_way_point_buf.at(hand_motion_cnt).angle, motion_way_point_buf.at(hand_motion_cnt).path_time); 
+    hand_motion_cnt ++;
+    if(hand_motion_cnt >= motion_way_point_buf.size())
+    {
+      hand_motion_cnt = 0;
+      if(!hand_motion_repeat_flag)
+        processing_motion_flag = false;
+    }
+
+  }
+}
+
+
 #endif

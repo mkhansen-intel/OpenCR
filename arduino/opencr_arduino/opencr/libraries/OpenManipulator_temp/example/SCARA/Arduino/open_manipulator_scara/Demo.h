@@ -19,7 +19,7 @@
 #ifndef DEMO_H_
 #define DEMO_H_
 
-#include "om_scara_lib.h"
+#include <SCARA.h>
 
 #define MAX_MOTION_NUM 5
 
@@ -33,7 +33,7 @@ double init_arg[2] = {move_time, CONTROL_TIME};
 void *p_init_arg = init_arg;
 double radius = 0.020f;
 
-void test(OM_SCARA *SCARA)
+void test(SCARA *SCARA)
 {
   // if (SCARA->isMoving() || SCARA->drawing()) {
   if (SCARA->isMoving()) {
