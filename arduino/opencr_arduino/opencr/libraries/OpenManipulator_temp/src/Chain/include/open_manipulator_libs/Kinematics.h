@@ -21,16 +21,8 @@
 
 #if defined(__OPENCR__)
   #include <RobotisManipulator.h>
-  #include <DynamixelWorkbench.h>
 #else
   #include <robotis_manipulator/robotis_manipulator.h>
-  #include <dynamixel_workbench_toolbox/dynamixel_workbench.h>
-#endif
-
-#if defined(__OPENCR__)
-  typedef String		  STRING;
-#else
-  typedef std::string STRING;
 #endif
 
 #if defined(__OPENCR__)
