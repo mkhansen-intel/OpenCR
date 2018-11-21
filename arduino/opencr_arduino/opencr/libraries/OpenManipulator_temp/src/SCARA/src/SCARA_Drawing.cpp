@@ -16,7 +16,7 @@
 
 #include "../include/open_manipulator_libs/SCARA_Drawing.h"
 
-using namespace DRAWING;
+using namespace SCARA_DRAWING;
 using namespace Eigen;
 
 //-------------------- Line --------------------//

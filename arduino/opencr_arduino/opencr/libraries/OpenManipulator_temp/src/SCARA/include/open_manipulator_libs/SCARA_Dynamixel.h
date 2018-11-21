@@ -31,7 +31,7 @@
   typedef std::string STRING;
 #endif
 
-namespace DYNAMIXEL
+namespace SCARA_DYNAMIXEL
 {
 
 #define SYNC_WRITE_HANDLER_FOR_GOAL_POSITION 0

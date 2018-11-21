@@ -61,12 +61,12 @@ private:
   ROBOTIS_MANIPULATOR::JointActuator *actuator_;
   ROBOTIS_MANIPULATOR::ToolActuator *tool_;
 
-  DRAWING::Line line_;
-  DRAWING::Circle circle_;
-  DRAWING::Rhombus rhombus_;
-  DRAWING::Heart heart_;
+  SCARA_DRAWING::Line line_;
+  SCARA_DRAWING::Circle circle_;
+  SCARA_DRAWING::Rhombus rhombus_;
+  SCARA_DRAWING::Heart heart_;
 
-  bool platform_;
+  bool using_platform_;
   bool processing_; // for what???
 
   std::vector<uint8_t> jointDxlId;

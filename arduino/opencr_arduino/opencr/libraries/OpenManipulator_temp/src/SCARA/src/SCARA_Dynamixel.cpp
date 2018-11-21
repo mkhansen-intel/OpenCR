@@ -16,7 +16,7 @@
 
 #include "../include/open_manipulator_libs/SCARA_Dynamixel.h"
 
-using namespace DYNAMIXEL;
+using namespace SCARA_DYNAMIXEL;
 
 void JointDynamixel::init(std::vector<uint8_t> actuator_id, const void *arg)
 {

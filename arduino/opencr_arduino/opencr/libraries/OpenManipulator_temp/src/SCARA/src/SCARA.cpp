@@ -33,59 +33,50 @@ void SCARA::initManipulator(bool using_platform, STRING usb_port, STRING baud_ra
   addComponent(COMP1, // my name
                WORLD, // parent name
                COMP2, // child name
-               RM_MATH::makeVector3(-0.278, 0.0, 0.017), // relative position
+               RM_MATH::makeVector3(-0.241, 0.0, 0.057), // relative position
                RM_MATH::convertRPYToRotation(0.0, 0.0, 0.0), // relative orientation
                Z_AXIS, // axis of rotation
-               11); // actuator id
+               1); // actuator id
 
   addComponent(COMP2, // my name
                COMP1, // parent name
                COMP3, // child name
-               RM_MATH::makeVector3(0.0, 0.0, 0.058), // relative position
+               RM_MATH::makeVector3(0.067, 0.0, 0.0), // relative position
                RM_MATH::convertRPYToRotation(0.0, 0.0, 0.0), // relative orientation
-               Y_AXIS, // axis of rotation
-               12); // actuator id
+               Z_AXIS, // axis of rotation
+               2); // actuator id
 
   addComponent(COMP3, // my name
                COMP2, // parent name
-               COMP4, // child name
-               RM_MATH::makeVector3(0.024, 0.0, 0.128), // relative position
-               RM_MATH::convertRPYToRotation(0.0, 0.0, 0.0), // relative orientation
-               Y_AXIS, // axis of rotation
-               13); // actuator id
-
-  addComponent(COMP4, // my name
-               COMP3, // parent name
                TOOL, // child name
-               RM_MATH::makeVector3(0.124, 0.0, 0.0), // relative position
+               RM_MATH::makeVector3(0.067, 0.0, 0.0), // relative position
                RM_MATH::convertRPYToRotation(0.0, 0.0, 0.0), // relative orientation
-               Y_AXIS, // axis of rotation
-               14); // actuator id
+               Z_AXIS, // axis of rotation
+               3); // actuator id
 
   addTool(TOOL, // my name
-          COMP4, // parent name
-          RM_MATH::makeVector3(0.130, 0.0, 0.0), // relative position
+          COMP3, // parent name
+          RM_MATH::makeVector3(0.107, 0.0, 0.0), // relative position
           RM_MATH::convertRPYToRotation(0.0, 0.0, 0.0), // relative orientation
           15, // actuator id
-          -0.015); // Change unit from `meter` to `radian`
+          1.0); // Change unit from `meter` to `radian`  <<<---- what does it mean??
 
   ////////// kinematics init.
-  kinematics_ = new KINEMATICS::Chain();
+  kinematics_ = new SCARA_KINEMATICS::SCARA();
   addKinematics(kinematics_);
 
   if(using_platform_)
   {
     ////////// joint actuator init.
-    actuator_ = new DYNAMIXEL::JointDynamixel();
+    actuator_ = new SCARA_DYNAMIXEL::JointDynamixel();
     // communication setting argument
     STRING dxl_comm_arg[2] = {usb_port, baud_rate};
     void *p_dxl_comm_arg = &dxl_comm_arg;
 
     // set joint actuator id
-    jointDxlId.push_back(11);
-    jointDxlId.push_back(12);
-    jointDxlId.push_back(13);
-    jointDxlId.push_back(14);
+    jointDxlId.push_back(1);
+    jointDxlId.push_back(2);
+    jointDxlId.push_back(3);
 
     addJointActuator(JOINT_DYNAMIXEL, actuator_, jointDxlId, p_dxl_comm_arg);
 
@@ -96,23 +87,15 @@ void SCARA::initManipulator(bool using_platform, STRING usb_port, STRING baud_ra
 
 
     ////////// tool actuator init.
-    tool_ = new DYNAMIXEL::GripperDynamixel();
+    tool_ = new SCARA_DYNAMIXEL::GripperDynamixel();
 
     uint8_t gripperDxlId = 15;
     addToolActuator(TOOL_DYNAMIXEL, tool_, gripperDxlId, p_dxl_comm_arg);
 
     // set gripper actuator control mode
-    STRING gripper_dxl_mode_arg = "current_based_position_mode";
+    STRING gripper_dxl_mode_arg = "position_mode";
     void *p_gripper_dxl_mode_arg = &gripper_dxl_mode_arg;
     toolActuatorSetMode(TOOL_DYNAMIXEL, p_gripper_dxl_mode_arg);
-
-    STRING gripper_dxl_opt_arg[2] = {"Profile_Velocity", "200"};
-    void *p_gripper_dxl_opt_arg = &gripper_dxl_opt_arg;
-    toolActuatorSetMode(TOOL_DYNAMIXEL, p_gripper_dxl_opt_arg);
-
-    gripper_dxl_opt_arg[0] = "Profile_Acceleration";
-    gripper_dxl_opt_arg[1] = "20";
-    toolActuatorSetMode(TOOL_DYNAMIXEL, p_gripper_dxl_opt_arg);
 
     // all actuator enable
     allActuatorEnable();
@@ -129,7 +112,7 @@ void SCARA::initManipulator(bool using_platform, STRING usb_port, STRING baud_ra
   setTrajectoryControlTime(CONTROL_TIME);
 }
 
-void CHAIN::process(double present_time)  //for what..???
+void SCARA::process(double present_time)  //for what..???
 {
   std::vector<WayPoint> goal_value = trajectoryControllerLoop(present_time);
 
@@ -147,7 +130,7 @@ void CHAIN::process(double present_time)  //for what..???
   }
 }
 
-bool CHAIN::getPlatformFlag()
+bool SCARA::getPlatformFlag()
 {
   return using_platform_;
 }
