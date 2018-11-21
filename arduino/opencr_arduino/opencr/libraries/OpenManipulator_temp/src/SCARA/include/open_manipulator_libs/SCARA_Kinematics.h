@@ -19,14 +19,22 @@
 
 #if defined(__OPENCR__)
   #include <RobotisManipulator.h>
+  #include <DynamixelWorkbench.h>
 #else
   #include <robotis_manipulator/robotis_manipulator.h>
+  #include <dynamixel_workbench_toolbox/dynamixel_workbench.h>
+#endif
+
+#if defined(__OPENCR__)
+  typedef String		  STRING;
+#else
+  typedef std::string STRING;
 #endif
 
 using namespace Eigen;
 using namespace ROBOTIS_MANIPULATOR;
 
-namespace KINEMATICS
+namespace SCARA_KINEMATICS
 {
 class SCARA : public ROBOTIS_MANIPULATOR::Kinematics
 {

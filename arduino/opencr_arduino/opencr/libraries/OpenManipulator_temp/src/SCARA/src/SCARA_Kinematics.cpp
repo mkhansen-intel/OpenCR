@@ -19,7 +19,7 @@
 #include "../include/open_manipulator_libs/SCARA_Kinematics.h"
 
 using namespace ROBOTIS_MANIPULATOR;
-using namespace KINEMATICS;
+using namespace SCARA_KINEMATICS;
 
 void SCARA::updatePassiveJointValue(Manipulator *manipulator){}
 
@@ -307,9 +307,9 @@ std::vector<double> SCARA::positionOnlyInverseKinematics(Manipulator *manipulato
   return _manipulator.getAllActiveJointValue();
 }
 
-std::vector<float> SCARA::geometricInverseKinematics(Manipulator *manipulator, Name tool_name, Pose target_pose)
+std::vector<double> SCARA::geometricInverseKinematics(Manipulator *manipulator, Name tool_name, Pose target_pose)
 {
-  std::vector<float> target_angle_vector;
+  std::vector<double> target_angle_vector;
 
   double target_angle[3];
   double link[3];
@@ -392,9 +392,7 @@ std::vector<float> SCARA::geometricInverseKinematics(Manipulator *manipulator, N
 
 void SCARA::setOption(const void *arg)
 {
-  std::string *get_arg_ = (std::string *)arg;
-  uint8_t inverse_solver_option = std::stoi(get_arg_[0]);
+  STRING *get_arg_ = (STRING *)arg;
+  uint8_t inverse_solver_option = std::atoi(get_arg_[0].c_str());
   inverse_solver_option_ = inverse_solver_option;
 }
-
-

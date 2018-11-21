@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef DRAWING_H_
-#define DRAWING_H_
+#ifndef SCARA_DRAWING_H_
+#define SCARA_DRAWING_H_
 
 #if defined(__OPENCR__)
   #include <RobotisManipulator.h>
@@ -28,7 +28,7 @@
 using namespace ROBOTIS_MANIPULATOR;
 using namespace Eigen;
 
-namespace DRAWING
+namespace SCARA_DRAWING
 {
 
 enum AXIS{
