@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
+* Copyright 2018 ROBOTIS CO., LTD.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* Authors: Darby Lim */
+/* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
 
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
@@ -226,11 +226,11 @@ void fromProcessing(CHAIN *chain_, String data)
     }
     else if (cmd[1] == "on")  // save gripper on
     {
-      chain_->toolMove(TOOL, 0.0);
+      chain_->toolMove(TOOL, -0.01);
     }
     else if (cmd[1] == "off")  // save gripper off
     {
-      chain_->toolMove(TOOL, -1.0);
+      chain_->toolMove(TOOL, 0.01);
     }
   }
   else if (cmd[0] == "hand")

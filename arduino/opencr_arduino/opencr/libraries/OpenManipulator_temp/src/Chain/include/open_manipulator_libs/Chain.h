@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
+* Copyright 2018 ROBOTIS CO., LTD.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
+/* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
 
 #ifndef CHAIN_H_
 #define CHAIN_H_
@@ -58,6 +60,7 @@ private:
   ROBOTIS_MANIPULATOR::Kinematics *kinematics_;
   ROBOTIS_MANIPULATOR::JointActuator *actuator_;
   ROBOTIS_MANIPULATOR::ToolActuator *tool_;
+  ROBOTIS_MANIPULATOR::LOG debug_;
 
   DRAWING::Line line_;
   DRAWING::Circle circle_;
@@ -65,10 +68,7 @@ private:
   DRAWING::Heart heart_;
 
   bool platform_;
-  bool processing_;
-
   std::vector<uint8_t> jointDxlId;
-
  public:
   CHAIN();
   virtual ~CHAIN();
@@ -76,6 +76,7 @@ private:
   void initManipulator(bool using_platform, STRING usb_port = "/dev/ttyUSB0", STRING baud_rate = "1000000");
   void chainProcess(double present_time);
   bool getPlatformFlag();
+  ROBOTIS_MANIPULATOR::LOG debugging();
 };
 
 #endif // CHAIN_H_
