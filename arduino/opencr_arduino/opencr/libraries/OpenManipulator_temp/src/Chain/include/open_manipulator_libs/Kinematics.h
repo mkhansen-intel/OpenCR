@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
+* Copyright 2018 ROBOTIS CO., LTD.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+/* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
+
 #ifndef KINEMATICS_H_
 #define KINEMATICS_H_
 
@@ -21,6 +23,12 @@
   #include <RobotisManipulator.h>
 #else
   #include <robotis_manipulator/robotis_manipulator.h>
+#endif
+
+#if defined(__OPENCR__)
+  typedef String		  STRING;
+#else
+  typedef std::string STRING;
 #endif
 
 using namespace Eigen;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
+* Copyright 2018 ROBOTIS CO., LTD.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* Authors: Darby Lim */
+/* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
 
 #include <Chain.h>
 #include "Processing.h"
@@ -27,14 +27,15 @@ double previous_time = 0.0;
 void setup()
 {
   Serial.begin(57600);
- // DEBUG.begin(57600);
+  DEBUG.begin(57600);
   while (!Serial)
   ;
 
   connectProcessing();
   connectRC100();
   
-  chain.initManipulator(false);
+  chain.initManipulator(true);
+  chain.debug_.PRINT("OpenManipulator Debugging Port");
 }
 
 void loop()
@@ -43,11 +44,11 @@ void loop()
   getData(100);
   playProcessingMotion(&chain);
 
-if(present_time-previous_time >= CONTROL_TIME)
+  if(present_time-previous_time >= CONTROL_TIME)
   {
     chain.chainProcess(millis()/1000.0);
-    sendValueToProcessing(&chain);
     previous_time = (float)(millis()/1000.0f);
+    sendValueToProcessing(&chain);
   }
 }
 
