@@ -35,7 +35,7 @@ void setup()
   connectRC100();
   
   chain.initManipulator(true);
-  chain.debugging().PRINT("OpenManipulator Debugging Port");
+  RM_LOG::PRINT("OpenManipulator Debugging Port");
 }
 
 void loop()
