@@ -37,23 +37,15 @@ void test(SCARA *SCARA)
 {
   // if (SCARA->isMoving() || SCARA->drawing()) {
   if (SCARA->isMoving()) {
-    Serial.println("here??1.1");
-    Serial.flush();
     return;
   }
   else {
 
     // Erasing
-    Serial.println("here??1.2");
-    Serial.flush();
     if (motion_erase == 1){
       if (motion_repeat == 0){
-        Serial.println("here??1.2.1");
-        Serial.flush();
         SCARA->toolMove(TOOL, -0.5f);
         motion_repeat++;
-        Serial.println("here??1.3");
-        Serial.flush();
       }    
       else if (motion_repeat == 1){
         std::vector<double> goal_position;
@@ -124,27 +116,18 @@ void test(SCARA *SCARA)
       SCARA->toolMove(TOOL, -0.0f);
 
       if (motion_page == DRAWING_CIRCLE) {
-        // SCARA->drawInit(CIRCLE, move_time, p_init_arg);
-        // SCARA->setRadiusForDrawing(CIRCLE, radius);  
-        // SCARA->setStartPositionForDrawing(CIRCLE, SCARA->getComponentPositionToWorld(TOOL));
-        // SCARA->setStartAngularPositionForDrawing(CIRCLE, start_angular_position);
-        // SCARA->drawingTrajectoryMove(CIRCLE);
         SCARA->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(-0.030, 0.0, 0.0), 2.0);
-        // double draw_circle_arg[3];
-        // draw_circle_arg[0] = 0.035; // Radius (m)
-        // draw_circle_arg[1] = 1;     // Number of revolution
-        // draw_circle_arg[2] = 0.0;   // Starting angular position (rad)
-        // void* p_draw_circle_arg = &draw_circle_arg;
-        // SCARA->drawingTrajectoryMove(DRAWING_CIRCLE, TOOL, p_draw_circle_arg, 10.0);
+        double draw_circle_arg[3];
+        draw_circle_arg[0] = 0.035; // Radius (m)
+        draw_circle_arg[1] = 1;     // Number of revolution
+        draw_circle_arg[2] = 0.0;   // Starting angular position (rad)
+        void* p_draw_circle_arg = &draw_circle_arg;
+        SCARA->drawingTrajectoryMove(DRAWING_CIRCLE, TOOL, p_draw_circle_arg, 10.0);
 
         motion_erase = 1;
         motion_page = DRAWING_CIRCLE2;
       }
       else if (motion_page == DRAWING_CIRCLE2) { 
-        // SCARA->drawInit(CIRCLE, move_time, p_init_arg);
-        // SCARA->setRadiusForDrawing(CIRCLE, radius);  
-        // SCARA->setStartPositionForDrawing(CIRCLE, SCARA->getComponentPositionToWorld(TOOL));
-        // SCARA->setStartAngularPositionForDrawing(CIRCLE, start_angular_position);
         double draw_circle_arg[3];
         draw_circle_arg[0] = 0.020; // Radius (m)
         draw_circle_arg[1] = 1;     // Number of revolution
@@ -163,10 +146,6 @@ void test(SCARA *SCARA)
         }
       } 
       else if (motion_page == DRAWING_RHOMBUS) {
-        // SCARA->drawInit(RHOMBUS, move_time, p_init_arg);
-        // SCARA->setRadiusForDrawing(RHOMBUS, radius);  
-        // SCARA->setStartPositionForDrawing(RHOMBUS, SCARA->getComponentPositionToWorld(TOOL));
-        // SCARA->setStartAngularPositionForDrawing(RHOMBUS, start_angular_position);
         double draw_circle_arg[3];
         draw_circle_arg[0] = 0.035; // Radius (m)
         draw_circle_arg[1] = 1;     // Number of revolution
@@ -178,10 +157,6 @@ void test(SCARA *SCARA)
         motion_page = DRAWING_RHOMBUS2;
       } 
       else if (motion_page == DRAWING_RHOMBUS2) {
-        // SCARA->drawInit(RHOMBUS, move_time, p_init_arg);
-        // SCARA->setRadiusForDrawing(RHOMBUS, radius);  
-        // SCARA->setStartPositionForDrawing(RHOMBUS, SCARA->getComponentPositionToWorld(TOOL));
-        // SCARA->setStartAngularPositionForDrawing(RHOMBUS, start_angular_position);
         double draw_circle_arg[3];
         draw_circle_arg[0] = radius; // Radius (m)
         draw_circle_arg[1] = 1;     // Number of revolution
@@ -200,10 +175,6 @@ void test(SCARA *SCARA)
         }
       } 
       else if (motion_page == DRAWING_HEART) { 
-        // SCARA->drawInit(HEART, move_time, p_init_arg);
-        // SCARA->setRadiusForDrawing(HEART, radius);  
-        // SCARA->setStartPositionForDrawing(HEART, SCARA->getComponentPositionToWorld(TOOL));
-        // SCARA->setStartAngularPositionForDrawing(HEART, start_angular_position);
         double draw_circle_arg[3];
         draw_circle_arg[0] = 0.045; // Radius (m)
         draw_circle_arg[1] = 1;     // Number of revolution

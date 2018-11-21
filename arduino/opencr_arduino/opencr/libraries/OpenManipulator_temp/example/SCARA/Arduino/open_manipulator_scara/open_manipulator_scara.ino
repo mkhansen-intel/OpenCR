@@ -29,7 +29,7 @@ void setup()
 {
   Serial.begin(57600);
  // DEBUG.begin(57600);
-  while (!Serial);
+  // while (!Serial);
 
   connectProcessing();
   connectRC100();
@@ -45,11 +45,7 @@ void loop()
 
 if(present_time-previous_time >= CONTROL_TIME)
   {
-    Serial.println("here??1");
-    Serial.flush();
-    // test(&SCARA);
-    Serial.println("here??2");
-    Serial.flush();
+    test(&SCARA);
     SCARA.process(millis()/1000.0);
     sendValueToProcessing(&SCARA);
     previous_time = (float)(millis()/1000.0f);

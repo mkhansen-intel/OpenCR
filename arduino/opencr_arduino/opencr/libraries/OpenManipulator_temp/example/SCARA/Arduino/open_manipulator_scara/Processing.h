@@ -248,7 +248,6 @@ void playProcessingMotion(SCARA *SCARA_)
       if(!hand_motion_repeat_flag)
         processing_motion_flag = false;
     }
-
   }
 }
 
