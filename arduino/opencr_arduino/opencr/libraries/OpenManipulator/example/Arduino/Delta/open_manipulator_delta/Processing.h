@@ -116,17 +116,23 @@ void fromProcessing(String data)
 
     delta.setPose(TOOL, goal_pose, 1.5f);
   }
-  // else if (cmd[0] == "suction")
-  // {
-  //   if (cmd[1] == "on")
-  //   {
-  //     suctionOn();
-  //   }
-  //   else if (cmd[1] == "off")
-  //   {
-  //     suctionOff();
-  //   }
-  // }
+  else if (cmd[0] == "suction")
+  {
+    if (cmd[1] == "on")
+    {
+      digitalWrite(4, HIGH);      //suction on
+      digitalWrite(7, HIGH);      //suction on
+      digitalWrite(RELAY_PIN, HIGH);      //suction on
+      digitalWrite(12, HIGH);      //suction on
+    }
+    else if (cmd[1] == "off")
+    {
+      digitalWrite(4, LOW);      //suction on
+      digitalWrite(7, LOW);      //suction on
+      digitalWrite(RELAY_PIN, LOW);      //suction on
+      digitalWrite(12, LOW);      //suction on
+    }
+  }
   else if (cmd[0] == "torque")
   {
 #ifdef PLATFORM

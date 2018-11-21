@@ -861,19 +861,20 @@ std::vector<float> Delta::geometricInverse(OM_MANAGER::Manipulator *manipulator,
 
   // Link Lengths
   link[0] = 0.100f;
-  link[1] = 0.217f;
+  link[1] = 0.225f;
+  link[2] = 0.020f;
 
   // Start pose for each set of two joints
   for (int i=0; i<3; i++){
     start_x[i] = cos(PI*2.0/3.0*i)*(-0.055f);
     start_y[i] = sin(PI*2.0/3.0*i)*(-0.055f);
-    start_z[i] = 0.169894;
+    start_z[i] = 0.180;
   }
   
   // Goal pose for each set of two joints
   for (int i=0; i<3; i++){
-    target_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*i)*(-0.020f);
-    target_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*i)*(-0.020f);
+    target_x[i] = target_pose.position(0) + cos(PI*2.0/3.0*i)*(-link[2]);
+    target_y[i] = target_pose.position(1) + sin(PI*2.0/3.0*i)*(-link[2]);
     target_z[i] = target_pose.position(2);
   }
 
@@ -884,16 +885,6 @@ std::vector<float> Delta::geometricInverse(OM_MANAGER::Manipulator *manipulator,
     diff_z[i] = target_z[i] - start_z[i];
   }
 
-  // Length of Position Difference and Target Angle
-  // for (int i=0; i<3; i++){
-  //   temp[i] = diff_x[i]*cos(PI*2.0/3.0*i)+diff_y[i]*sin(PI*2.0/3.0*i);
-  //   temp2[i] = sqrt(temp[i]*temp[i] + diff_z[i]*diff_z[i]);
-  //   temp_angle[i] = acos((link[1]*link[1] - link[0]*link[0] - diff_x[i]*diff_x[i] - diff_y[i]*diff_y[i] - diff_z[i]*diff_z[i])
-  //                   / (2.0*link[0]*temp2[i]));
-  //   temp_angle2[i] = asin(diff_z[i] / temp2[i]);
-  //   target_angle[i] = temp_angle[i] + temp_angle2[i];  
-  // }
-
   for (int i=0; i<3; i++){
     temp[i] = diff_x[i]*cos(PI*2.0/3.0*i)+diff_y[i]*sin(PI*2.0/3.0*i);
     temp2[i] = sqrt(temp[i]*temp[i] + diff_z[i]*diff_z[i]);
@@ -903,25 +894,74 @@ std::vector<float> Delta::geometricInverse(OM_MANAGER::Manipulator *manipulator,
     target_angle[i] = +temp_angle[i] - temp_angle2[i];  
   }
 
+  float elbow_x[3];
+  float elbow_y[3];
+  float elbow_z[3];
+
+  for (int i=0; i<3; i++){
+    elbow_x[i] = start_x[i] - cos(PI*2.0/3.0*i)*link[0]*cos(target_angle[i]);
+    elbow_y[i] = start_y[i] - sin(PI*2.0/3.0*i)*link[0]*cos(target_angle[i]);
+    elbow_z[i] = start_z[i] - link[0]*sin(target_angle[i]);
+  }
+
+  float diff_x2[3];       
+  float diff_y2[3];
+  float diff_z2[3];
+
+  // Pose difference for each set of two joints
+  for (int i=0; i<3; i++){
+    diff_x2[i] = target_x[i] - elbow_x[i];
+    diff_y2[i] = target_y[i] - elbow_y[i];
+    diff_z2[i] = target_z[i] - elbow_z[i];
+  }
+
+  float temp3[3];
+  float temp4[3];
+  for (int i=0; i<3; i++){
+    // temp3[i] = sqrt(diff_x2[i]*diff_x2[i]+diff_y[i]*diff_y[i]+diff_z[i]*diff_z[i]);
+    target_angle[2*i+3] = PI/2 + acos(-diff_z2[i]/link[1]) - target_angle[i];
+    temp3[i] = diff_x2[i]*cos(PI*2.0/3.0*i)+diff_y2[i]*sin(PI*2.0/3.0*i); 
+    temp4[i] =-diff_x2[i]*sin(PI*2.0/3.0*i)+diff_y2[i]*cos(PI*2.0/3.0*i); 
+    target_angle[2*i+4] = asin(temp4[i] / sqrt(link[1]*link[1]-diff_z2[i]*diff_z2[i]));
+    // target_angle[2*i+4] = acos((temp4[i])/ (link[1]*acos(-diff_z2[i])/link[1])));
+    // target_angle[i+3] = PI - acos((link[0]^link[0]+link[1]^link[1]-temp_link[i]^temp_link[i]]) / (2*link[0]*link[1]));
+  }
+
+  target_angle2[0] = target_angle[4];
+  target_angle2[1] = target_angle[6];
+  target_angle2[2] = target_angle[8];
+
+  // ctrl_joint_angle[3] = target_angle[3];
+  // ctrl_joint_angle[4] = target_angle[4];
+  // ctrl_joint_angle[5] = target_angle[5];
+  // ctrl_joint_angle[6] = target_angle[3];
+  // ctrl_joint_angle[7] = target_angle[4];
+  // ctrl_joint_angle[8] = target_angle[5];
+  // ctrl_joint_angle[9] = PI - target_angle[3]; 
+  // ctrl_joint_angle[10] = -target_angle[4]; 
+
   // Set Joint Angle 
-  Serial.println(temp[0],4);
-  Serial.println(temp2[0],4);
-  Serial.println(diff_z[0],4);
-  Serial.println(link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0], 4);
-  Serial.println((link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0])/(-2.0*link[0]*temp2[0]),4);
-  Serial.println(temp_angle[0],4);
-  Serial.println(temp_angle2[0],4);
+  // Serial.println(temp[0],4);
+  // Serial.println(temp2[0],4);
+  // Serial.println(diff_z[0],4);
+  // Serial.println(link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0], 4);
+  // Serial.println((link[1]*link[1] - link[0]*link[0] - diff_x[0]*diff_x[0] - diff_y[0]*diff_y[0] - diff_z[0]*diff_z[0])/(-2.0*link[0]*temp2[0]),4);
+  // Serial.println(temp_angle[0],4);
+  // Serial.println(temp_angle2[0],4);
   Serial.println(target_angle[0],4);
   Serial.println(target_angle[1],4);
   Serial.println(target_angle[2],4);
+  Serial.println(temp4[0],4);
+  Serial.println((link[1]*link[1]-diff_z2[0]*diff_z2[0]),4);
+  Serial.println(temp4[0] / (link[1]*link[1]-diff_z2[0]*diff_z2[0]),4);
+
+
   Serial.println(target_angle2[0],4);
   Serial.println(target_angle2[1],4);
   Serial.println(target_angle2[2],4);
   target_angle_vector.push_back(target_angle[0]);
   target_angle_vector.push_back(target_angle[1]);
   target_angle_vector.push_back(target_angle[2]);
-
-
 
   // float felbow_x[3];       
   // float felbow_y[3];

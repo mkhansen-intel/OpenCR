@@ -16,8 +16,8 @@
 
 /* Authors: Darby Lim */
 
-#ifndef DEMO_H_
-#define DEMO_H_
+#ifndef DEMO2_H_
+#define DEMO2_H_
 
 #include "Delta.h"
 
@@ -39,6 +39,18 @@ float hall[10][2] = {
                     };
 
 const float tool_position[MAX_MOTION_NUM][4] = {// { x, y, z}
+
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+                                                {hall[9][0], hall[9][1], 0.040f, 0},  
+
                                                 // Hall 1
                                                 {hall[0][0], hall[0][1], 0.040f, 0},  
                                                 {hall[0][0], hall[0][1], 0.023f, 0},  
@@ -130,56 +142,13 @@ const float tool_position[MAX_MOTION_NUM][4] = {// { x, y, z}
                                                 {hall[9][0], hall[9][1], 0.055f, 0},  // count = 94 
 
                                                 // For waiting
-                                                {hall[0][0], hall[0][1], 0.040f, 0},  
-                                                {hall[0][0], hall[0][1], 0.040f, 0},  
-                                                {hall[0][0], hall[0][1], 0.040f, 0},  
-                                                {hall[0][0], hall[0][1], 0.040f, 0},  
-                                                {hall[0][0], hall[0][1], 0.040f, 0},  
-
-                                                 // 10 -> 6  
-                                                {hall[9][0], hall[9][1], 0.055f, 0},  
-                                                {hall[9][0], hall[9][1], 0.042f, 1},  
-                                                {hall[9][0], hall[9][1], 0.042f, 1},  
-                                                {hall[9][0], hall[9][1], 0.042f, 1},  
-                                                {hall[9][0], hall[9][1], 0.055f, 1},  
-                                                {hall[5][0], hall[5][1], 0.055f, 1},  
-                                                {hall[5][0], hall[5][1], 0.023f, 1},  
-                                                {hall[5][0], hall[5][1], 0.023f, 1},  
-                                                {hall[5][0], hall[5][1], 0.023f, 0},  
+                                                {hall[5][0], hall[5][1], 0.025f, 0},  
+                                                {hall[5][0], hall[5][1], 0.025f, 0},  
+                                                {hall[5][0], hall[5][1], 0.025f, 0},  
                                                 {hall[5][0], hall[5][1], 0.040f, 0},  
-                                                // 7 -> 5  
-                                                {hall[6][0], hall[6][1], 0.040f, 0},  
-                                                {hall[6][0], hall[6][1], 0.023f, 1},  
-                                                {hall[6][0], hall[6][1], 0.023f, 1},  
-                                                {hall[6][0], hall[6][1], 0.023f, 1},  
-                                                {hall[6][0], hall[6][1], 0.040f, 1},  
-                                                {hall[4][0], hall[4][1], 0.040f, 1},  
-                                                {hall[4][0], hall[4][1], 0.023f, 1},  
-                                                {hall[4][0], hall[4][1], 0.023f, 1},  
-                                                {hall[4][0], hall[4][1], 0.023f, 0},  
-                                                {hall[4][0], hall[4][1], 0.040f, 0},   
-                                                // 8 -> 3  
-                                                {hall[7][0], hall[7][1], 0.040f, 0},  
-                                                {hall[7][0], hall[7][1], 0.023f, 1},  
-                                                {hall[7][0], hall[7][1], 0.023f, 1},  
-                                                {hall[7][0], hall[7][1], 0.023f, 1},  
-                                                {hall[7][0], hall[7][1], 0.040f, 1},  
-                                                {hall[2][0], hall[2][1], 0.040f, 1},  
-                                                {hall[2][0], hall[2][1], 0.023f, 1},  
-                                                {hall[2][0], hall[2][1], 0.023f, 1},  
-                                                {hall[2][0], hall[2][1], 0.023f, 0},  
-                                                {hall[2][0], hall[2][1], 0.040f, 0},  
-                                                // 9 -> 1  
-                                                {hall[8][0], hall[8][1], 0.040f, 0},  
-                                                {hall[8][0], hall[8][1], 0.023f, 1}, 
-                                                {hall[8][0], hall[8][1], 0.023f, 1}, 
-                                                {hall[8][0], hall[8][1], 0.023f, 1}, 
-                                                {hall[8][0], hall[8][1], 0.040f, 1}, 
-                                                {hall[0][0], hall[0][1], 0.040f, 1},  
-                                                {hall[0][0], hall[0][1], 0.023f, 1},  
-                                                {hall[0][0], hall[0][1], 0.023f, 1},  
-                                                {hall[0][0], hall[0][1], 0.023f, 0},  
-                                                {hall[0][0], hall[0][1], 0.040f, 0}
+                                                {hall[5][0], hall[5][1], 0.025f, 0},  
+                                                {hall[5][0], hall[5][1], 0.040f, 0},  
+                                                {hall[5][0], hall[5][1], 0.010f, 0}  
                                                 };
 
 uint8_t motion_cnt = 0;
@@ -195,7 +164,7 @@ float radius = 0.065f;
 float motion_no = 1;
 bool motion[1] = {false};
 
-void test()
+void test2()
 {
   if (delta.moving() || delta.drawing())
   {
@@ -216,7 +185,7 @@ void test()
         target_pose.orientation = OM_MATH::makeMatrix3(1.0f, 0.0f, 0.0f,
                                                       0.0f, 1.0f, 0.0f,
                                                       0.0f, 0.0f, 1.0f);
-        if (motion_cnt <= 33) delta.setPose(TOOL, target_pose, 0.07f);
+        if (motion_cnt <= 43) delta.setPose(TOOL, target_pose, 0.07f);
         else delta.setPose(TOOL, target_pose, 0.15f);
 
         if (tool_position[motion_cnt][3] == 1){
@@ -232,7 +201,7 @@ void test()
 
         motion_cnt++;
 
-        if (motion_cnt == 75){
+        if (motion_cnt == 85){
           // drawing = true;  // why not wokring...?
           drawing_flag = 1;
         }
@@ -252,6 +221,7 @@ void test()
           delta.setStartPositionForDrawing(CIRCLEEDGE2, temp_current_position);
           delta.setStartAngularPositionForDrawing(CIRCLEEDGE2, start_angular_position);
           delta.draw(CIRCLEEDGE2);
+          drawing_flag = 0;
           motion_page = 22;
         }
         else
@@ -266,7 +236,7 @@ void test()
           drawing_flag = 0;
         }
       }
-  }
+  } 
 }
 
-#endif // DEMO_H_
+#endif // DEMO2_H_

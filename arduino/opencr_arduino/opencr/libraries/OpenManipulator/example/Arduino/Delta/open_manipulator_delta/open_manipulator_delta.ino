@@ -19,7 +19,8 @@
 #include "Delta.h"
 #include "Processing.h"
 #include "RemoteController.h"
-#include "demo.h"
+// #include "demo.h"
+#include "demo2.h"
 
 
 // #define BDPIN_PUSH_SW_1         34
@@ -36,8 +37,6 @@ void setup()
   Serial.begin(57600);
   DEBUG.begin(57600);
   // while (!Serial);
-
-
 
   delta.addDraw(CIRCLE, circle);
   delta.addDraw(RHOMBUS, rhombus);
@@ -64,7 +63,8 @@ void loop()
 
   if(present_time-previous_time[0] >= LOOP_TIME)
   {
-    test4();
+    // test();
+    // test2();
     previous_time[0] = (float)(millis()/1000.0f);
   }
 

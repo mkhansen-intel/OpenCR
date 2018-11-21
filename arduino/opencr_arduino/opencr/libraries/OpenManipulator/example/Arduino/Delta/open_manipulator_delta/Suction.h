@@ -25,7 +25,10 @@ void suctionInit()
 {
 #ifdef PLATFORM
   if(suction)
+    pinMode(4, OUTPUT);
+    pinMode(7, OUTPUT);
     pinMode(RELAY_PIN, OUTPUT);
+    pinMode(12, OUTPUT);
 #endif
 }
 
@@ -47,5 +50,10 @@ void suctionOff()
 
 
 #endif
+
+
+
+
+
 
 
