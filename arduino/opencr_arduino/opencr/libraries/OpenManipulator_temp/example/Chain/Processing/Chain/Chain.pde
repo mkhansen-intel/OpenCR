@@ -525,7 +525,7 @@ class ChildApplet extends PApplet
        .setColorActive(color(0,128,0))
        ;
 
-    cp5.addTab("Hand Teaching")
+    cp5.addTab("Hand Guiding")
        .setColorBackground(color(100, 160, 0))
        .setColorLabel(color(255))
        .setColorActive(color(0,0,255))
@@ -547,12 +547,12 @@ class ChildApplet extends PApplet
        .activateEvent(true)
        .setId(2)
        ;
-/*
-    cp5.getTab("Hand Teaching")
+
+    cp5.getTab("Hand Guiding")
        .activateEvent(true)
        .setId(3)
        ;
-*/
+
     cp5.getTab("Motion")
        .activateEvent(true)
        .setId(4)
@@ -569,6 +569,7 @@ class ChildApplet extends PApplet
                    ;
 
     cp5.addToggle("Controller_OnOff")
+       .setCaptionLabel("      Controller Off             Controller On")
        .setPosition(0,50)
        .setSize(400,40)
        .setMode(Toggle.SWITCH)
@@ -656,6 +657,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addButton("Send_Joint_Angle")
+       .setCaptionLabel("Send Joint Angle")
        .setValue(0)
        .setPosition(0,400)
        .setSize(400,40)
@@ -663,6 +665,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addButton("Set_Gripper")
+       .setCaptionLabel("Set Gripper")
        .setValue(0)
        .setPosition(0,460)
        .setSize(400,40)
@@ -670,6 +673,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addToggle("Gripper_OnOff")
+       .setCaptionLabel("          Gripper Open                Gripper Close")
        .setPosition(0,520)
        .setSize(400,40)
        .setMode(Toggle.SWITCH)
@@ -710,6 +714,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addButton("Set")
+       .setCaptionLabel("Basic")
        .setValue(0)
        .setPosition(170,270)
        .setSize(60,60)
@@ -731,6 +736,7 @@ class ChildApplet extends PApplet
       ;
 
    cp5.addToggle("Gripper_pos")
+      .setCaptionLabel("    Gripper")
       .setPosition(165,480)
       .setSize(70,70)
       .setMode(Toggle.SWITCH)
@@ -740,9 +746,10 @@ class ChildApplet extends PApplet
       ;
 
 /*******************************************************************************
-* Init Hand Teaching Controller
+* Init Hand Guiding Controller
 *******************************************************************************/
     cp5.addToggle("Torque_OnOff", true)
+       .setCaptionLabel("          Torque Off                      Torque On")
        .setPosition(0,130)
        .setSize(400,40)
        .setMode(Toggle.SWITCH)
@@ -752,6 +759,7 @@ class ChildApplet extends PApplet
        ;
        
     cp5.addButton("Motion_Clear")
+       .setCaptionLabel("Motion Clear")
        .setValue(0)
        .setPosition(0,210)
        .setSize(200,100)
@@ -759,6 +767,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addButton("Make_Joint_Pose")
+       .setCaptionLabel("Save Joint Pose")
        .setValue(0)
        .setPosition(200,210)
        .setSize(200,100)
@@ -766,6 +775,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addToggle("Make_Gripper_Pose")
+       .setCaptionLabel("          Gripper Open                Gripper Close")
        .setPosition(0,320)
        .setSize(400,40)
        .setMode(Toggle.SWITCH)
@@ -782,6 +792,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addToggle("Motion_Repeat")
+       .setCaptionLabel("     Motion Repeat On          Motion Repeat Off")
        .setPosition(0,490)
        .setSize(400,80)
        .setMode(Toggle.SWITCH)
@@ -822,12 +833,12 @@ class ChildApplet extends PApplet
     cp5.getController("Down").moveTo("Task Space Control");
     cp5.getController("Gripper_pos").moveTo("Task Space Control");
 
-    cp5.getController("Torque_OnOff").moveTo("Hand Teaching");
-    cp5.getController("Motion_Clear").moveTo("Hand Teaching");
-    cp5.getController("Make_Joint_Pose").moveTo("Hand Teaching");
-    cp5.getController("Make_Gripper_Pose").moveTo("Hand Teaching");
-    cp5.getController("Motion_Start").moveTo("Hand Teaching");
-    cp5.getController("Motion_Repeat").moveTo("Hand Teaching");
+    cp5.getController("Torque_OnOff").moveTo("Hand Guiding");
+    cp5.getController("Motion_Clear").moveTo("Hand Guiding");
+    cp5.getController("Make_Joint_Pose").moveTo("Hand Guiding");
+    cp5.getController("Make_Gripper_Pose").moveTo("Hand Guiding");
+    cp5.getController("Motion_Start").moveTo("Hand Guiding");
+    cp5.getController("Motion_Repeat").moveTo("Hand Guiding");
 
     cp5.getController("Start").moveTo("Motion");
     cp5.getController("Stop").moveTo("Motion");
@@ -1117,7 +1128,7 @@ class ChildApplet extends PApplet
   }
 
 /*******************************************************************************
-* Init Function of Hand Teaching Controller
+* Init Function of Hand Guiding Controller
 *******************************************************************************/
   void Torque_OnOff(boolean flag)
   {
