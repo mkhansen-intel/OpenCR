@@ -23,6 +23,7 @@
 #if defined(__OPENCR__)
   #include <Eigen.h>  // Calls main Eigen matrix class library
   #include <Eigen/LU> // Calls inverse, determinant, LU decomp., etc.
+  #include <WString.h>
 #else
   #include <eigen3/Eigen/Eigen>
   #include <eigen3/Eigen/LU>
@@ -32,10 +33,16 @@
 #include <map>
 #include "robotis_manipulator_math.h"
 
+#if defined(__OPENCR__)
+  typedef String		  STRING;
+#else
+  typedef std::string STRING;
+#endif
+
 namespace ROBOTIS_MANIPULATOR
 {
 
-typedef int8_t Name;
+typedef STRING Name;
 
 /////////////////////Pose struct////////////////////////////
 

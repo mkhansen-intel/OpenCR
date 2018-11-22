@@ -25,12 +25,6 @@
   #include <robotis_manipulator/robotis_manipulator.h>
 #endif
 
-#if defined(__OPENCR__)
-  typedef String		  STRING;
-#else
-  typedef std::string STRING;
-#endif
-
 using namespace Eigen;
 using namespace ROBOTIS_MANIPULATOR;
 
@@ -39,9 +33,9 @@ namespace KINEMATICS
 class Chain : public ROBOTIS_MANIPULATOR::Kinematics
 {
 private:
-  int8_t inverse_solver_option_;
+  STRING inverse_solver_option_;
 public:
-  Chain():inverse_solver_option_(0){}
+  Chain():inverse_solver_option_("inverse_maintaining_present_orientation"){}
   virtual ~Chain(){}
 
   virtual void setOption(const void *arg);
@@ -55,7 +49,7 @@ public:
   std::vector<double> inverseKinematics(Manipulator *manipulator, Name tool_name, Pose target_pose);
   std::vector<double> srInverseKinematics(Manipulator *manipulator, Name tool_name, Pose target_pose);
   std::vector<double> positionOnlyInverseKinematics(Manipulator *manipulator, Name tool_name, Pose target_pose);
-  std::vector<double> srInverseKinematicsForOMChain(Manipulator *manipulator, Name tool_name, Pose target_pose);
+  std::vector<double> inverseKinematicsMaintainingPresentOrientation(Manipulator *manipulator, Name tool_name, Pose target_pose);
 
 };
 

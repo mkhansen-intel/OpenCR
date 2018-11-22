@@ -43,24 +43,24 @@ uint16_t readRC100Data()
 void fromRC100(CHAIN* chain_, uint16_t data)
 {
   if (data & RC100_BTN_U)
-    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.007, 0.0, 0.0), 0.16);
+    chain_->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.007, 0.0, 0.0), 0.16);
   else if (data & RC100_BTN_D)
-    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(-0.007, 0.0, 0.0), 0.16);
+    chain_->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(-0.007, 0.0, 0.0), 0.16);
   else if (data & RC100_BTN_L)
-    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.007, 0.0), 0.16);
+    chain_->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.0, 0.007, 0.0), 0.16);
   else if (data & RC100_BTN_R)
-    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, -0.007, 0.0), 0.16);
+    chain_->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.0, -0.007, 0.0), 0.16);
   else if (data & RC100_BTN_1)
-    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.0, 0.007), 0.16);
+    chain_->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.0, 0.0, 0.007), 0.16);
   else if (data & RC100_BTN_3)
-    chain_->taskTrajectoryMoveToPresentPosition(TOOL, RM_MATH::makeVector3(0.0, 0.0, -0.007), 0.16);
+    chain_->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.0, 0.0, -0.007), 0.16);
   else if (data & RC100_BTN_2)
   {
     grip_value += 0.0020;
     if (grip_value >= 0.01f)
       grip_value = 0.01f;
 
-    chain_->toolMove(TOOL, grip_value);
+    chain_->toolMove("tool", grip_value);
   }
   else if (data & RC100_BTN_4)
   {
@@ -68,7 +68,7 @@ void fromRC100(CHAIN* chain_, uint16_t data)
     if (grip_value <= -0.01f)
       grip_value = -0.01f;
 
-    chain_->toolMove(TOOL, grip_value);
+    chain_->toolMove("tool", grip_value);
   }
   else if (data & RC100_BTN_5)
   {
