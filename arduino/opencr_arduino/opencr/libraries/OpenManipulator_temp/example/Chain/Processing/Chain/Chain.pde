@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
+* Copyright 2018 ROBOTIS CO., LTD.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* Authors: Darby Lim */
+/* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
+
 
 /**
- * this code is compatible with d_open_manipulator_chain.ino
+ * this code is compatible with open_manipulator_chain.ino
 **/
 
 // Multiple Window
@@ -785,6 +786,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addButton("Motion_Start")
+       .setCaptionLabel("Motion Start")
        .setValue(0)
        .setPosition(0,400)
        .setSize(400,80)
@@ -792,7 +794,7 @@ class ChildApplet extends PApplet
        ;
 
     cp5.addToggle("Motion_Repeat")
-       .setCaptionLabel("     Motion Repeat On          Motion Repeat Off")
+       .setCaptionLabel("     Motion Repeat Off         Motion Repeat On")
        .setPosition(0,490)
        .setSize(400,80)
        .setMode(Toggle.SWITCH)
