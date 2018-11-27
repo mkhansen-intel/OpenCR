@@ -80,7 +80,7 @@ void RobotisManipulator::addTool(Name my_name,
                           Eigen::Vector3d center_of_mass)
 {
 
-  manipulator_.addTool(my_name, parent_name, relative_position, relative_orientation, tool_id, coefficient, max_limit, min_limit, mass,
+  manipulator_.addTool(my_name, parent_name, relative_position, relative_orientation, tool_id, max_limit, min_limit, coefficient, mass,
                        inertia_tensor, center_of_mass);
 }
 

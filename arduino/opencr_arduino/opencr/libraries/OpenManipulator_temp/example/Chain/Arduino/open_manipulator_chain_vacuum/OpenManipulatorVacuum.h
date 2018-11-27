@@ -19,12 +19,11 @@
 #ifndef OPEN_MANIPULATOR_VACUUM_H_
 #define OPEN_MANIPULATOR_VACUUM_H_
 
-#include "Drawing.h"
-#include "Kinematics.h"
+#include <Chain.h>
 #include "Actuator.h"
 
 #define NUM_OF_JOINT 4
-#define DXL_SIZE 5
+#define DXL_SIZE 4
 
 #define DRAWING_LINE "drawing_line"
 #define DRAWING_CIRCLE "drawing_circle"
@@ -32,6 +31,7 @@
 #define DRAWING_HEART "drawing_heart"
 
 #define JOINT_DYNAMIXEL "joint_dxl"
+#define TOOL_VACUUM "tool_vacuum"
 
 #define CONTROL_TIME 0.010 //s
 
@@ -39,8 +39,7 @@
 #define Y_AXIS RM_MATH::makeVector3(0.0, 1.0, 0.0)
 #define Z_AXIS RM_MATH::makeVector3(0.0, 0.0, 1.0)
 
-
-class OPEN_MANIPULATOR : public ROBOTIS_MANIPULATOR::RobotisManipulator
+class OPEN_MANIPULATOR_VACUUM : public ROBOTIS_MANIPULATOR::RobotisManipulator
 {
 private:
   ROBOTIS_MANIPULATOR::Kinematics *kinematics_;
@@ -55,8 +54,8 @@ private:
   bool platform_;
   std::vector<uint8_t> jointDxlId;
  public:
-  OPEN_MANIPULATOR();
-  virtual ~OPEN_MANIPULATOR();
+  OPEN_MANIPULATOR_VACUUM();
+  virtual ~OPEN_MANIPULATOR_VACUUM();
 
   void initManipulator(bool using_platform, STRING usb_port = "/dev/ttyUSB0", STRING baud_rate = "1000000");
   void openManipulatorProcess(double present_time);

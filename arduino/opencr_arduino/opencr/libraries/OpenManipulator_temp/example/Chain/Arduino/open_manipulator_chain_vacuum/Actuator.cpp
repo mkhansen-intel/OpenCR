@@ -174,7 +174,7 @@ bool JointDynamixel::setOperatingMode(std::vector<uint8_t> actuator_id, STRING d
   {
     for (uint8_t num = 0; num < actuator_id.size(); num++)
     {
-      result = dynamixel_workbench_->CurrentBasedPositionMode(actuator_id.at(num), current, &log);
+      result = dynamixel_workbench_->currentBasedPositionMode(actuator_id.at(num), current, &log);
       if (result == false)
       {
         RM_LOG::ERROR(log);
@@ -349,39 +349,46 @@ std::vector<ROBOTIS_MANIPULATOR::Actuator> JointDynamixel::receiveAllDynamixelVa
 
 void GripperVacuum::init(uint8_t actuator_id, const void *arg)
 {
+  actuator_id_ = actuator_id;
+  tool_value_ = 0.0;
   pinMode(BDPIN_RELAY, OUTPUT);
   pinMode(BDPIN_PUMP_MOTOR, OUTPUT);
-  return;
 }
 
 void GripperVacuum::setMode(const void *arg)
-{
-  return;
-}
+{}
 
 uint8_t GripperVacuum::getId()
 {
-  return 0;//dynamixel_.id.at(0);
+  return actuator_id_;
 }
 
 void GripperVacuum::enable()
-{
-  
-}
+{}
 
 void GripperVacuum::disable()
-{
-  
-}
+{}
 
 bool GripperVacuum::sendToolActuatorValue(double value)
 {
-  return true;//GripperVacuum::writeGoalPosition(value);
+  if(value == 0.0)
+  {
+    tool_value_ = 0.0;
+    digitalWrite(BDPIN_RELAY, LOW);
+    digitalWrite(BDPIN_PUMP_MOTOR, LOW);
+  }
+  else if(value == 1.0)
+  {
+    tool_value_ = 1.0;
+    digitalWrite(BDPIN_RELAY, HIGH);
+    digitalWrite(BDPIN_PUMP_MOTOR, HIGH);
+  }
+  return true;
 }
 
 double GripperVacuum::receiveToolActuatorValue()
 {
-  return 0.0;//GripperVacuum::receiveDynamixelValue();
+  return tool_value_;
 }
 
 //////////////////////////////////////////////////////////////////////////

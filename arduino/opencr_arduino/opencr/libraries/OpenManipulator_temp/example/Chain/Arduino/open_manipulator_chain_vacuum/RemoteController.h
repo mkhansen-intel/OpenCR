@@ -23,7 +23,6 @@
 #include <RC100.h>
 
 RC100 rc100;
-double grip_value = 0.0;
 
 void connectRC100()
 {
@@ -40,7 +39,7 @@ uint16_t readRC100Data()
   return rc100.readData();
 }
 
-void fromRC100(OPEN_MANIPULATOR* open_manipulator, uint16_t data)
+void fromRC100(OPEN_MANIPULATOR_VACUUM* open_manipulator, uint16_t data)
 {
   if (data & RC100_BTN_U)
     open_manipulator->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.007, 0.0, 0.0), 0.16);
@@ -56,19 +55,11 @@ void fromRC100(OPEN_MANIPULATOR* open_manipulator, uint16_t data)
     open_manipulator->taskTrajectoryMoveToPresentPosition("tool", RM_MATH::makeVector3(0.0, 0.0, -0.007), 0.16);
   else if (data & RC100_BTN_2)
   {
-    grip_value += 0.0020;
-    if (grip_value >= 0.01f)
-      grip_value = 0.01f;
-
-    open_manipulator->toolMove("tool", grip_value);
+    open_manipulator->toolMove("tool", 1.0);
   }
   else if (data & RC100_BTN_4)
-  {
-    grip_value -= 0.002;
-    if (grip_value <= -0.01f)
-      grip_value = -0.01f;
-
-    open_manipulator->toolMove("tool", grip_value);
+  { 
+    open_manipulator->toolMove("tool", 0.0);
   }
   else if (data & RC100_BTN_5)
   {

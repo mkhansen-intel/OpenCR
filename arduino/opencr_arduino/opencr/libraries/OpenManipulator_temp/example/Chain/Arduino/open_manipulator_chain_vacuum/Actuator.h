@@ -94,6 +94,8 @@ class JointDynamixel : public ROBOTIS_MANIPULATOR::JointActuator
 class GripperVacuum : public ROBOTIS_MANIPULATOR::ToolActuator
 {
  private:
+  int8_t actuator_id_;
+  double tool_value_;
 
  public:
   GripperVacuum() {}

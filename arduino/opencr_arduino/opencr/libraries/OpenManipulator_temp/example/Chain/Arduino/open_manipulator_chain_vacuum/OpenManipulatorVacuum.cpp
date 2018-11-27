@@ -18,12 +18,12 @@
 
 #include "OpenManipulatorVacuum.h"
 
-OPEN_MANIPULATOR::OPEN_MANIPULATOR()
+OPEN_MANIPULATOR_VACUUM::OPEN_MANIPULATOR_VACUUM()
 {}
-OPEN_MANIPULATOR::~OPEN_MANIPULATOR()
+OPEN_MANIPULATOR_VACUUM::~OPEN_MANIPULATOR_VACUUM()
 {}
 
-void OPEN_MANIPULATOR::initManipulator(bool using_platform, STRING usb_port, STRING baud_rate)
+void OPEN_MANIPULATOR_VACUUM::initManipulator(bool using_platform, STRING usb_port, STRING baud_rate)
 {
   platform_ = using_platform;
   ////////// manipulator parameter initialization
@@ -117,13 +117,13 @@ void OPEN_MANIPULATOR::initManipulator(bool using_platform, STRING usb_port, STR
     ////////// tool actuator init.
     tool_ = new ACTUATOR::GripperVacuum();
 
-    uint8_t gripperDxlId = 15;
-    addToolActuator("tool_vacuum", tool_, gripperDxlId, NULL);
+    uint8_t toolId = 15;
+    addToolActuator(TOOL_VACUUM, tool_, toolId, NULL);
 
     // all actuator enable
     allActuatorEnable();
     receiveAllJointActuatorValue();
-    receiveToolActuatorValue("tool");
+    receiveAllToolActuatorValue();
   }
   ////////// drawing path
   addDrawingTrajectory(DRAWING_LINE, &line_);
@@ -135,24 +135,27 @@ void OPEN_MANIPULATOR::initManipulator(bool using_platform, STRING usb_port, STR
   setTrajectoryControlTime(CONTROL_TIME);
 }
 
-void OPEN_MANIPULATOR::openManipulatorProcess(double present_time)
+void OPEN_MANIPULATOR_VACUUM::openManipulatorProcess(double present_time)
 {
-  std::vector<WayPoint> goal_value = trajectoryControllerLoop(present_time);
- if(platform_)
- {
-   receiveAllJointActuatorValue();
-   receiveToolActuatorValue("tool");
-   if(goal_value.size() != 0)  sendAllJointActuatorValue(goal_value);
-   forward();
- }
- else
- {
-   if(goal_value.size() != 0) setAllActiveJointValue(goal_value); // visualization
-   forward();
- }
+  std::vector<WayPoint> goal_value  = getJointGoalValueFromTrajectory(present_time);
+  std::vector<double> tool_value    = getToolGoalValue();
+
+  if(platform_)
+  {
+    receiveAllJointActuatorValue();
+    receiveAllToolActuatorValue();
+    if(goal_value.size() != 0) sendAllJointActuatorValue(goal_value);
+    if(tool_value.size() != 0) sendAllToolActuatorValue(tool_value);
+  }
+  else // visualization
+  {
+    if(goal_value.size() != 0) setAllActiveJointWayPoint(goal_value);
+    if(tool_value.size() != 0) setAllToolValue(tool_value);
+  }
+  forward();
 }
 
-bool OPEN_MANIPULATOR::getPlatformFlag()
+bool OPEN_MANIPULATOR_VACUUM::getPlatformFlag()
 {
   return platform_;
 }

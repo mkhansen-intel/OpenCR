@@ -124,10 +124,7 @@ void sendToolData2Processing(double value)
 void sendValueToProcessing(OPEN_MANIPULATOR *open_manipulator)
 {
   sendAngle2Processing(open_manipulator->getManipulator()->getAllActiveJointValue());
-  if(open_manipulator->getPlatformFlag()) 
-    sendToolData2Processing(open_manipulator->getManipulator()->getValue("tool"));
-  else
-    sendToolData2Processing(open_manipulator->getManipulator()->getToolGoalValue("tool"));
+  sendToolData2Processing(open_manipulator->getManipulator()->getValue("tool"));
 }
 
 
@@ -220,7 +217,7 @@ void fromProcessing(OPEN_MANIPULATOR *open_manipulator, String data)
       MotionWayPoint read_value;
       read_value.angle = open_manipulator->getManipulator()->getAllActiveJointValue();
       read_value.path_time = 2.0;
-      read_value.gripper_value = open_manipulator->getManipulator()->getToolGoalValue("tool");
+      read_value.gripper_value = open_manipulator->getManipulator()->getValue("tool");
       motion_way_point_buf.push_back(read_value);  
       hand_motion_cnt = 0;
     }

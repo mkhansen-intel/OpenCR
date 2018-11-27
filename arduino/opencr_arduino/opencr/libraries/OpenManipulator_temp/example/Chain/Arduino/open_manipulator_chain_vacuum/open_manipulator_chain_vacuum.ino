@@ -20,10 +20,7 @@
 #include "Processing.h"
 #include "RemoteController.h"
 
-#define BDPIN_RELAY         8
-#define BDPIN_PUMP_MOTOR    12
-
-OPEN_MANIPULATOR open_manipulator;
+OPEN_MANIPULATOR_VACUUM open_manipulator;
 double present_time = 0.0;
 double previous_time = 0.0;
 
@@ -36,11 +33,8 @@ void setup()
 
   connectProcessing();
   connectRC100();
-
-  pinMode(BDPIN_RELAY, OUTPUT);
-  pinMode(BDPIN_PUMP_MOTOR, OUTPUT);
   
-  open_manipulator.initManipulator(false);
+  open_manipulator.initManipulator(true);
   RM_LOG::PRINT("OpenManipulator Debugging Port");
 }
 
