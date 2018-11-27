@@ -19,7 +19,7 @@
 #ifndef PROCESSING_H_
 #define PROCESSING_H_
 
-#include <Chain.h>
+#include "OpenManipulatorVacuum.h"
 
 typedef struct _MotionWayPoint
 {
@@ -255,27 +255,34 @@ void fromProcessing(OPEN_MANIPULATOR *open_manipulator, String data)
   {
     if (cmd[1] == "start")
     {
-      Pose present_pose = open_manipulator->getManipulator()->getComponentPoseToWorld("tool");
-      WayPoint draw_goal_pose[6];
-      draw_goal_pose[0].value = present_pose.position(0) + 0.02;
-      draw_goal_pose[1].value = present_pose.position(1) + 0.02;
-      draw_goal_pose[2].value = present_pose.position(2) - 0.02;
-      draw_goal_pose[3].value = RM_MATH::convertRotationToRPY(present_pose.orientation)[0];
-      draw_goal_pose[4].value = RM_MATH::convertRotationToRPY(present_pose.orientation)[1];
-      draw_goal_pose[5].value = RM_MATH::convertRotationToRPY(present_pose.orientation)[2];
+      // Pose present_pose = open_manipulator->getManipulator()->getComponentPoseToWorld("tool");
+      // WayPoint draw_goal_pose[6];
+      // draw_goal_pose[0].value = present_pose.position(0) + 0.02;
+      // draw_goal_pose[1].value = present_pose.position(1) + 0.02;
+      // draw_goal_pose[2].value = present_pose.position(2) - 0.02;
+      // draw_goal_pose[3].value = RM_MATH::convertRotationToRPY(present_pose.orientation)[0];
+      // draw_goal_pose[4].value = RM_MATH::convertRotationToRPY(present_pose.orientation)[1];
+      // draw_goal_pose[5].value = RM_MATH::convertRotationToRPY(present_pose.orientation)[2];
 
-      void *p_draw_goal_pose = &draw_goal_pose;
+      // void *p_draw_goal_pose = &draw_goal_pose;
       
-      open_manipulator->drawingTrajectoryMove(DRAWING_LINE, "tool", p_draw_goal_pose, 1.0);
+      // open_manipulator->drawingTrajectoryMove(DRAWING_LINE, "tool", p_draw_goal_pose, 1.0);
+      digitalWrite(8, LOW); // relay pin
+      digitalWrite(12, LOW); // pump pin
+
     }
     else if (cmd[1] == "stop")
     {
-      double draw_circle_arg[3];
-      draw_circle_arg[0] = 0.03; // radius (m)
-      draw_circle_arg[1] = 2;    // revolution
-      draw_circle_arg[2] = 0.0;  // start angle position (rad)
-      void* p_draw_circle_arg = &draw_circle_arg;
-      open_manipulator->drawingTrajectoryMove(DRAWING_CIRCLE, "tool", p_draw_circle_arg, 4.0);
+      digitalWrite(8, HIGH); // relay pin
+      digitalWrite(12, HIGH); // pump pin
+      // double draw_circle_arg[3];
+      // draw_circle_arg[0] = 0.03; // radius (m)
+      // draw_circle_arg[1] = 2;    // revolution
+      // draw_circle_arg[2] = 0.0;  // start angle position (rad)
+      // void* p_draw_circle_arg = &draw_circle_arg;
+      // open_manipulator->drawingTrajectoryMove(DRAWING_CIRCLE, "tool", p_draw_circle_arg, 4.0);
+
+
 
     }
   }

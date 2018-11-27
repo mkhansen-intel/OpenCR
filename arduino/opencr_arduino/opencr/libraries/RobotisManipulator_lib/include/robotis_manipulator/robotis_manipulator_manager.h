@@ -31,7 +31,7 @@
 namespace ROBOTIS_MANIPULATOR
 {
 
-class Kinematics : public Manipulator
+class Kinematics
 {
 public:
   Kinematics(){};
@@ -42,7 +42,7 @@ public:
   virtual Eigen::MatrixXd jacobian(Manipulator *manipulator, Name tool_name) = 0;
   virtual void forward(Manipulator *manipulator) = 0;
   virtual void forward(Manipulator *manipulator, Name component_name) = 0;
-  virtual std::vector<double> inverse(Manipulator *manipulator, Name tool_name, Pose target_pose) = 0;
+  virtual bool inverse(Manipulator *manipulator, Name tool_name, Pose target_pose, std::vector<double>* goal_joint_value) = 0;
 };
 
 class JointActuator

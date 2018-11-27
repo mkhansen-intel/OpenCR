@@ -16,9 +16,12 @@
 
 /* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
 
-#include <Chain.h>
+#include "OpenManipulatorVacuum.h"
 #include "Processing.h"
 #include "RemoteController.h"
+
+#define BDPIN_RELAY         8
+#define BDPIN_PUMP_MOTOR    12
 
 OPEN_MANIPULATOR open_manipulator;
 double present_time = 0.0;
@@ -33,8 +36,11 @@ void setup()
 
   connectProcessing();
   connectRC100();
+
+  pinMode(BDPIN_RELAY, OUTPUT);
+  pinMode(BDPIN_PUMP_MOTOR, OUTPUT);
   
-  open_manipulator.initManipulator(true);
+  open_manipulator.initManipulator(false);
   RM_LOG::PRINT("OpenManipulator Debugging Port");
 }
 

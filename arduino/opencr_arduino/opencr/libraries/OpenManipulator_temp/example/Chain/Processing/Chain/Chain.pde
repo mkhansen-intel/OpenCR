@@ -1265,7 +1265,7 @@ class ChildApplet extends PApplet
     {
       opencr_port.write("motion"  + ',' +
                         "stop"    + '\n');
-      println("Motion Stop!12!!");
+      println("Motion Stop!!!");
     }
     else
     {
