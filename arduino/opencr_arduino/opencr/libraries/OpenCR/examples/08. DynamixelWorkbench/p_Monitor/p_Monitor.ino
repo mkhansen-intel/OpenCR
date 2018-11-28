@@ -87,7 +87,7 @@ void loop()
     else if (cmd[0] == "scan")
     { 
       if (cmd[1] == '\0')
-        cmd[1] = String("100");
+        cmd[1] = String("253");
 
       uint8_t range = cmd[1].toInt();
       result = dxl_wb.scan(get_id, &scan_cnt, range);
@@ -164,43 +164,55 @@ void loop()
             {
               uint32_t data = 0;
 
-              switch (control_item[index].data_length)
+              if (dxl_wb.getProtocolVersion() == 2.0f)
               {
-                case BYTE:
-                  data = getAllRegisteredData[control_item[index].address];
-                  Serial.print("\t");
-                  Serial.print(control_item[index].item_name);
-                  Serial.print(" : ");
-                  Serial.println(data);
-                  break;
+                data = getAllRegisteredData[control_item[index].address];
+                Serial.print("\t");
+                Serial.print(control_item[index].item_name);
+                Serial.print(" : ");
+                Serial.println(data);
+              }
+              else if (dxl_wb.getProtocolVersion() == 1.0f)
+              {
+                switch (control_item[index].data_length)
+                {
+                  case BYTE:
+                    data = getAllRegisteredData[control_item[index].address];
+                    Serial.print("\t");
+                    Serial.print(control_item[index].item_name);
+                    Serial.print(" : ");
+                    Serial.println(data);
+                    break;
 
-                case WORD:
-                  data = DXL_MAKEWORD(getAllRegisteredData[control_item[index].address], getAllRegisteredData[control_item[index].address+1]);
-                  Serial.print("\t");
-                  Serial.print(control_item[index].item_name);
-                  Serial.print(" : ");
-                  Serial.println(data);
-                  break;
+                  case WORD:
+                    data = DXL_MAKEWORD(getAllRegisteredData[control_item[index].address], getAllRegisteredData[control_item[index].address+1]);
+                    Serial.print("\t");
+                    Serial.print(control_item[index].item_name);
+                    Serial.print(" : ");
+                    Serial.println(data);
+                    break;
 
-                case DWORD:
-                  data = DXL_MAKEDWORD(DXL_MAKEWORD(getAllRegisteredData[control_item[index].address],   getAllRegisteredData[control_item[index].address+1]),
-                                        DXL_MAKEWORD(getAllRegisteredData[control_item[index].address+2], getAllRegisteredData[control_item[index].address+3]));
-                  Serial.print("\t");
-                  Serial.print(control_item[index].item_name);
-                  Serial.print(" : ");
-                  Serial.println(data);
-                  break;
+                  case DWORD:
+                    data = DXL_MAKEDWORD(DXL_MAKEWORD(getAllRegisteredData[control_item[index].address],   getAllRegisteredData[control_item[index].address+1]),
+                                          DXL_MAKEWORD(getAllRegisteredData[control_item[index].address+2], getAllRegisteredData[control_item[index].address+3]));
+                    Serial.print("\t");
+                    Serial.print(control_item[index].item_name);
+                    Serial.print(" : ");
+                    Serial.println(data);
+                    break;
 
-                default:
-                  data = getAllRegisteredData[control_item[index].address];
-                  break;
-              } 
+                  default:
+                    data = getAllRegisteredData[control_item[index].address];
+                    break;
+                } 
+              }
             }
           }
         }
       }
       else if (cmd[0] == "sync_write_handler")
       {
+        static uint8_t sync_write_handler_index = 0;
         uint8_t id = cmd[1].toInt();
 
         result = dxl_wb.addSyncWriteHandler(id, cmd[2].c_str(), &log);
@@ -213,12 +225,13 @@ void loop()
         else
         {
           Serial.println(log);
-          Serial.print("sync_write_handler_cnt = ");
-          Serial.println(dxl_wb.getTheNumberOfSyncWriteHandler());
+          Serial.print("sync_write_handler_index = ");
+          Serial.println(sync_write_handler_index);
         }
       }
       else if (cmd[0] == "sync_read_handler")
       {
+        static uint8_t sync_read_handler_index = 0;
         uint8_t id = cmd[1].toInt();        
 
         result = dxl_wb.addSyncReadHandler(id, cmd[2].c_str(), &log);
@@ -231,8 +244,8 @@ void loop()
         else
         {
           Serial.println(log);
-          Serial.print("sync_read_handler_cnt = ");
-          Serial.println(dxl_wb.getTheNumberOfSyncReadHandler());
+          Serial.print("sync_read_handler_index = ");
+          Serial.println(sync_read_handler_index);
         }
       }
       else if (cmd[0] == "bulk_write_handler")
@@ -300,23 +313,38 @@ void loop()
       }
       else if (cmd[0] == "bulk_read")
       {
-        uint32_t data[2] = {0, 0};
-
-        result = dxl_wb.getBulkReadData((int32_t *)data, &log);
+        result = dxl_wb.bulkRead(&log);
         if (result == false)
         {
           Serial.println(log);
-          Serial.print("Failed to bulk read\n");
+          Serial.println("Failed to bulk read");
+          return;
+        }
+        else
+          printf("%s\n", log);
+
+        int32_t get_data[dxl_wb.getTheNumberOfBulkReadParam()];
+        result = dxl_wb.getBulkReadData(&get_data[0], &log);
+        if (result == false)
+        {
+          Serial.println(log);
+          Serial.println("Failed to get bulk read data");
           return;
         }
         else
         {
           Serial.println(log);
-          Serial.print("data[0] : ");
-          Serial.print(data[0]);
-          Serial.print(" data[1] : ");
-          Serial.println(data[1]);
+          for (uint8_t index = 0; index < dxl_wb.getTheNumberOfBulkReadParam(); index++)
+          {
+            Serial.print("data[");
+            Serial.print(index);
+            Serial.print("] : ");
+            Serial.print(get_data[index]);
+          }
+          Serial.println("");
         }
+
+        dxl_wb.clearBulkReadParam();
       }
       else if (isAvailableID(cmd[1].toInt()) && isAvailableID(cmd[2].toInt()))
       {
@@ -324,6 +352,8 @@ void loop()
         {
           uint8_t id_1 = cmd[1].toInt();
           uint8_t id_2 = cmd[2].toInt();
+          uint8_t id[2] = {id_1, id_2};
+          uint8_t id_num = 2;
 
           int32_t data[2] = {0, 0};
           data[0] = cmd[4].toInt();
@@ -331,7 +361,7 @@ void loop()
 
           uint8_t handler_index = cmd[3].toInt();
 
-          result = dxl_wb.syncWrite(handler_index, (int32_t *)data, &log);
+          result = dxl_wb.syncWrite(handler_index, id, id_num, (int32_t *)data, &log);
           if (result == false)
           {
             Serial.println(log);
@@ -370,10 +400,16 @@ void loop()
           else
           {
             Serial.println(log);
-            Serial.print("data[0] : ");
-            Serial.print(data[0]);
-            Serial.print(" data[1] : ");
-            Serial.println(data[1]);
+            Serial.print("[ID ");
+            Serial.print(cmd[1].toInt());
+            Serial.print(" ]");
+            Serial.print(" data : ");
+            Serial.println(data[0]);
+            Serial.print("[ID ");
+            Serial.print(cmd[2].toInt());
+            Serial.print(" ]");
+            Serial.print(" data : ");
+            Serial.println(data[0]);
           }
         }
       }
@@ -630,9 +666,9 @@ void printInst(void)
   Serial.print("wheel  (ID) (GOAL_VELOCITY)\n");
   Serial.print("write  (ID) (ADDRESS_NAME) (DATA)\n");
   Serial.print("read   (ID) (ADDRESS_NAME)\n");
-  Serial.print("sync_write_handler (ID) (ADDRESS_NAME)\n");
+  Serial.print("sync_write_handler (Ref_ID) (ADDRESS_NAME)\n");
   Serial.print("sync_write (ID_1) (ID_2) (HANDLER_INDEX) (PARAM_1) (PARAM_2)\n");
-  Serial.print("sync_read_handler (ID) (ADDRESS_NAME)\n");
+  Serial.print("sync_read_handler (Ref_ID) (ADDRESS_NAME)\n");
   Serial.print("sync_read (ID_1) (ID_2) (HANDLER_INDEX)\n");
   Serial.print("bulk_write_handler\n");
   Serial.print("bulk_write_param (ID) (ADDRESS_NAME) (PARAM)\n");

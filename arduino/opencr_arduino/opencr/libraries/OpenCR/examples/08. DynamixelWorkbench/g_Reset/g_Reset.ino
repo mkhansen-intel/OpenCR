@@ -25,46 +25,60 @@
 #endif   
 
 #define BAUDRATE  57600
-#define DXL_ID    1
+#define DXL_ID    2
 
 DynamixelWorkbench dxl_wb;
 
 void setup() 
 {
   Serial.begin(57600);
-  // while(!Serial); // If this line is activated, you need to open Serial Terminal.
+  while(!Serial); // Wait for Opening Serial Monitor
 
-  dxl_wb.begin(DEVICE_NAME, BAUDRATE);
-  dxl_wb.ping(DXL_ID);
+  const char *log;
+  bool result = false;
 
-  dxl_wb.jointMode(DXL_ID);
+  uint8_t dxl_id = DXL_ID;
+  uint16_t model_number = 0;
+
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to init");
+  }
+  else
+  {
+    Serial.print("Succeeded to init : ");
+    Serial.println(BAUDRATE);  
+  }
+
+  result = dxl_wb.ping(dxl_id, &model_number, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to ping");
+  }
+  else
+  {
+    Serial.println("Succeeded to ping");
+    Serial.print("id : ");
+    Serial.print(dxl_id);
+    Serial.print(" model_number : ");
+    Serial.println(model_number);
+  }
+
+  result = dxl_wb.reset(dxl_id, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to reset");
+  }
+  else
+  {
+    Serial.println("Succeed to reset");
+  }
 }
 
 void loop() 
 {
-  static int index = 0;
-  int32_t present_position = 0;
-  int32_t goal_position[2] = {1000, 2000};
-  
-  dxl_wb.itemWrite(DXL_ID, "Goal_Position", goal_position[index]);
-
-  do
-  {
-    present_position = dxl_wb.itemRead(DXL_ID, "Present_Position");
-    Serial.print("[ ID :"     + String(DXL_ID)                + 
-                 " GoalPos :" + String(goal_position[index])  + 
-                 " PresPos :" + String(present_position)      + 
-                 " ]");
-                 
-    Serial.println("");
-  }while(abs(goal_position[index] - present_position) > 20);
-
-  if (index == 0)
-  {
-    index = 1;
-  }
-  else
-  {
-    index = 0;
-  }
 }

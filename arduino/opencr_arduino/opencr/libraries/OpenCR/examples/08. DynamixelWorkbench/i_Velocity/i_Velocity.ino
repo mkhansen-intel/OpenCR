@@ -25,23 +25,22 @@
 #endif   
 
 #define BAUDRATE  57600
-#define NEW_BAUDRATE 1000000
+#define DXL_ID    1
 
 DynamixelWorkbench dxl_wb;
 
 void setup() 
 {
   Serial.begin(57600);
-  while(!Serial); // If this line is activated, you need to open Serial Terminal.
+  // while(!Serial); // Wait for Opening Serial Monitor
 
   const char *log;
   bool result = false;
 
-  uint8_t scanned_id[16];
-  uint8_t dxl_cnt = 0;
-  uint8_t range = 100;
+  uint8_t dxl_id = DXL_ID;
+  uint16_t model_number = 0;
 
-  result = dxl_wb.init(DEVICE_NAME, BAUDRATE);
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE, &log);
   if (result == false)
   {
     Serial.println(log);
@@ -49,43 +48,47 @@ void setup()
   }
   else
   {
-    Serial.print("Succeed to init : ");
+    Serial.print("Succeeded to init : ");
     Serial.println(BAUDRATE);  
   }
 
-  result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+  result = dxl_wb.ping(dxl_id, &model_number, &log);
   if (result == false)
   {
     Serial.println(log);
-    Serial.println("Failed to scan");
+    Serial.println("Failed to ping");
   }
   else
   {
-    Serial.print("Find ");
-    Serial.print(dxl_cnt);
-    Serial.println(" Dynamixels");
+    Serial.println("Succeeded to ping");
+    Serial.print("id : ");
+    Serial.print(dxl_id);
+    Serial.print(" model_number : ");
+    Serial.println(model_number);
+  }
 
-    for (int cnt = 0; cnt < dxl_cnt; cnt++)
+  result = dxl_wb.wheelMode(dxl_id, 0, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to change wheel mode");
+  }
+  else
+  {
+    Serial.println("Succeed to change wheel mode");
+    Serial.println("Dynamixel is moving...");
+
+    for (int count = 0; count < 3; count++)
     {
-      Serial.print("id : ");
-      Serial.print(scanned_id[cnt]);
-      Serial.print(" model name : ");
-      Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
+      dxl_wb.goalVelocity(dxl_id, (int32_t)-100);
+      delay(3000);
+
+      dxl_wb.goalVelocity(dxl_id, (int32_t)100);
+      delay(3000);
     }
-  }  
 
-  result = dxl_wb.changeBaudrate(scanned_id[0], NEW_BAUDRATE, &log);
-  if (result == false)
-  {
-    Serial.println(log);
-    return;
+    dxl_wb.goalVelocity(dxl_id, (int32_t)0);
   }
-  else
-  {
-    Serial.println(log);
-  }
-
-  return;
 }
 
 void loop() 

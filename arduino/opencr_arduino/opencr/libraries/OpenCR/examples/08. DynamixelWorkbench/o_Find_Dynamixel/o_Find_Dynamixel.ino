@@ -24,14 +24,14 @@
   #define DEVICE_NAME ""
 #endif   
 
-#define BAUDRATE_NUM 3
+#define BAUDRATE_NUM 7
 
 DynamixelWorkbench dxl_wb;
 
 void setup() 
 {
   Serial.begin(57600);
-  while(!Serial); // Open a Serial Monitor 
+  while(!Serial); // Wait for Opening Serial Monitor
 
   const char *log;
   bool result = false;
@@ -39,14 +39,14 @@ void setup()
   uint8_t scanned_id[100];
   uint8_t dxl_cnt = 0;
 
-  uint32_t baudrate[BAUDRATE_NUM] = {9600, 57600, 1000000};
+  uint32_t baudrate[BAUDRATE_NUM] = {9600, 57600, 115200, 1000000, 2000000, 3000000, 4000000};
   uint8_t range = 253;
 
   uint8_t index = 0;
 
   while (index < BAUDRATE_NUM)
   {
-    result = dxl_wb.init(DEVICE_NAME, baudrate[index]);
+    result = dxl_wb.init(DEVICE_NAME, baudrate[index], &log);
     if (result == false)
     {
       Serial.println(log);
@@ -61,7 +61,7 @@ void setup()
     dxl_cnt = 0;
     for (uint8_t num = 0; num < 100; num++) scanned_id[num] = 0;
 
-    result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+    result = dxl_wb.scan(scanned_id, &dxl_cnt, range, &log);
     if (result == false)
     {
       Serial.println(log);

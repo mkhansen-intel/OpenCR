@@ -22,29 +22,25 @@
   #define DEVICE_NAME "3" //Dynamixel on Serial3(USART3)  <-OpenCM 485EXP
 #elif defined(__OPENCR__)
   #define DEVICE_NAME ""
-#endif  
+#endif   
 
-#define BAUDRATE    57600
-
-#define NEW_ID  3
+#define BAUDRATE  57600
+#define DXL_ID    1
 
 DynamixelWorkbench dxl_wb;
 
 void setup() 
 {
   Serial.begin(57600);
-  while(!Serial); // If this line is activated, you need to open Serial Terminal.
+  while(!Serial); // Wait for Opening Serial Monitor
 
   const char *log;
   bool result = false;
 
-  uint8_t scanned_id[16];
-  uint8_t dxl_cnt = 0;
-  uint8_t range = 100;
+  uint8_t dxl_id = DXL_ID;
+  uint16_t model_number = 0;
 
-  uint8_t get_new_id = 0;
-
-  result = dxl_wb.init(DEVICE_NAME, BAUDRATE);
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE, &log);
   if (result == false)
   {
     Serial.println(log);
@@ -52,60 +48,43 @@ void setup()
   }
   else
   {
-    Serial.print("Succeed to init : ");
+    Serial.print("Succeeded to init : ");
     Serial.println(BAUDRATE);  
   }
 
-  result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+  result = dxl_wb.ping(dxl_id, &model_number, &log);
   if (result == false)
   {
     Serial.println(log);
-    Serial.println("Failed to scan");
+    Serial.println("Failed to ping");
   }
   else
   {
-    Serial.print("Find ");
-    Serial.print(dxl_cnt);
-    Serial.println(" Dynamixels");
+    Serial.println("Succeeded to ping");
+    Serial.print("id : ");
+    Serial.print(dxl_id);
+    Serial.print(" model_number : ");
+    Serial.println(model_number);
+  }
 
-    for (int cnt = 0; cnt < dxl_cnt; cnt++)
+  result = dxl_wb.currentBasedPositionMode(dxl_id, 30, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to change current based position mode");
+  }
+  else
+  {
+    Serial.println("Succeed to change current based position mode");
+    Serial.println("Dynamixel is moving...");
+
+    for (int count = 0; count < 3; count++)
     {
-      Serial.print("id : ");
-      Serial.print(scanned_id[cnt]);
-      Serial.print(" model name : ");
-      Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
-    }
-  }  
+      dxl_wb.goalPosition(dxl_id, (int32_t)0);
+      delay(3000);
 
-  result = dxl_wb.changeID(scanned_id[0], NEW_ID, &log);
-  if (result == false)
-  {
-    Serial.println(log);
-    return;
-  }
-  else
-  {
-    Serial.println(log);
-  }
-
-  result = dxl_wb.scan(scanned_id, &dxl_cnt, range, &log);
-  if (result == false)
-  {
-    Serial.println(log);
-    Serial.println("Failed to scan");
-  }
-  else
-  {
-    Serial.print("Find ");
-    Serial.print(dxl_cnt);
-    Serial.println(" Dynamixels");
-
-    for (int cnt = 0; cnt < dxl_cnt; cnt++)
-    {
-      Serial.print("id : ");
-      Serial.print(scanned_id[cnt]);
-      Serial.print(" model name : ");
-      Serial.println(dxl_wb.getModelName(scanned_id[cnt]));
+      dxl_wb.goalPosition(dxl_id, (int32_t)2048);
+      delay(3000);
     }
   }
 }

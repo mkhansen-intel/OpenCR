@@ -24,23 +24,23 @@
   #define DEVICE_NAME ""
 #endif          
 
-#define BAUDRATE  57600
+#define BAUDRATE  1000000
 
 DynamixelWorkbench dxl_wb;
 
 void setup() 
 {
   Serial.begin(57600);
-  while(!Serial);
+  while(!Serial); // Wait for Opening Serial Monitor
 
   const char *log = NULL;
   bool result = false;
 
-  uint8_t scanned_id[1];
+  uint8_t scanned_id[16];
   uint8_t dxl_cnt = 0;
-  uint8_t range = 10;
+  uint8_t range = 100;
 
-  result = dxl_wb.init(DEVICE_NAME, BAUDRATE);
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE, &log);
   if (result == false)
   {
     Serial.println(log);
@@ -48,11 +48,12 @@ void setup()
   }
   else
   {
-    Serial.print("Succeed to init : ");
+    Serial.print("Succeeded to init : ");
     Serial.println(BAUDRATE);  
   }
 
-  result = dxl_wb.scan(scanned_id, &dxl_cnt, range);
+  Serial.println("Wait for scan...");
+  result = dxl_wb.scan(scanned_id, &dxl_cnt, range, &log);
   if (result == false)
   {
     Serial.println(log);

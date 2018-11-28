@@ -22,7 +22,7 @@
   #define DEVICE_NAME "3" //Dynamixel on Serial3(USART3)  <-OpenCM 485EXP
 #elif defined(__OPENCR__)
   #define DEVICE_NAME ""
-#endif    
+#endif   
 
 #define BAUDRATE  57600
 #define DXL_ID    1
@@ -32,37 +32,53 @@ DynamixelWorkbench dxl_wb;
 void setup() 
 {
   Serial.begin(57600);
-  // while(!Serial); // If this line is activated, you need to open Serial Terminal.
+  while(!Serial); // Wait for Opening Serial Monitor
 
-  dxl_wb.begin(DEVICE_NAME, BAUDRATE);
-  dxl_wb.ping(DXL_ID);
+  const char *log;
+  bool result = false;
+
+  uint8_t dxl_id = DXL_ID;
+  uint16_t model_number = 0;
+
+  result = dxl_wb.init(DEVICE_NAME, BAUDRATE, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to init");
+  }
+  else
+  {
+    Serial.print("Succeeded to init : ");
+    Serial.println(BAUDRATE);  
+  }
+
+  result = dxl_wb.ping(dxl_id, &model_number, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to ping");
+  }
+  else
+  {
+    Serial.println("Succeeded to ping");
+    Serial.print("id : ");
+    Serial.print(dxl_id);
+    Serial.print(" model_number : ");
+    Serial.println(model_number);
+  }
+
+  result = dxl_wb.reboot(dxl_id, &log);
+  if (result == false)
+  {
+    Serial.println(log);
+    Serial.println("Failed to reboot");
+  }
+  else
+  {
+    Serial.println("Succeed to reboot");
+  }
 }
 
 void loop() 
 {
-  int count = 0;
-  
-  dxl_wb.jointMode(DXL_ID);
-  for(count = 1; count <= 3; count++)
-  {
-    Serial.println("Joint Mode Success");
-    Serial.println("Count : " + String(count));
-
-    dxl_wb.goalPosition(DXL_ID, 1);     
-    delay(2000);
-    dxl_wb.goalPosition(DXL_ID, 1023);
-    delay(2000);
-  }
-
-  dxl_wb.wheelMode(DXL_ID);
-  for(count = 1; count <= 3; count++)
-  {
-    Serial.println("Wheel Mode Success");
-    Serial.println("Count : " + String(count));
-
-    dxl_wb.goalSpeed(DXL_ID, -300);
-    delay(2000);
-    dxl_wb.goalSpeed(DXL_ID, 300);
-    delay(2000);
-  }
 }
