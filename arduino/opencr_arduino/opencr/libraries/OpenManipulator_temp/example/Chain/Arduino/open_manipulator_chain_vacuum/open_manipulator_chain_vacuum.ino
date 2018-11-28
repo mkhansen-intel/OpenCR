@@ -42,7 +42,7 @@ void loop()
 {
   present_time = (float)(millis()/1000.0f);
   getData(100);
-  //playProcessingMotion(&open_manipulator);
+  playProcessingMotion(&open_manipulator);
 
   if(present_time-previous_time >= CONTROL_TIME)
   {
