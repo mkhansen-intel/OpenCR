@@ -17,6 +17,7 @@
 /* Authors: Darby Lim, Hye-Jong KIM, Ryan Shim, Yong-Ho Na */
 
 #include "OpenManipulatorVacuum.h"
+#include "OpenManipulatorMotion.h"
 #include "Processing.h"
 #include "RemoteController.h"
 
@@ -33,6 +34,7 @@ void setup()
 
   connectProcessing();
   connectRC100();
+  switchInit();
   
   open_manipulator.initManipulator(true);
   RM_LOG::PRINT("OpenManipulator Debugging Port");
@@ -42,7 +44,8 @@ void loop()
 {
   present_time = (float)(millis()/1000.0f);
   getData(100);
-  playProcessingMotion(&open_manipulator);
+  switchRead();
+  playMotion(&open_manipulator);
 
   if(present_time-previous_time >= CONTROL_TIME)
   {
@@ -104,4 +107,3 @@ void getData(uint32_t wait_time)
      break;
   }
 }
-

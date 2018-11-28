@@ -118,9 +118,9 @@ void serialEvent(Serial opencr_port)
     for (int cmd_cnt = 1; cmd_cnt < cmd.length; cmd_cnt++)
     {
       receive_joint_angle[cmd_cnt-1] = float(cmd[cmd_cnt]);
-      //print("joint " + cmd_cnt + ": " + cmd[cmd_cnt] + "  ");
+      print("joint " + cmd_cnt + ": " + cmd[cmd_cnt] + "  ");
     }
-    //println("");
+    println("");
   }
   else if (cmd[0].equals("tool"))
   {
