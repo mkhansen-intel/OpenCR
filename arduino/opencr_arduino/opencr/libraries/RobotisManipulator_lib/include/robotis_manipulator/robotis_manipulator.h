@@ -27,7 +27,6 @@
 
 #include <algorithm> // for sort()
 
-
 namespace ROBOTIS_MANIPULATOR
 {
 
@@ -99,10 +98,19 @@ public:
 
   // MANIPULATOR
   Manipulator *getManipulator();
-  void setAllActiveJointWayPoint(std::vector<WayPoint> joint_value_vector);
-  std::vector<WayPoint> getAllActiveJointWayPoint();
-  void setAllToolValue(std::vector<double> tool_value_vector);
+
+  WayPoint getJointValue(Name joint_name);
+  double getToolValue(Name tool_name);
+  std::vector<WayPoint> getAllActiveJointValue();
+  std::vector<WayPoint> getAllJointValue();
   std::vector<double> getAllToolValue();
+  Pose getPose(Name component_name);
+
+  //Directly set component value for simulation
+  void setAllActiveJointWayPoint(std::vector<WayPoint> joint_value_vector);
+  void setAllToolValue(std::vector<double> tool_value_vector);
+
+  //Joint limit
   bool checkLimit(Name component_name, double value);
   bool checkLimit(Name component_name, WayPoint value);
   bool checkLimit(std::vector<Name> component_name, std::vector<double> value);
@@ -112,7 +120,7 @@ public:
   void updatePassiveJointValue();
   Eigen::MatrixXd jacobian(Name tool_name);
   void forwardKinematics();
-  void forwardKinematics(Name first_component_name);
+//  void forwardKinematics(Name first_component_name);
   bool inverseKinemtics(Name tool_name, Pose goal_pose, std::vector<double> *goal_joint_value);
   void kinematicsSetOption(const void* arg);
 
@@ -131,6 +139,8 @@ public:
   void allToolActuatorDisable();
   void allActuatorEnable();
   void allActuatorDisable();
+
+  bool isEnabled(Name actuator_name);
 
   bool sendJointActuatorValue(Name joint_component_name, WayPoint value);
   bool sendMultipleJointActuatorValue(std::vector<Name> joint_component_name, std::vector<WayPoint> value_vector);
