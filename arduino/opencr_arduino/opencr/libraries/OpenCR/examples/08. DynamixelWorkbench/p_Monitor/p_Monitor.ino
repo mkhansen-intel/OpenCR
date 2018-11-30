@@ -138,7 +138,7 @@ void loop()
     }
     else if (isAvailableID(cmd[1].toInt()))
     {
-      if (cmd[0] == "info")
+      if (cmd[0] == "control_table")
       {
         uint8_t id = cmd[1].toInt();
 
@@ -657,7 +657,7 @@ void printInst(void)
   Serial.print("begin  (BAUD)\n");
   Serial.print("scan   (RANGE)\n");
   Serial.print("ping   (ID)\n");
-  Serial.print("info   (ID)\n");
+  Serial.print("control_table (ID)\n");
   Serial.print("id     (ID) (NEW_ID)\n");
   Serial.print("baud   (ID) (NEW_BAUD)\n");
   Serial.print("torque_on (ID)\n");
