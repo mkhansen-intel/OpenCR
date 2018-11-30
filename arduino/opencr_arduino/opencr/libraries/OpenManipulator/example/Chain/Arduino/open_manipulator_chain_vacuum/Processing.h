@@ -93,14 +93,14 @@ String* parseDataFromProcessing(String get)
 }
 
 
-void sendAngle2Processing(std::vector<double> joint_angle_vector)
+void sendAngle2Processing(std::vector<WayPoint> joint_states_vector)
 {
   Serial.print("angle");
 
-  for (int i = 0; i < (int)joint_angle_vector.size(); i++)
+  for (int i = 0; i < (int)joint_states_vector.size(); i++)
   {
     Serial.print(",");
-    Serial.print(joint_angle_vector.at(i));
+    Serial.print(joint_states_vector.at(i).value);
   }
   Serial.print("\n");
 }
@@ -123,8 +123,8 @@ void sendToolData2Processing(double value)
 
 void sendValueToProcessing(OPEN_MANIPULATOR_VACUUM *open_manipulator)
 {
-  sendAngle2Processing(open_manipulator->getManipulator()->getAllActiveJointValue());
-  //sendToolData2Processing(open_manipulator->getManipulator()->getValue("tool"));
+  sendAngle2Processing(open_manipulator->getAllActiveJointValue());
+  sendToolData2Processing(open_manipulator->getToolValue("tool"));
 }
 
 
@@ -215,9 +215,11 @@ void fromProcessing(OPEN_MANIPULATOR_VACUUM *open_manipulator, String data)
     else if (cmd[1] == "pose")  // save pose
     {
       MotionWayPoint read_value;
-      read_value.angle = open_manipulator->getManipulator()->getAllActiveJointValue();
+      std::vector<WayPoint> present_states = open_manipulator->getAllActiveJointValue();
+      for(int i = 0; i < present_states.size(); i ++)
+        read_value.angle.push_back(present_states.at(i).value);  
       read_value.path_time = 2.0;
-      read_value.gripper_value = open_manipulator->getManipulator()->getValue("tool");
+      read_value.gripper_value = open_manipulator->getToolValue("tool");
       motion_way_point_buf.push_back(read_value);  
       hand_motion_cnt = 0;
     }
@@ -252,7 +254,7 @@ void fromProcessing(OPEN_MANIPULATOR_VACUUM *open_manipulator, String data)
   {
     if (cmd[1] == "start")
     {
-      Pose present_pose = open_manipulator->getManipulator()->getComponentPoseToWorld("tool");
+      Pose present_pose = open_manipulator->getPose("tool");
       WayPoint draw_goal_pose[6];
       draw_goal_pose[0].value = present_pose.position(0) + 0.02;
       draw_goal_pose[1].value = present_pose.position(1) + 0.02;
